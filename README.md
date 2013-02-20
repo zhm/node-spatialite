@@ -1,4 +1,4 @@
-# node-spatialite
+# node-spatialite  [![Build Status](https://secure.travis-ci.org/zhm/node-spatialite.png)](http://travis-ci.org/zhm/node-spatialite)
 
 Standalone, cross-platform SpatiaLite 4.0 binding for node.js with all features enabled. The goal of this project is to have a completely standalone build of SpatiaLite that doesn't require any system dependencies (no need to `apt-get install ...` or install any system libraries other than the ones required to build native node.js modules. The result is a consistent build across platforms with a guarantee of functionality and the versions of the dependencies. There are number of ways to get SpatiaLite binaries on the various platforms, but none of them include all of the features in a consistent way. This project contains a complete gyp build system for SpatiaLite - so someone might find it useful for other things outside of nodejs also.
 
