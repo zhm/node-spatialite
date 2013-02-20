@@ -66,7 +66,7 @@ Build it:
 
 A lot of this was inspired by @TooTallNate's post on embedding dependencies in node modules.
 
-http://n8.io/converting-a-c-library-to-gyp/
+http://n8.io/converting-a-c-library-to-gyp
 
 # License
 

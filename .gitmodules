@@ -1,3 +1,3 @@
 [submodule "src/spatialite/deps/lwgeom"]
 	path = src/spatialite/deps/lwgeom
-	url = git@github.com:zhm/lwgeom.git
+	url = git://github.com/zhm/lwgeom.git
