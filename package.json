@@ -1,0 +1,38 @@
+{
+  "name": "spatialite",
+  "description": "SpatiaLite for node",
+  "version": "0.0.1",
+  "homepage": "http://github.com/zhm/node-spatialite",
+  "author": {
+    "name": "Zac McCormick",
+    "url": "http://github.com/zhm",
+    "email": "zac.mccormick@gmail.com"
+  },
+  "contributors": [
+    "Zac McCormick <zac.mccormick@gmail.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/zhm/node-spatialite.git"
+  },
+  "dependencies": {
+    "sqlite3": "*"
+  },
+  "devDependencies": {
+    "coffee-script": "*",
+    "underscore": "*",
+    "mocha": "*",
+    "should": "*",
+    "step": "0.0.4",
+    "expresso": "*"
+  },
+  "engines": {
+    "node": ">= 0.6.13"
+  },
+  "scripts": {
+    "pretest": "npm install --dev",
+    "test": "make test"
+  },
+  "licenses": [{ "type": "BSD" }],
+  "main": "./lib/spatialite"
+}

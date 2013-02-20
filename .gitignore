@@ -1,0 +1,3 @@
+build
+deps/*/build
+node_modules
