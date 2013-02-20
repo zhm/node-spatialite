@@ -62,7 +62,7 @@ Build it:
 
     $ node-gyp configure build
 
-# Notes:
+# Notes
 
 A lot of this was inspired by @TooTallNate's post on embedding dependencies in node modules.
 
