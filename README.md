@@ -14,8 +14,8 @@ This module simply exposes [node-sqlite3](https://github.com/developmentseed/nod
 Here is a simple example that shows the usage of GEOS-enabled `Centroid` and LWGEOM-enabled `ST_MakeValid`.
 
 ```js
-sql = require('spatialite');
-db = new sql.Database(':memory:');
+sqlite = require('spatialite');
+db = new sqlite.Database(':memory:');
 db.spatialite(function() {
   db.each("SELECT AsGeoJSON(ST_MakeValid(Centroid(GeomFromText('POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))'))));", function(err, row) {
     console.log(row);
