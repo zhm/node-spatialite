@@ -73,7 +73,7 @@ Build it:
 # Building on Windows
 
 Compiling on Windows is a bit more involved. You will need to install these *in this order*. This should give you a working environment to compile native node.js bindings. The [node-gyp](https://github.com/TooTallNate/node-gyp) repo also has some documentation on getting things working with Windows. It's possible it will also work with VS2012, but it's untested. I use [veewee](https://github.com/jedi4ever/veewee) for testing with clean versions of Windows and this process does work. If you have problems, it's most likely something else that's installed conflicting with the build environment. This information was taken from [here](http://blogs.msdn.com/b/heaths/archive/2011/04/01/visual-c-2010-sp1-compiler-update-for-the-windows-sdk-7-1.aspx).
-- Visual Studio 2010 RTM [Download](http://go.microsoft.com/fwlink/?LinkId=244366)
+- Visual C++ 2010 Express [Download](http://go.microsoft.com/fwlink/?LinkId=244366)
 - Windows SDK 7.1 [Download](http://www.microsoft.com/en-us/download/details.aspx?id=8279)
 - Visual Studio 2010 SP1 [Download](http://www.microsoft.com/en-us/download/details.aspx?id=23691)
 - Visual C++ 2010 SP1 Compiler Update for the Windows SDK 7.1 [Download](http://www.microsoft.com/en-us/download/details.aspx?id=4422)
