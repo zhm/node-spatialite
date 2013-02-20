@@ -31,15 +31,12 @@ db.spatialite(function() {
 - Windows 32bit (pending some testing)
 
 # Included in this build
-- SpatiaLite 4.0.0 [SQL Reference](http://www.gaia-gis.it/gaia-sins/spatialite-sql-4.0.0.html)
-- GEOS-3.4.0-dev - Compiled with GEOS_TRUNK flag so all of the latest triangulation functions are available:
+- SpatiaLite 4.0.0 - [SQL Reference](http://www.gaia-gis.it/gaia-sins/spatialite-sql-4.0.0.html)
+- GEOS-3.4.0-dev - Compiled with `GEOS_TRUNK` flag so all of the latest functions are available:
   - `DelaunayTriangulation`
   - `VoronojDiagram`
   - `ConcaveHull`
-- Proj 4.8.0
-- iconv 1.14
-- FreeXL 1.0.0e
-- liblwgeom 2.0.2 (from PostGIS 2.0.2) available functions:
+- liblwgeom 2.0.2 - from PostGIS 2.0.2
   - `MakeValid`
   - `MakeValidDiscarded`
   - `Segmentize`
@@ -53,6 +50,9 @@ db.spatialite(function() {
   - `MaxDistance`
   - `3DDistance`
   - `3DMaxDistance`
+- Proj 4.8.0
+- iconv 1.14
+- FreeXL 1.0.0e
 
 # Building
 
