@@ -22,6 +22,13 @@ describe 'SpatiaLite', ->
       row.result.should.equal 'POINT(25.454545 26.969697)'
       done()
 
+  it 'should compute the centroid of a polygon', (done) ->
+    query = "SELECT X(Centroid(#{polygon})) AS result"
+    db.get query, (err, row) ->
+      throw err if err
+      row.result.toString().should.equal '25.454545454545453'
+      done()
+
   it 'should test for valid geometries', (done) ->
     query = "SELECT ST_IsValid(#{polygon}) AS result"
     db.get query, (err, row) ->
