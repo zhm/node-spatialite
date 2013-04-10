@@ -148,7 +148,7 @@
 /* #undef OMIT_FREEXL */
 
 /* Should be defined in order to disable GEOCALLBACKS support. */
-/* #define OMIT_GEOCALLBACKS 1 */
+#define OMIT_GEOCALLBACKS 1
 
 /* Should be defined in order to disable GEOS support. */
 /* #undef OMIT_GEOS */
