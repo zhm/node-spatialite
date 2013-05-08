@@ -82,7 +82,7 @@
       'defines': [
         'BUILDING_LIBCHARSET',
         'LIBDIR="."',
-        'INSTALLDIR="<!(pwd)"',
+        'INSTALLDIR="."',
         'NO_XMALLOC',
         'HAVE_CONFIG_H',
         'EXEEXT=""',
