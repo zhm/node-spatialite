@@ -16,7 +16,7 @@
     "url": "git://github.com/zhm/node-spatialite.git"
   },
   "dependencies": {
-    "sqlite3": "*"
+    "sqlite3": "^3.0.5"
   },
   "devDependencies": {
     "coffee-script": "*",
@@ -32,6 +32,10 @@
   "scripts": {
     "test": "make test"
   },
-  "licenses": [{ "type": "BSD" }],
+  "licenses": [
+    {
+      "type": "BSD"
+    }
+  ],
   "main": "./lib/spatialite"
 }
