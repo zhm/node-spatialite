@@ -35,3 +35,10 @@ describe 'SpatiaLite', ->
       throw err if err
       row.result.should.equal 'POLYGON((0 1, 0 10, 10 10, 10 1, 5 1, 0 1))'
       done()
+
+  it 'should support geopackage', (done) ->
+    query = "SELECT HasGeoPackage() AS result"
+    db.get query (err, row) ->
+      throw err if err
+      row.result.should.equal 1
+      done()

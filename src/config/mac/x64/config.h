@@ -222,3 +222,6 @@
 
 /* make library loadable */
 #define LOADABLE_EXTENSION 1
+
+/* enable gpkg */
+#define  ENABLE_GEOPACKAGE 1
