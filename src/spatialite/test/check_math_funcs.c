@@ -50,46 +50,56 @@ the terms of any one of the MPL, the GPL or the LGPL.
 
 static const double double_eps = 0.00000001;
 
-int main (int argc, char *argv[])
+int
+main (int argc, char *argv[])
 {
     double result;
     sqlite3_int64 result64;
-    
-    result = math_round(3.4);
-    if (abs(result - 3) > double_eps) {
-	fprintf(stderr, "bad math_round() result for 3.4: %f\n", result);
-	return -1;
-    }
 
-    result = math_round(3.6);
-    if (abs(result - 4) > double_eps) {
-	fprintf(stderr, "bad math_round() result for 3.6: %f\n", result);
-	return -2;
-    }
-    
-    result = math_round(-3.4);
-    if (abs(result + 3) > double_eps) {
-	fprintf(stderr, "bad math_round() result for -3.4: %f\n", result);
-	return -3;
-    }
+    if (argc > 1 || argv[0] == NULL)
+	argc = 1;		/* silencing stupid compiler warnings */
 
-    result = math_round(-3.6);
-    if (abs(result + 4) > double_eps) {
-	fprintf(stderr, "bad math_round() result for -3.6: %f\n", result);
-	return -4;
-    }
+    result = math_round (3.4);
+    if (abs (result - 3) > double_eps)
+      {
+	  fprintf (stderr, "bad math_round() result for 3.4: %f\n", result);
+	  return -1;
+      }
 
-    result64 = math_llabs((sqlite3_int64) 26);
-    if (result64 != 26) {
-	fprintf(stderr, "bad math_llabs() result for 26");
-	return -5;
-    }
+    result = math_round (3.6);
+    if (abs (result - 4) > double_eps)
+      {
+	  fprintf (stderr, "bad math_round() result for 3.6: %f\n", result);
+	  return -2;
+      }
 
-    result64 = math_llabs((sqlite3_int64) -26);
-    if (result64 != 26) {
-	fprintf(stderr, "bad math_llabs() result for -26");
-	return -6;
-    }
+    result = math_round (-3.4);
+    if (abs (result + 3) > double_eps)
+      {
+	  fprintf (stderr, "bad math_round() result for -3.4: %f\n", result);
+	  return -3;
+      }
+
+    result = math_round (-3.6);
+    if (abs (result + 4) > double_eps)
+      {
+	  fprintf (stderr, "bad math_round() result for -3.6: %f\n", result);
+	  return -4;
+      }
+
+    result64 = math_llabs ((sqlite3_int64) 26);
+    if (result64 != 26)
+      {
+	  fprintf (stderr, "bad math_llabs() result for 26");
+	  return -5;
+      }
+
+    result64 = math_llabs ((sqlite3_int64) - 26);
+    if (result64 != 26)
+      {
+	  fprintf (stderr, "bad math_llabs() result for -26");
+	  return -6;
+      }
 
     return 0;
 }

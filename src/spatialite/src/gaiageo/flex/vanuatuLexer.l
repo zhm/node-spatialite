@@ -79,38 +79,38 @@ Greg Wilson			gvwilson@cs.toronto.ca
 *  of the two tokens, FLEX will match POINT ZM.
 */
 %%
--?[0-9]+|-?[0-9]+"."[0-9]*|"+"?[0-9]+|"+"?[0-9]+"."[0-9]*       	{ VanuatuWktget_extra(yyscanner)->vanuatu_col += (int) strlen(yytext);  VanuatuWktlval.dval = atof(yytext); return VANUATU_NUM; }
-","										{ VanuatuWktlval.dval = 0; return VANUATU_COMMA; }
-"("										{ VanuatuWktlval.dval = 0; return VANUATU_OPEN_BRACKET; }
-")"										{ VanuatuWktlval.dval = 0; return VANUATU_CLOSE_BRACKET; }
-(?i:"point")							{ VanuatuWktlval.dval = 0; return VANUATU_POINT; }
-(?i:"point"[ \t\n]*"z")					{ VanuatuWktlval.dval = 0; return VANUATU_POINT_Z; }
-(?i:"point"[ \t\n]*"m")					{ VanuatuWktlval.dval = 0; return VANUATU_POINT_M; }
-(?i:"point"[ \t\n]*"zm")				{ VanuatuWktlval.dval = 0; return VANUATU_POINT_ZM; }
-(?i:"linestring")						{ VanuatuWktlval.dval = 0; return VANUATU_LINESTRING; }
-(?i:"linestring"[ \t\n]*"z")			{ VanuatuWktlval.dval = 0; return VANUATU_LINESTRING_Z; }
-(?i:"linestring"[ \t\n]*"m")			{ VanuatuWktlval.dval = 0; return VANUATU_LINESTRING_M; }
-(?i:"linestring"[ \t\n]*"zm")			{ VanuatuWktlval.dval = 0; return VANUATU_LINESTRING_ZM; }
-(?i:"polygon")							{ VanuatuWktlval.dval = 0; return VANUATU_POLYGON; }
-(?i:"polygon"[ \t\n]*"z")				{ VanuatuWktlval.dval = 0; return VANUATU_POLYGON_Z; }
-(?i:"polygon"[ \t\n]*"m")				{ VanuatuWktlval.dval = 0; return VANUATU_POLYGON_M; }
-(?i:"polygon"[ \t\n]*"zm")				{ VanuatuWktlval.dval = 0; return VANUATU_POLYGON_ZM; }
-(?i:"multipoint")						{ VanuatuWktlval.dval = 0; return VANUATU_MULTIPOINT; }
-(?i:"multipoint"[ \t\n]*"z")			{ VanuatuWktlval.dval = 0; return VANUATU_MULTIPOINT_Z; }
-(?i:"multipoint"[ \t\n]*"m")			{ VanuatuWktlval.dval = 0; return VANUATU_MULTIPOINT_M; }
-(?i:"multipoint"[ \t\n]*"zm")			{ VanuatuWktlval.dval = 0; return VANUATU_MULTIPOINT_ZM; }
-(?i:"multilinestring")					{ VanuatuWktlval.dval = 0; return VANUATU_MULTILINESTRING; }
-(?i:"multilinestring"[ \t\n]*"z")		{ VanuatuWktlval.dval = 0; return VANUATU_MULTILINESTRING_Z; }
-(?i:"multilinestring"[ \t\n]*"m")		{ VanuatuWktlval.dval = 0; return VANUATU_MULTILINESTRING_M; }
-(?i:"multilinestring"[ \t\n]*"zm")		{ VanuatuWktlval.dval = 0; return VANUATU_MULTILINESTRING_ZM; }	
-(?i:"multipolygon")						{ VanuatuWktlval.dval = 0; return VANUATU_MULTIPOLYGON; }
-(?i:"multipolygon"[ \t\n]*"z")			{ VanuatuWktlval.dval = 0; return VANUATU_MULTIPOLYGON_Z; }
-(?i:"multipolygon"[ \t\n]*"m")			{ VanuatuWktlval.dval = 0; return VANUATU_MULTIPOLYGON_M; }
-(?i:"multipolygon"[ \t\n]*"zm")			{ VanuatuWktlval.dval = 0; return VANUATU_MULTIPOLYGON_ZM; }
-(?i:"geometrycollection")				{ VanuatuWktlval.dval = 0; return VANUATU_GEOMETRYCOLLECTION; }
-(?i:"geometrycollection"[ \t\n]*"z")	{ VanuatuWktlval.dval = 0; return VANUATU_GEOMETRYCOLLECTION_Z; }
-(?i:"geometrycollection"[ \t\n]*"m")	{ VanuatuWktlval.dval = 0; return VANUATU_GEOMETRYCOLLECTION_M; }
-(?i:"geometrycollection"[ \t\n]*"zm")	{ VanuatuWktlval.dval = 0; return VANUATU_GEOMETRYCOLLECTION_ZM; }
+-?[0-9]+|-?[0-9]+"."[0-9]*|"+"?[0-9]+|"+"?[0-9]+"."[0-9]*       	{ VanuatuWktget_extra(yyscanner)->vanuatu_col += (int) strlen(yytext);  VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = atof(yytext); return VANUATU_NUM; }
+","					{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_COMMA; }
+"("					{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_OPEN_BRACKET; }
+")"					{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_CLOSE_BRACKET; }
+(?i:"point")				{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_POINT; }
+(?i:"point"[ \t\n]*"z")			{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_POINT_Z; }
+(?i:"point"[ \t\n]*"m")			{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_POINT_M; }
+(?i:"point"[ \t\n]*"zm")		{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_POINT_ZM; }
+(?i:"linestring")			{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_LINESTRING; }
+(?i:"linestring"[ \t\n]*"z")		{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_LINESTRING_Z; }
+(?i:"linestring"[ \t\n]*"m")		{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_LINESTRING_M; }
+(?i:"linestring"[ \t\n]*"zm")		{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_LINESTRING_ZM; }
+(?i:"polygon")				{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_POLYGON; }
+(?i:"polygon"[ \t\n]*"z")		{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_POLYGON_Z; }
+(?i:"polygon"[ \t\n]*"m")		{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_POLYGON_M; }
+(?i:"polygon"[ \t\n]*"zm")		{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_POLYGON_ZM; }
+(?i:"multipoint")			{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_MULTIPOINT; }
+(?i:"multipoint"[ \t\n]*"z")		{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_MULTIPOINT_Z; }
+(?i:"multipoint"[ \t\n]*"m")		{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_MULTIPOINT_M; }
+(?i:"multipoint"[ \t\n]*"zm")		{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_MULTIPOINT_ZM; }
+(?i:"multilinestring")			{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_MULTILINESTRING; }
+(?i:"multilinestring"[ \t\n]*"z")	{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_MULTILINESTRING_Z; }
+(?i:"multilinestring"[ \t\n]*"m")	{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_MULTILINESTRING_M; }
+(?i:"multilinestring"[ \t\n]*"zm")	{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_MULTILINESTRING_ZM; }	
+(?i:"multipolygon")			{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_MULTIPOLYGON; }
+(?i:"multipolygon"[ \t\n]*"z")		{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_MULTIPOLYGON_Z; }
+(?i:"multipolygon"[ \t\n]*"m")		{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_MULTIPOLYGON_M; }
+(?i:"multipolygon"[ \t\n]*"zm")		{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_MULTIPOLYGON_ZM; }
+(?i:"geometrycollection")		{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_GEOMETRYCOLLECTION; }
+(?i:"geometrycollection"[ \t\n]*"z")	{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_GEOMETRYCOLLECTION_Z; }
+(?i:"geometrycollection"[ \t\n]*"m")	{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_GEOMETRYCOLLECTION_M; }
+(?i:"geometrycollection"[ \t\n]*"zm")	{ VanuatuWktget_extra(yyscanner)->VanuatuWktlval.dval = 0; return VANUATU_GEOMETRYCOLLECTION_ZM; }
 
 [ \t]   { VanuatuWktget_extra(yyscanner)->vanuatu_col += (int) strlen(yytext); }               /* ignore but count white space */
 

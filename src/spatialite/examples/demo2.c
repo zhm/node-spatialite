@@ -200,7 +200,10 @@ main (int argc, char *argv[])
     gaiaOutBuffer wkt;
     int ret;
     sqlite3 *handle;
+    void *cache;
 
+    if (argc > 1 || argv[0] == NULL)
+	argc = 1;		/* silencing stupid compiler warnings */
 
 /*
 
@@ -211,7 +214,6 @@ and you *must* establish a "fake" DB connection in order to
 properly initialize SpatiaLite and GEOS libraries
 
 */
-    spatialite_init (0);
     ret = sqlite3_open_v2 (":memory:", &handle, SQLITE_OPEN_READONLY, NULL);
     if (ret != SQLITE_OK)
       {
@@ -220,6 +222,8 @@ properly initialize SpatiaLite and GEOS libraries
 	  sqlite3_close (handle);
 	  return -1;
       }
+    cache = spatialite_alloc_connection ();
+    spatialite_init_ex (handle, cache, 0);
 
 
 #ifndef OMIT_GEOS		/* GEOS must be enabled */
@@ -537,6 +541,7 @@ we have to destroy each object using temporary storage before exit
     if (geo_coll)
 	gaiaFreeGeomColl (geo_coll);
     sqlite3_close (handle);
-    spatialite_cleanup();
+    spatialite_cleanup_ex (cache);
+    spatialite_shutdown();
     return 0;
 }

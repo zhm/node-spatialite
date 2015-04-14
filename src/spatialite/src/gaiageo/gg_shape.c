@@ -2,7 +2,7 @@
 
  gg_shape.c -- Gaia shapefile handling
   
- version 4.0, 2012 August 6
+ version 4.2, 2014 July 25
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -24,7 +24,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2012
+Portions created by the Initial Developer are Copyright (C) 2008-2013
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -80,19 +80,41 @@ extern const char *locale_charset (void);
 #endif
 #endif
 
-#define iconv libiconv
-#define iconv_open libiconv_open
-#define iconv_close libiconv_close
-
 #include <spatialite/sqlite.h>
 
 #include <spatialite/gaiageo.h>
+#include <spatialite/debug.h>
 
 #ifdef _WIN32
 #define atoll	_atoi64
 #endif /* not WIN32 */
 
+/* 64 bit integer: portable format for printf() */
+#if defined(_WIN32) && !defined(__MINGW32__)
+#define FRMT64 "%I64d"
+#else
+#define FRMT64 "%lld"
+#endif
+
 #define SHAPEFILE_NO_DATA 1e-38
+
+#ifdef _WIN32
+#define strcasecmp	_stricmp
+#endif /* not WIN32 */
+
+struct auxdbf_fld
+{
+/* auxiliary DBF field struct */
+    char *name;
+    struct auxdbf_fld *next;
+};
+
+struct auxdbf_list
+{
+/* auxiliary DBF struct */
+    struct auxdbf_fld *first;
+    struct auxdbf_fld *last;
+};
 
 GAIAGEO_DECLARE void
 gaiaFreeValue (gaiaValuePtr p)
@@ -509,8 +531,41 @@ gaiaOpenShpRead (gaiaShapefilePtr shp, const char *path, const char *charFrom,
     rd = fread (bf, sizeof (unsigned char), 32, fl_dbf);
     if (rd != 32)
 	goto error;
-    if (*bf != 0x03)		/* checks the DBF magic number */
-	goto error;
+    switch (*bf)
+      {
+	  /* checks the DBF magic number */
+      case 0x03:
+      case 0x83:
+	  break;
+      case 0x02:
+      case 0xF8:
+	  sprintf (errMsg, "'%s'\ninvalid magic number %02x [FoxBASE format]",
+		   path, *bf);
+	  goto dbf_bad_magic;
+      case 0xF5:
+	  sprintf (errMsg,
+		   "'%s'\ninvalid magic number %02x [FoxPro 2.x (or earlier) format]",
+		   path, *bf);
+	  goto dbf_bad_magic;
+      case 0x30:
+      case 0x31:
+      case 0x32:
+	  sprintf (errMsg,
+		   "'%s'\ninvalid magic number %02x [Visual FoxPro format]",
+		   path, *bf);
+	  goto dbf_bad_magic;
+      case 0x43:
+      case 0x63:
+      case 0xBB:
+      case 0xCB:
+	  sprintf (errMsg, "'%s'\ninvalid magic number %02x [dBASE IV format]",
+		   path, *bf);
+	  goto dbf_bad_magic;
+      default:
+	  sprintf (errMsg, "'%s'\ninvalid magic number %02x [unknown format]",
+		   path, *bf);
+	  goto dbf_bad_magic;
+      };
     dbf_size = gaiaImport16 (bf + 8, GAIA_LITTLE_ENDIAN, endian_arch);
     dbf_reclen = gaiaImport16 (bf + 10, GAIA_LITTLE_ENDIAN, endian_arch);
     dbf_size--;
@@ -522,6 +577,17 @@ gaiaOpenShpRead (gaiaShapefilePtr shp, const char *path, const char *charFrom,
 	  rd = fread (bf, sizeof (unsigned char), 32, fl_dbf);
 	  if (rd != 32)
 	      goto error;
+	  if (*(bf + 11) == 'M')
+	    {
+		/* skipping any MEMO field */
+		memcpy (field_name, bf, 11);
+		field_name[11] = '\0';
+		off_dbf += *(bf + 16);
+		spatialite_e
+		    ("WARNING: column \"%s\" is of the MEMO type and will be ignored\n",
+		     field_name);
+		continue;
+	    }
 	  memcpy (field_name, bf, 11);
 	  field_name[11] = '\0';
 	  len = strlen ((char *) field_name);
@@ -627,6 +693,20 @@ gaiaOpenShpRead (gaiaShapefilePtr shp, const char *path, const char *charFrom,
     if (fl_dbf)
 	fclose (fl_dbf);
     return;
+  dbf_bad_magic:
+/* the DBF has an invalid magin number */
+    if (shp->LastError)
+	free (shp->LastError);
+    len = strlen (errMsg);
+    shp->LastError = malloc (len + 1);
+    strcpy (shp->LastError, errMsg);
+    gaiaFreeDbfList (dbf_list);
+    if (buf_shp)
+	free (buf_shp);
+    fclose (fl_shx);
+    fclose (fl_shp);
+    fclose (fl_dbf);
+    return;
   error:
 /* the shapefile is invalid or corrupted */
     if (shp->LastError)
@@ -692,6 +772,141 @@ gaiaOpenShpRead (gaiaShapefilePtr shp, const char *path, const char *charFrom,
     return;
 }
 
+static struct auxdbf_list *
+alloc_auxdbf (gaiaDbfListPtr dbf_list)
+{
+/* allocating the auxiliary DBF struct */
+    int len;
+    gaiaDbfFieldPtr fld;
+    struct auxdbf_fld *fld_ex;
+    struct auxdbf_list *auxdbf = malloc (sizeof (struct auxdbf_list));
+    auxdbf->first = NULL;
+    auxdbf->last = NULL;
+    fld = dbf_list->First;
+    while (fld)
+      {
+	  fld_ex = malloc (sizeof (struct auxdbf_fld));
+	  len = strlen (fld->Name);
+	  fld_ex->name = malloc (len + 1);
+	  strcpy (fld_ex->name, fld->Name);
+	  fld_ex->next = NULL;
+	  if (auxdbf->first == NULL)
+	      auxdbf->first = fld_ex;
+	  if (auxdbf->last != NULL)
+	      auxdbf->last->next = fld_ex;
+	  auxdbf->last = fld_ex;
+	  fld = fld->Next;
+      }
+    return auxdbf;
+}
+
+static void
+free_auxdbf (struct auxdbf_list *auxdbf)
+{
+/* freeing an auxiliary DBF struct */
+    struct auxdbf_fld *n_fld;
+    struct auxdbf_fld *fld = auxdbf->first;
+    while (fld != NULL)
+      {
+	  n_fld = fld->next;
+	  if (fld->name != NULL)
+	      free (fld->name);
+	  free (fld);
+	  fld = n_fld;
+      }
+    free (auxdbf);
+}
+
+static void
+truncate_long_name (struct auxdbf_list *list, gaiaDbfFieldPtr xfld)
+{
+/* attempting to create a unique short name <= 10 bytes */
+    char suffix;
+    char buf[16];
+    struct auxdbf_fld *fld;
+    struct auxdbf_fld *base = NULL;
+    memcpy (buf, xfld->Name, 9);
+    buf[10] = '\0';
+
+    fld = list->first;
+    while (fld)
+      {
+	  /* identifying the base aux Field */
+	  if (strcmp (xfld->Name, fld->name) == 0)
+	    {
+		base = fld;
+		break;
+	    }
+	  fld = fld->next;
+      }
+
+    suffix = '0';
+    while (1)
+      {
+	  /* attempting to find a numeric suffix ensuring uniqueness */
+	  int ok = 1;
+	  buf[9] = suffix;
+	  fld = list->first;
+	  while (fld)
+	    {
+		if (base != fld)
+		  {
+		      if (strcasecmp (buf, fld->name) == 0)
+			{
+			    /* invalid: already defined */
+			    ok = 0;
+			    break;
+			}
+		  }
+		fld = fld->next;
+	    }
+	  if (ok)
+	    {
+		strcpy (xfld->Name, buf);
+		if (base != NULL)
+		    strcpy (base->name, buf);
+		return;
+	    }
+	  if (suffix == '9')
+	      break;
+	  else
+	      suffix++;
+      }
+
+    suffix = 'A';
+    while (1)
+      {
+	  /* attempting to find a letter suffix ensuring uniqueness */
+	  int ok = 1;
+	  buf[9] = suffix;
+	  fld = list->first;
+	  while (fld)
+	    {
+		if (base != fld)
+		  {
+		      if (strcasecmp (buf, fld->name) == 0)
+			{
+			    /* invalid: already defined */
+			    ok = 0;
+			    break;
+			}
+		  }
+		fld = fld->next;
+	    }
+	  if (ok)
+	    {
+		strcpy (xfld->Name, buf);
+		if (base != NULL)
+		    strcpy (base->name, buf);
+		return;
+	    }
+	  if (suffix == 'Z')
+	      break;
+	  else
+	      suffix++;
+      }
+}
+
 GAIAGEO_DECLARE void
 gaiaOpenShpWrite (gaiaShapefilePtr shp, const char *path, int shape,
 		  gaiaDbfListPtr dbf_list, const char *charFrom,
@@ -725,6 +940,7 @@ gaiaOpenShpWrite (gaiaShapefilePtr shp, const char *path, int shape,
     size_t utf8len;
     char *pUtf8buf;
     int defaultId = 1;
+    struct auxdbf_list *auxdbf = NULL;
     if (charFrom && charTo)
       {
 	  iconv_ret = iconv_open (charTo, charFrom);
@@ -798,11 +1014,17 @@ gaiaOpenShpWrite (gaiaShapefilePtr shp, const char *path, int shape,
     memset (buf_shp, '\0', 32);
     fwrite (buf_shp, 1, 32, fl_dbf);
     dbf_size = 32;		/* note: DBF counts sizes in bytes */
+    auxdbf = alloc_auxdbf (dbf_list);
     fld = dbf_list->First;
     while (fld)
       {
 	  /* exporting DBF Fields specifications */
 	  memset (buf_shp, 0, 32);
+	  if (strlen (fld->Name) > 10)
+	    {
+		/* long name: attempting to safely truncate */
+		truncate_long_name (auxdbf, fld);
+	    }
 	  strcpy (buf, fld->Name);
 	  len = strlen (buf);
 	  utf8len = 2048;
@@ -827,6 +1049,7 @@ gaiaOpenShpWrite (gaiaShapefilePtr shp, const char *path, int shape,
 	  dbf_size += 32;
 	  fld = fld->Next;
       }
+    free_auxdbf (auxdbf);
     fwrite ("\r", 1, 1, fl_dbf);	/* this one is a special DBF delimiter that closes file header */
     dbf_size++;
 /* setting up the SHP struct */
@@ -1092,6 +1315,11 @@ parseDbfField (unsigned char *buf_dbf, void *iconv_obj, gaiaDbfFieldPtr pFld)
 		else
 		    gaiaSetIntValue (pFld, atoll ((char *) buf));
 	    }
+	  else if (pFld->Type == 'M')
+	    {
+		/* MEMO value - assumed to always be NULL */
+		gaiaSetNullValue (pFld);
+	    }
 	  else if (pFld->Type == 'F')
 	    {
 		/* FLOAT value */
@@ -1142,7 +1370,12 @@ parseDbfField (unsigned char *buf_dbf, void *iconv_obj, gaiaDbfFieldPtr pFld)
 	  else
 	    {
 		/* CHARACTER [aka String, Text] value */
+
+/* Sandro 2013-01-07
+/ fixing an issue reported by Filip Arlet <filip.arlet@gmail.com>
 		for (i = strlen ((char *) buf) - 1; i > 1; i--)
+*/
+		for (i = strlen ((char *) buf) - 1; i >= 0; i--)
 		  {
 		      /* cleaning up trailing spaces */
 		      if (buf[i] == ' ')
@@ -2154,8 +2387,8 @@ gaiaReadShpEntity (gaiaShapefilePtr shp, int current_row, int srid)
 	      goto error;
 	  n = gaiaImport32 (shp->BufShp, GAIA_LITTLE_ENDIAN, shp->endian_arch);
 	  hasM = 0;
-	  max_size = 38 + (n * 16);	/* size [in 16 bits words !!!] ZM */
-	  min_size = 30 + (n * 12);	/* size [in 16 bits words !!!] Z-only */
+	  max_size = 36 + (n * 16);	/* size [in 16 bits words !!!] ZM */
+	  min_size = 28 + (n * 12);	/* size [in 16 bits words !!!] Z-only */
 	  if (sz < min_size)
 	      goto error;
 	  if (sz == max_size)
@@ -2209,8 +2442,8 @@ gaiaReadShpEntity (gaiaShapefilePtr shp, int current_row, int srid)
 	      goto error;
 	  n = gaiaImport32 (shp->BufShp, GAIA_LITTLE_ENDIAN, shp->endian_arch);
 	  hasM = 0;
-	  max_size = 30 + (n * 12);	/* size [in 16 bits words !!!] M */
-	  min_size = 22 + (n * 8);	/* size [in 16 bits words !!!] no-M */
+	  max_size = 28 + (n * 12);	/* size [in 16 bits words !!!] M */
+	  min_size = 20 + (n * 8);	/* size [in 16 bits words !!!] no-M */
 	  if (sz < min_size)
 	      goto error;
 	  if (sz == max_size)
@@ -2522,12 +2755,7 @@ gaiaWriteShpEntity (gaiaShapefilePtr shp, gaiaDbfListPtr entity)
 		  {
 		      if (fld->Value->Type == GAIA_INT_VALUE)
 			{
-#if defined(_WIN32) || defined(__MINGW32__)
-/* CAVEAT - M$ runtime doesn't supports %lld for 64 bits */
-			    sprintf (dummy, "%I64d", fld->Value->IntValue);
-#else
-			    sprintf (dummy, "%lld", fld->Value->IntValue);
-#endif
+			    sprintf (dummy, FRMT64, fld->Value->IntValue);
 			    if (strlen (dummy) <= fld->Length)
 				memcpy (shp->BufDbf + fld->Offset + 1,
 					dummy, strlen (dummy));
@@ -4465,8 +4693,41 @@ gaiaOpenDbfRead (gaiaDbfPtr dbf, const char *path, const char *charFrom,
     rd = fread (bf, sizeof (unsigned char), 32, fl_dbf);
     if (rd != 32)
 	goto error;
-    if (*bf != 0x03)		/* checks the DBF magic number */
-	goto error;
+    switch (*bf)
+      {
+	  /* checks the DBF magic number */
+      case 0x03:
+      case 0x83:
+	  break;
+      case 0x02:
+      case 0xF8:
+	  sprintf (errMsg, "'%s'\ninvalid magic number %02x [FoxBASE format]",
+		   path, *bf);
+	  goto dbf_bad_magic;
+      case 0xF5:
+	  sprintf (errMsg,
+		   "'%s'\ninvalid magic number %02x [FoxPro 2.x (or earlier) format]",
+		   path, *bf);
+	  goto dbf_bad_magic;
+      case 0x30:
+      case 0x31:
+      case 0x32:
+	  sprintf (errMsg,
+		   "'%s'\ninvalid magic number %02x [Visual FoxPro format]",
+		   path, *bf);
+	  goto dbf_bad_magic;
+      case 0x43:
+      case 0x63:
+      case 0xBB:
+      case 0xCB:
+	  sprintf (errMsg, "'%s'\ninvalid magic number %02x [dBASE IV format]",
+		   path, *bf);
+	  goto dbf_bad_magic;
+      default:
+	  sprintf (errMsg, "'%s'\ninvalid magic number %02x [unknown format]",
+		   path, *bf);
+	  goto dbf_bad_magic;
+      };
     dbf_size = gaiaImport16 (bf + 8, GAIA_LITTLE_ENDIAN, endian_arch);
     dbf_reclen = gaiaImport16 (bf + 10, GAIA_LITTLE_ENDIAN, endian_arch);
     dbf_size--;
@@ -4478,6 +4739,17 @@ gaiaOpenDbfRead (gaiaDbfPtr dbf, const char *path, const char *charFrom,
 	  rd = fread (bf, sizeof (unsigned char), 32, fl_dbf);
 	  if (rd != 32)
 	      goto error;
+	  if (*(bf + 11) == 'M')
+	    {
+		/* skipping any MEMO field */
+		memcpy (field_name, bf, 11);
+		field_name[11] = '\0';
+		off_dbf += *(bf + 16);
+		spatialite_e
+		    ("WARNING: column \"%s\" is of the MEMO type and will be ignored\n",
+		     field_name);
+		continue;
+	    }
 	  memcpy (field_name, bf, 11);
 	  field_name[11] = '\0';
 	  len = strlen ((char *) field_name);
@@ -4540,6 +4812,16 @@ gaiaOpenDbfRead (gaiaDbfPtr dbf, const char *path, const char *charFrom,
     gaiaFreeDbfList (dbf_list);
     fclose (fl_dbf);
     return;
+  dbf_bad_magic:
+/* the DBF has an invalid magic number */
+    if (dbf->LastError)
+	free (dbf->LastError);
+    len = strlen (errMsg);
+    dbf->LastError = malloc (len + 1);
+    strcpy (dbf->LastError, errMsg);
+    gaiaFreeDbfList (dbf_list);
+    fclose (fl_dbf);
+    return;
   illegal_dbf:
 /* the DBF-file contains unsupported data types */
     if (dbf->LastError)
@@ -4591,6 +4873,7 @@ gaiaOpenDbfWrite (gaiaDbfPtr dbf, const char *path, const char *charFrom,
     size_t utf8len;
     char *pUtf8buf;
     int defaultId = 1;
+    struct auxdbf_list *auxdbf = NULL;
     if (charFrom && charTo)
       {
 	  iconv_ret = iconv_open (charTo, charFrom);
@@ -4635,11 +4918,17 @@ gaiaOpenDbfWrite (gaiaDbfPtr dbf, const char *path, const char *charFrom,
     memset (bf, '\0', 32);
     fwrite (bf, 1, 32, fl_dbf);
     dbf_size = 32;		/* note: DBF counts sizes in bytes */
+    auxdbf = alloc_auxdbf (dbf->Dbf);
     fld = dbf->Dbf->First;
     while (fld)
       {
 	  /* exporting DBF Fields specifications */
 	  memset (bf, 0, 32);
+	  if (strlen (fld->Name) > 10)
+	    {
+		/* long name: attempting to safely truncate */
+		truncate_long_name (auxdbf, fld);
+	    }
 	  strcpy (buf, fld->Name);
 	  len = strlen (buf);
 	  utf8len = 2048;
@@ -4664,6 +4953,7 @@ gaiaOpenDbfWrite (gaiaDbfPtr dbf, const char *path, const char *charFrom,
 	  dbf_size += 32;
 	  fld = fld->Next;
       }
+    free_auxdbf (auxdbf);
     fwrite ("\r", 1, 1, fl_dbf);	/* this one is a special DBF delimiter that closes file header */
     dbf_size++;
     dbf->Valid = 1;
@@ -4711,7 +5001,7 @@ gaiaWriteDbfEntity (gaiaDbfPtr dbf, gaiaDbfListPtr entity)
     size_t len;
     size_t utf8len;
     char *pUtf8buf;
-    char buf[512];
+    char *dynbuf;
     char utf8buf[2048];
 /* writing the DBF record */
     memset (dbf->BufDbf, '\0', dbf->DbfReclen);
@@ -4753,23 +5043,33 @@ gaiaWriteDbfEntity (gaiaDbfPtr dbf, gaiaDbfListPtr entity)
 		  {
 		      if (fld->Value->Type == GAIA_TEXT_VALUE)
 			{
-			    strcpy (buf, fld->Value->TxtValue);
-			    len = strlen (buf);
+			    len = strlen (fld->Value->TxtValue);
+			    dynbuf = malloc (len + 1);
+			    strcpy (dynbuf, fld->Value->TxtValue);
+			    if (len > 512)
+			      {
+				  dynbuf[512] = '\0';
+				  len = strlen (dynbuf);
+			      }
 			    utf8len = 2048;
-			    pBuf = buf;
+			    pBuf = dynbuf;
 			    pUtf8buf = utf8buf;
 			    if (iconv
 				((iconv_t) (dbf->IconvObj), &pBuf, &len,
 				 &pUtf8buf, &utf8len) == (size_t) (-1))
-				goto conversion_error;
-			    memcpy (buf, utf8buf, 2048 - utf8len);
-			    buf[2048 - utf8len] = '\0';
-			    if (strlen (buf) < fld->Length)
-				memcpy (dbf->BufDbf + fld->Offset + 1, buf,
-					strlen (buf));
+			      {
+				  free (dynbuf);
+				  goto conversion_error;
+			      }
+			    memcpy (dynbuf, utf8buf, 2048 - utf8len);
+			    dynbuf[2048 - utf8len] = '\0';
+			    if (strlen (dynbuf) < fld->Length)
+				memcpy (dbf->BufDbf + fld->Offset + 1, dynbuf,
+					strlen (dynbuf));
 			    else
-				memcpy (dbf->BufDbf + fld->Offset + 1, buf,
+				memcpy (dbf->BufDbf + fld->Offset + 1, dynbuf,
 					fld->Length);
+			    free (dynbuf);
 			}
 		  }
 		break;
@@ -4779,12 +5079,7 @@ gaiaWriteDbfEntity (gaiaDbfPtr dbf, gaiaDbfListPtr entity)
 		  {
 		      if (fld->Value->Type == GAIA_INT_VALUE)
 			{
-#if defined(_WIN32) || defined(__MINGW32__)
-/* CAVEAT - M$ runtime doesn't supports %lld for 64 bits */
-			    sprintf (dummy, "%I64d", fld->Value->IntValue);
-#else
-			    sprintf (dummy, "%lld", fld->Value->IntValue);
-#endif
+			    sprintf (dummy, FRMT64, fld->Value->IntValue);
 			    if (strlen (dummy) <= fld->Length)
 				memcpy (dbf->BufDbf + fld->Offset + 1,
 					dummy, strlen (dummy));

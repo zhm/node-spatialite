@@ -2,7 +2,7 @@
 
  gg_transform.c -- Gaia PROJ.4 wrapping
   
- version 4.0, 2012 August 6
+ version 4.2, 2014 July 25
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -24,7 +24,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2012
+Portions created by the Initial Developer are Copyright (C) 2008-2013
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -46,6 +46,7 @@ the terms of any one of the MPL, the GPL or the LGPL.
 #include <sys/types.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #if defined(_WIN32) && !defined(__MINGW32__)
 #include "config-msvc.h"
@@ -58,8 +59,179 @@ the terms of any one of the MPL, the GPL or the LGPL.
 #endif
 
 #include <spatialite/sqlite.h>
+#include <spatialite_private.h>
 
 #include <spatialite/gaiageo.h>
+
+GAIAGEO_DECLARE gaiaGeomCollPtr
+gaiaMakeCircle (double cx, double cy, double radius, double step)
+{
+/* return a Linestring approximating a Circle */
+    return gaiaMakeEllipse (cx, cy, radius, radius, step);
+}
+
+GAIAGEO_DECLARE gaiaGeomCollPtr
+gaiaMakeArc (double cx,
+	     double cy, double radius, double start, double stop, double step)
+{
+/* return a Linestring approximating a Circular Arc */
+    return gaiaMakeEllipticArc (cx, cy, radius, radius, start, stop, step);
+}
+
+GAIAGEO_DECLARE gaiaGeomCollPtr
+gaiaMakeEllipse (double cx, double cy, double x_axis, double y_axis,
+		 double step)
+{
+/* return a Linestring approximating an Ellipse */
+    gaiaDynamicLinePtr dyn;
+    double x;
+    double y;
+    double angle = 0.0;
+    int points = 0;
+    gaiaPointPtr pt;
+    gaiaGeomCollPtr geom;
+    gaiaLinestringPtr ln;
+    int iv = 0;
+
+    if (step < 0.0)
+	step *= -1.0;
+    if (step == 0.0)
+	step = 10.0;
+    if (step < 0.1)
+	step = 0.1;
+    if (step > 45.0)
+	step = 45.0;
+    if (x_axis < 0.0)
+	x_axis *= -1.0;
+    if (y_axis < 0.0)
+	y_axis *= -1.0;
+    dyn = gaiaAllocDynamicLine ();
+    while (angle < 360.0)
+      {
+	  double rads = angle * .0174532925199432958;
+	  x = cx + (x_axis * cos (rads));
+	  y = cy + (y_axis * sin (rads));
+	  gaiaAppendPointToDynamicLine (dyn, x, y);
+	  angle += step;
+      }
+/* closing the ellipse */
+    gaiaAppendPointToDynamicLine (dyn, dyn->First->X, dyn->First->Y);
+
+    pt = dyn->First;
+    while (pt)
+      {
+	  /* counting how many points */
+	  points++;
+	  pt = pt->Next;
+      }
+    if (points == 0)
+      {
+	  gaiaFreeDynamicLine (dyn);
+	  return NULL;
+      }
+
+    geom = gaiaAllocGeomColl ();
+    ln = gaiaAddLinestringToGeomColl (geom, points);
+    pt = dyn->First;
+    while (pt)
+      {
+	  /* setting Vertices */
+	  gaiaSetPoint (ln->Coords, iv, pt->X, pt->Y);
+	  iv++;
+	  pt = pt->Next;
+      }
+    gaiaFreeDynamicLine (dyn);
+    return geom;
+}
+
+GAIAGEO_DECLARE gaiaGeomCollPtr
+gaiaMakeEllipticArc (double cx,
+		     double cy, double x_axis, double y_axis, double start,
+		     double stop, double step)
+{
+/* return a Linestring approximating an Elliptic Arc */
+    gaiaDynamicLinePtr dyn;
+    double x;
+    double y;
+    double angle;
+    double rads;
+    int points = 0;
+    gaiaPointPtr pt;
+    gaiaGeomCollPtr geom;
+    gaiaLinestringPtr ln;
+    int iv = 0;
+
+    if (step < 0.0)
+	step *= -1.0;
+    if (step == 0.0)
+	step = 10.0;
+    if (step < 0.1)
+	step = 0.1;
+    if (step > 45.0)
+	step = 45.0;
+    if (x_axis < 0.0)
+	x_axis *= -1.0;
+    if (y_axis < 0.0)
+	y_axis *= -1.0;
+/* normalizing Start/Stop angles */
+    while (start >= 360.0)
+	start -= 360.0;
+    while (start <= -720.0)
+	start += 360;
+    while (stop >= 360.0)
+	stop -= 360.0;
+    while (stop <= -720.0)
+	stop += 360;
+    if (start < 0.0)
+	start = 360.0 + start;
+    if (stop < 0.0)
+	stop = 360.0 + stop;
+    if (start > stop)
+	stop += 360.0;
+
+    dyn = gaiaAllocDynamicLine ();
+    angle = start;
+    while (angle < stop)
+      {
+	  rads = angle * .0174532925199432958;
+	  x = cx + (x_axis * cos (rads));
+	  y = cy + (y_axis * sin (rads));
+	  gaiaAppendPointToDynamicLine (dyn, x, y);
+	  angle += step;
+      }
+/* closing the arc */
+    rads = stop * .0174532925199432958;
+    x = cx + (x_axis * cos (rads));
+    y = cy + (y_axis * sin (rads));
+    if (x != dyn->Last->X || y != dyn->Last->Y)
+	gaiaAppendPointToDynamicLine (dyn, x, y);
+
+    pt = dyn->First;
+    while (pt)
+      {
+	  /* counting how many points */
+	  points++;
+	  pt = pt->Next;
+      }
+    if (points == 0)
+      {
+	  gaiaFreeDynamicLine (dyn);
+	  return NULL;
+      }
+
+    geom = gaiaAllocGeomColl ();
+    ln = gaiaAddLinestringToGeomColl (geom, points);
+    pt = dyn->First;
+    while (pt)
+      {
+	  /* setting Vertices */
+	  gaiaSetPoint (ln->Coords, iv, pt->X, pt->Y);
+	  iv++;
+	  pt = pt->Next;
+      }
+    gaiaFreeDynamicLine (dyn);
+    return geom;
+}
 
 GAIAGEO_DECLARE void
 gaiaShiftCoords (gaiaGeomCollPtr geom, double shift_x, double shift_y)
@@ -1419,8 +1591,9 @@ gaiaDegsToRads (double degs)
     return degs * DEG_TO_RAD;
 }
 
-GAIAGEO_DECLARE gaiaGeomCollPtr
-gaiaTransform (gaiaGeomCollPtr org, char *proj_from, char *proj_to)
+static gaiaGeomCollPtr
+gaiaTransformCommon (projCtx handle, gaiaGeomCollPtr org, char *proj_from,
+		     char *proj_to)
 {
 /* creates a new GEOMETRY reprojecting coordinates from the original one */
     int ib;
@@ -1444,9 +1617,19 @@ gaiaTransform (gaiaGeomCollPtr org, char *proj_from, char *proj_to)
     gaiaPolygonPtr dst_pg;
     gaiaRingPtr rng;
     gaiaRingPtr dst_rng;
-    projPJ from_cs = pj_init_plus (proj_from);
-    projPJ to_cs = pj_init_plus (proj_to);
+    projPJ from_cs;
+    projPJ to_cs;
     gaiaGeomCollPtr dst;
+    if (handle != NULL)
+      {
+	  from_cs = pj_init_plus_ctx (handle, proj_from);
+	  to_cs = pj_init_plus_ctx (handle, proj_to);
+      }
+    else
+      {
+	  from_cs = pj_init_plus (proj_from);
+	  to_cs = pj_init_plus (proj_to);
+      }
     if (!from_cs)
       {
 	  if (to_cs)
@@ -1929,6 +2112,30 @@ gaiaTransform (gaiaGeomCollPtr org, char *proj_from, char *proj_to)
 	  dst->DeclaredType = org->DeclaredType;
       }
     return dst;
+}
+
+GAIAGEO_DECLARE gaiaGeomCollPtr
+gaiaTransform (gaiaGeomCollPtr org, char *proj_from, char *proj_to)
+{
+    return gaiaTransformCommon (NULL, org, proj_from, proj_to);
+}
+
+GAIAGEO_DECLARE gaiaGeomCollPtr
+gaiaTransform_r (const void *p_cache, gaiaGeomCollPtr org, char *proj_from,
+		 char *proj_to)
+{
+    struct splite_internal_cache *cache =
+	(struct splite_internal_cache *) p_cache;
+    projCtx handle = NULL;
+    if (cache == NULL)
+	return NULL;
+    if (cache->magic1 != SPATIALITE_CACHE_MAGIC1
+	|| cache->magic2 != SPATIALITE_CACHE_MAGIC2)
+	return NULL;
+    handle = cache->PROJ_handle;
+    if (handle == NULL)
+	return NULL;
+    return gaiaTransformCommon (handle, org, proj_from, proj_to);
 }
 
 #endif /* end including PROJ.4 */

@@ -57,19 +57,19 @@ the terms of any one of the MPL, the GPL or the LGPL.
 *  of the two tokens, FLEX will match POINTM.
 */
 %%
-"/"											{ gml_freeString(&(GmlLval.pval)); return GML_END; }
-"="											{ gml_freeString(&(GmlLval.pval)); return GML_EQ; }
-"<"											{ gml_freeString(&(GmlLval.pval)); return GML_OPEN; }
-">"											{ gml_freeString(&(GmlLval.pval)); return GML_CLOSE; }
-[0-9,\.\+-]*								{ gml_saveString(&(GmlLval.pval), yytext); return GML_COORD; }
-\"[^<>\"]*\"								{ gml_saveString(&(GmlLval.pval), yytext); return GML_VALUE; }
-[a-zA-Z_][a-zA-Z_:0-9]*						{ gml_saveString(&(GmlLval.pval), yytext); return GML_KEYWORD; }
+"/"				{ gml_freeString(&(Gmlget_extra(yyscanner)->GmlLval.pval)); return GML_END; }
+"="				{ gml_freeString(&(Gmlget_extra(yyscanner)->GmlLval.pval)); return GML_EQ; }
+"<"				{ gml_freeString(&(Gmlget_extra(yyscanner)->GmlLval.pval)); return GML_OPEN; }
+">"				{ gml_freeString(&(Gmlget_extra(yyscanner)->GmlLval.pval)); return GML_CLOSE; }
+[0-9,\.\+-]*			{ gml_saveString(&(Gmlget_extra(yyscanner)->GmlLval.pval), yytext); return GML_COORD; }
+\"[^<>\"]*\"			{ gml_saveString(&(Gmlget_extra(yyscanner)->GmlLval.pval), yytext); return GML_VALUE; }
+[a-zA-Z_][a-zA-Z_:0-9]*		{ gml_saveString(&(Gmlget_extra(yyscanner)->GmlLval.pval), yytext); return GML_KEYWORD; }
 
-[ \t]   { gml_freeString(&(GmlLval.pval)); Gmlget_extra(yyscanner)->gml_col += (int) strlen(yytext); }               /* ignore but count white space */
+[ \t]   { gml_freeString(&(Gmlget_extra(yyscanner)->GmlLval.pval)); Gmlget_extra(yyscanner)->gml_col += (int) strlen(yytext); }               /* ignore but count white space */
 
-\n      { gml_freeString(&(GmlLval.pval)); Gmlget_extra(yyscanner)->gml_col = 0; Gmlget_extra(yyscanner)->gml_line++; }
+\n      { gml_freeString(&(Gmlget_extra(yyscanner)->GmlLval.pval)); Gmlget_extra(yyscanner)->gml_col = 0; Gmlget_extra(yyscanner)->gml_line++; }
 
-.       { gml_freeString(&(GmlLval.pval)); Gmlget_extra(yyscanner)->gml_col += (int) strlen(yytext); return -1; }
+.       { gml_freeString(&(Gmlget_extra(yyscanner)->GmlLval.pval)); Gmlget_extra(yyscanner)->gml_col += (int) strlen(yytext); return -1; }
 %%
 
 int yywrap(yyscan_t yyscanner )

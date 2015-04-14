@@ -58,40 +58,41 @@ struct test_step
 };
 
 struct test_step steps[] = {
-    { "select DATUM from dbftest WHERE DATUM = 2450514.5;", 18 },
-    { "select DATUM from dbftest WHERE DATUM < 2450514.5;", 0 },
-    { "select DATUM from dbftest WHERE DATUM > 2450514.5;", 0 },
-    { "select DATUM from dbftest WHERE DATUM >= 2450514.5;", 18 },
-    { "select DATUM from dbftest WHERE DATUM <= 2450514.5;", 18 },
-    { "select DATUM from dbftest WHERE DATUM = 2450514.5;", 18 },
-    { "select Length, HOEHE from dbftest WHERE HOEHE = 0.0;", 18 },
-    { "select Length, HOEHE from dbftest WHERE HOEHE = 1.0;", 0 },
-    { "select Length, HOEHE from dbftest WHERE HOEHE != 0.0;", 0 },
-    { "select Length, HOEHE from dbftest WHERE Length > 0.0;", 18 },
-    { "select Length, HOEHE from dbftest WHERE Length >= 0.0;", 18 },
-    { "select Length, HOEHE from dbftest WHERE Length <= 0.0;", 0 },
-    { "select Length, HOEHE from dbftest WHERE Length > 1.0;", 0 },
-    { "select Length, HOEHE from dbftest WHERE Length > 0.1;", 10 },
-    { "select Length, HOEHE from dbftest WHERE Length < 0.1;", 8 },
-    { "select Length, HOEHE from dbftest WHERE Length >= 0.1;", 10 },
-    { "select Length, HOEHE from dbftest WHERE HOEHE = 0;", 18 },
-    { "select Length, HOEHE from dbftest WHERE HOEHE >= 0;", 18 },
-    { "select Length, HOEHE from dbftest WHERE HOEHE <= 0;", 18 },
-    { "select Length, HOEHE from dbftest WHERE HOEHE > 0;", 0 },
-    { "select Length, HOEHE from dbftest WHERE HOEHE < 0;", 0 },
-    { "select Length, HOEHE from dbftest WHERE HOEHE = 1;", 0 },
-    { "select Length, HOEHE from dbftest WHERE HOEHE <= 1;", 18 },
-    { "select Length, HOEHE from dbftest WHERE HOEHE >= 1;", 0 },
-    { "select Length, HOEHE from dbftest WHERE HOEHE < 1;", 18 },
-    { "select Length, HOEHE from dbftest WHERE HOEHE > -1;", 18 },
-    { "select Length, HOEHE from dbftest WHERE HOEHE < -1;", 0 },
-    { "select Length, HOEHE from dbftest WHERE HOEHE <= -1;", 0 },
-    { NULL, 0 }
+    {"select DATUM from dbftest WHERE DATUM = 2450514.5;", 18},
+    {"select DATUM from dbftest WHERE DATUM < 2450514.5;", 0},
+    {"select DATUM from dbftest WHERE DATUM > 2450514.5;", 0},
+    {"select DATUM from dbftest WHERE DATUM >= 2450514.5;", 18},
+    {"select DATUM from dbftest WHERE DATUM <= 2450514.5;", 18},
+    {"select DATUM from dbftest WHERE DATUM = 2450514.5;", 18},
+    {"select Length, HOEHE from dbftest WHERE HOEHE = 0.0;", 18},
+    {"select Length, HOEHE from dbftest WHERE HOEHE = 1.0;", 0},
+    {"select Length, HOEHE from dbftest WHERE HOEHE != 0.0;", 0},
+    {"select Length, HOEHE from dbftest WHERE Length > 0.0;", 18},
+    {"select Length, HOEHE from dbftest WHERE Length >= 0.0;", 18},
+    {"select Length, HOEHE from dbftest WHERE Length <= 0.0;", 0},
+    {"select Length, HOEHE from dbftest WHERE Length > 1.0;", 0},
+    {"select Length, HOEHE from dbftest WHERE Length > 0.1;", 10},
+    {"select Length, HOEHE from dbftest WHERE Length < 0.1;", 8},
+    {"select Length, HOEHE from dbftest WHERE Length >= 0.1;", 10},
+    {"select Length, HOEHE from dbftest WHERE HOEHE = 0;", 18},
+    {"select Length, HOEHE from dbftest WHERE HOEHE >= 0;", 18},
+    {"select Length, HOEHE from dbftest WHERE HOEHE <= 0;", 18},
+    {"select Length, HOEHE from dbftest WHERE HOEHE > 0;", 0},
+    {"select Length, HOEHE from dbftest WHERE HOEHE < 0;", 0},
+    {"select Length, HOEHE from dbftest WHERE HOEHE = 1;", 0},
+    {"select Length, HOEHE from dbftest WHERE HOEHE <= 1;", 18},
+    {"select Length, HOEHE from dbftest WHERE HOEHE >= 1;", 0},
+    {"select Length, HOEHE from dbftest WHERE HOEHE < 1;", 18},
+    {"select Length, HOEHE from dbftest WHERE HOEHE > -1;", 18},
+    {"select Length, HOEHE from dbftest WHERE HOEHE < -1;", 0},
+    {"select Length, HOEHE from dbftest WHERE HOEHE <= -1;", 0},
+    {NULL, 0}
 };
 
-int main (int argc, char *argv[])
+int
+main (int argc, char *argv[])
 {
-#ifndef OMIT_ICONV	/* only if ICONV is supported */
+#ifndef OMIT_ICONV		/* only if ICONV is supported */
     sqlite3 *db_handle = NULL;
     int ret;
     char *err_msg = NULL;
@@ -99,76 +100,106 @@ int main (int argc, char *argv[])
     char **results;
     int rows;
     int columns;
+    void *cache = spatialite_alloc_connection ();
 
-    spatialite_init (0);
+    if (argc > 1 || argv[0] == NULL)
+	argc = 1;		/* silencing stupid compiler warnings */
 
-    ret = sqlite3_open_v2 (":memory:", &db_handle, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
-    if (ret != SQLITE_OK) {
-	fprintf (stderr, "cannot open in-memory db: %s\n", sqlite3_errmsg (db_handle));
-	sqlite3_close (db_handle);
-	db_handle = NULL;
-	return -1;
-    }
-    
-    ret = sqlite3_exec (db_handle, "create VIRTUAL TABLE dbftest USING VirtualDBF(\"shp/merano-3d/roads.dbf\", 'CP1252');", NULL, NULL, &err_msg);
-    if (ret != SQLITE_OK) {
-	fprintf (stderr, "VirtualDBF error: %s\n", err_msg);
-	sqlite3_free (err_msg);
-	return -2;
-    }
-    
-    ret = sqlite3_exec (db_handle, "DROP TABLE dbftest;", NULL, NULL, &err_msg);
-    if (ret != SQLITE_OK) {
-	fprintf (stderr, "DROP TABLE error: %s\n", err_msg);
-	sqlite3_free (err_msg);
-	return -3;
-    }
+    ret =
+	sqlite3_open_v2 (":memory:", &db_handle,
+			 SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "cannot open in-memory db: %s\n",
+		   sqlite3_errmsg (db_handle));
+	  sqlite3_close (db_handle);
+	  db_handle = NULL;
+	  return -1;
+      }
 
-    ret = sqlite3_exec (db_handle, "create VIRTUAL TABLE dbftest USING VirtualDBF('shp/merano-3d/roads.dbf', \"CP1252\");", NULL, NULL, &err_msg);
-    if (ret != SQLITE_OK) {
-	fprintf (stderr, "VirtualDBF error: %s\n", err_msg);
-	sqlite3_free (err_msg);
-	return -4;
-    }
-    
-    ret = sqlite3_exec (db_handle, "DROP TABLE dbftest;", NULL, NULL, &err_msg);
-    if (ret != SQLITE_OK) {
-	fprintf (stderr, "DROP TABLE error: %s\n", err_msg);
-	sqlite3_free (err_msg);
-	return -5;
-    }
+    spatialite_init_ex (db_handle, cache, 0);
 
-    ret = sqlite3_exec (db_handle, "create VIRTUAL TABLE dbftest USING VirtualDBF('shp/merano-3d/roads.dbf', CP1252);", NULL, NULL, &err_msg);
-    if (ret != SQLITE_OK) {
-	fprintf (stderr, "VirtualDBF error: %s\n", err_msg);
-	sqlite3_free (err_msg);
-	return -6;
-    }
-    
-    for (i = 0; steps[i].sql; ++i) {
-	ret = sqlite3_get_table (db_handle, steps[i].sql, &results, &rows, &columns, &err_msg);
-	if (ret != SQLITE_OK) {
-	    fprintf (stderr, "Error: %s\n", err_msg);
-	    sqlite3_free (err_msg);
-	    return -7;
-	}
-	if (rows != steps[i].num_rows) {
-	    fprintf (stderr, "Unexpected num of rows for test %i: %i.\n", i, rows);
-	    return  -8;
-	}
-	sqlite3_free_table (results);
-    }
+    ret =
+	sqlite3_exec (db_handle,
+		      "create VIRTUAL TABLE dbftest USING VirtualDBF(\"shp/merano-3d/roads.dbf\", 'CP1252');",
+		      NULL, NULL, &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "VirtualDBF error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -2;
+      }
 
     ret = sqlite3_exec (db_handle, "DROP TABLE dbftest;", NULL, NULL, &err_msg);
-    if (ret != SQLITE_OK) {
-	fprintf (stderr, "DROP TABLE error: %s\n", err_msg);
-	sqlite3_free (err_msg);
-	return -9;
-    }
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "DROP TABLE error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -3;
+      }
+
+    ret =
+	sqlite3_exec (db_handle,
+		      "create VIRTUAL TABLE dbftest USING VirtualDBF('shp/merano-3d/roads.dbf', \"CP1252\");",
+		      NULL, NULL, &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "VirtualDBF error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -4;
+      }
+
+    ret = sqlite3_exec (db_handle, "DROP TABLE dbftest;", NULL, NULL, &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "DROP TABLE error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -5;
+      }
+
+    ret =
+	sqlite3_exec (db_handle,
+		      "create VIRTUAL TABLE dbftest USING VirtualDBF('shp/merano-3d/roads.dbf', CP1252);",
+		      NULL, NULL, &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "VirtualDBF error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -6;
+      }
+
+    for (i = 0; steps[i].sql; ++i)
+      {
+	  ret =
+	      sqlite3_get_table (db_handle, steps[i].sql, &results, &rows,
+				 &columns, &err_msg);
+	  if (ret != SQLITE_OK)
+	    {
+		fprintf (stderr, "Error: %s\n", err_msg);
+		sqlite3_free (err_msg);
+		return -7;
+	    }
+	  if (rows != steps[i].num_rows)
+	    {
+		fprintf (stderr, "Unexpected num of rows for test %i: %i.\n", i,
+			 rows);
+		return -8;
+	    }
+	  sqlite3_free_table (results);
+      }
+
+    ret = sqlite3_exec (db_handle, "DROP TABLE dbftest;", NULL, NULL, &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "DROP TABLE error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -9;
+      }
 
     sqlite3_close (db_handle);
-    spatialite_cleanup();
-#endif	/* end ICONV conditional */
-    
+    spatialite_cleanup_ex (cache);
+#endif /* end ICONV conditional */
+
+    spatialite_shutdown ();
     return 0;
 }

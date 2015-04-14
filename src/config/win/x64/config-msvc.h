@@ -177,7 +177,7 @@
 #define PACKAGE_NAME "libspatialite"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "libspatialite 4.0.0"
+#define PACKAGE_STRING "libspatialite 4.2.0"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "libspatialite"
@@ -221,3 +221,12 @@
 /* Define to empty if the keyword `volatile' does not work. Warning: valid
    code using `volatile' can become incorrect without. Disable with care. */
 /* #undef volatile */
+
+/* Define target cpu */
+#define TARGET_CPU "msvc-32"
+
+/* make library loadable */
+#define LOADABLE_EXTENSION 1
+
+/* enable gpkg */
+#define ENABLE_GEOPACKAGE 1

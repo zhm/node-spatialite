@@ -48,7 +48,8 @@ the terms of any one of the MPL, the GPL or the LGPL.
 #include "sqlite3.h"
 #include "spatialite.h"
 
-int main (int argc, char *argv[])
+int
+main (int argc, char *argv[])
 {
     int ret;
     sqlite3 *handle;
@@ -62,233 +63,283 @@ int main (int argc, char *argv[])
     char **results;
     int rows;
     int columns;
+    void *cache = spatialite_alloc_connection ();
 
-    spatialite_init (0);
-    ret = sqlite3_open_v2 (":memory:", &handle, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
-    if (ret != SQLITE_OK) {
-	fprintf(stderr, "cannot open in-memory database: %s\n", sqlite3_errmsg (handle));
-	sqlite3_close(handle);
-	return -1;
-    }
+    if (argc > 1 || argv[0] == NULL)
+	argc = 1;		/* silencing stupid compiler warnings */
+
+    ret =
+	sqlite3_open_v2 (":memory:", &handle,
+			 SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "cannot open in-memory database: %s\n",
+		   sqlite3_errmsg (handle));
+	  sqlite3_close (handle);
+	  return -1;
+      }
+
+    spatialite_init_ex (handle, cache, 0);
 
 /* FDO initialization */
     sql = "SELECT InitFDOSpatialMetadata()";
     ret = sqlite3_exec (handle, sql, NULL, NULL, &err_msg);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -2;
-    }
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -2;
+      }
 
 /* setting up very long table and column names */
-    suffix = malloc(suffix_len);
-    memset(suffix, 'z', suffix_len);  
-    suffix[suffix_len-1] = '\0';
+    suffix = malloc (suffix_len);
+    memset (suffix, 'z', suffix_len);
+    suffix[suffix_len - 1] = '\0';
 
-    pt_2d_wkt = sqlite3_mprintf("pt_2d_wkt_%s", suffix);
-    pt_3d_wkt = sqlite3_mprintf("pt_3d_wkt_%s", suffix);
-    geometry = sqlite3_mprintf("geometry_%s", suffix);
+    pt_2d_wkt = sqlite3_mprintf ("pt_2d_wkt_%s", suffix);
+    pt_3d_wkt = sqlite3_mprintf ("pt_3d_wkt_%s", suffix);
+    geometry = sqlite3_mprintf ("geometry_%s", suffix);
 
 /* creating a Point 2D WKT table */
-    sql = sqlite3_mprintf("CREATE TABLE %s (id INTEGER, name TEXT, value DOUBLE)", pt_2d_wkt);
+    sql =
+	sqlite3_mprintf
+	("CREATE TABLE %s (id INTEGER, name TEXT, value DOUBLE)", pt_2d_wkt);
     ret = sqlite3_exec (handle, sql, NULL, NULL, &err_msg);
-    sqlite3_free(sql);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -3;
-    }
-    sql = sqlite3_mprintf( "SELECT AddFDOGeometryColumn(%Q, %Q, -1, 1, 2, 'WKT')", pt_2d_wkt, geometry);
+    sqlite3_free (sql);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -3;
+      }
+    sql =
+	sqlite3_mprintf ("SELECT AddFDOGeometryColumn(%Q, %Q, -1, 1, 2, 'WKT')",
+			 pt_2d_wkt, geometry);
     ret = sqlite3_exec (handle, sql, NULL, NULL, &err_msg);
-    sqlite3_free(sql);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -4;
-    }
+    sqlite3_free (sql);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -4;
+      }
 
 /* creating a Point 3D WKT table */
-    sql = sqlite3_mprintf("CREATE TABLE %s (id INTEGER, pic1 BLOB, pic2 BLOB)", pt_3d_wkt);
+    sql =
+	sqlite3_mprintf ("CREATE TABLE %s (id INTEGER, pic1 BLOB, pic2 BLOB)",
+			 pt_3d_wkt);
     ret = sqlite3_exec (handle, sql, NULL, NULL, &err_msg);
-    sqlite3_free(sql);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -5;
-    } 
-    sql = sqlite3_mprintf("SELECT AddFDOGeometryColumn(%Q, %Q, -1, 1, 3, 'WKT')", pt_3d_wkt, geometry);
+    sqlite3_free (sql);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -5;
+      }
+    sql =
+	sqlite3_mprintf ("SELECT AddFDOGeometryColumn(%Q, %Q, -1, 1, 3, 'WKT')",
+			 pt_3d_wkt, geometry);
     ret = sqlite3_exec (handle, sql, NULL, NULL, &err_msg);
-    sqlite3_free(sql);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -6;
-    }
+    sqlite3_free (sql);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -6;
+      }
 
 /* FDO start-up */
     sql = "SELECT AutoFDOStart()";
     ret = sqlite3_exec (handle, sql, NULL, NULL, &err_msg);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -7;
-    }
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -7;
+      }
 
 /* Inserting into pt_2d_wkt */
-    sql = sqlite3_mprintf("INSERT INTO %s (id, name, value, %s) VALUES "
-                          "(1, 'alpha', 0.1, GeomFromText('POINT(1 2)', -1))", 
-                          pt_2d_wkt, geometry);
+    sql = sqlite3_mprintf ("INSERT INTO %s (id, name, value, %s) VALUES "
+			   "(1, 'alpha', 0.1, GeomFromText('POINT(1 2)', -1))",
+			   pt_2d_wkt, geometry);
     ret = sqlite3_exec (handle, sql, NULL, NULL, &err_msg);
-    sqlite3_free(sql);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -8;
-    }
+    sqlite3_free (sql);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -8;
+      }
 
 /* Inserting (take two) into pt_2d_wkt */
-    sql = sqlite3_mprintf("INSERT INTO %s (id, name, value, %s) VALUES "
-                          "(2, 'beta', 0.2, GeomFromText('POINT(2 3)', -1))", 
-                          pt_2d_wkt, geometry);
+    sql = sqlite3_mprintf ("INSERT INTO %s (id, name, value, %s) VALUES "
+			   "(2, 'beta', 0.2, GeomFromText('POINT(2 3)', -1))",
+			   pt_2d_wkt, geometry);
     ret = sqlite3_exec (handle, sql, NULL, NULL, &err_msg);
-    sqlite3_free(sql);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -9;
-    }
+    sqlite3_free (sql);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -9;
+      }
 
 /* Updating pt_2d_wkt */
-    sql = sqlite3_mprintf("UPDATE %s SET name = 'beta', value = 0.2, "
-                          "%s = GeomFromText('POINT(10 20)', -1) WHERE id = 1",
-                          pt_2d_wkt, geometry);
+    sql = sqlite3_mprintf ("UPDATE %s SET name = 'beta', value = 0.2, "
+			   "%s = GeomFromText('POINT(10 20)', -1) WHERE id = 1",
+			   pt_2d_wkt, geometry);
     ret = sqlite3_exec (handle, sql, NULL, NULL, &err_msg);
-    sqlite3_free(sql);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -10;
-    }
+    sqlite3_free (sql);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -10;
+      }
 
 /* Deleting form pt_2d_wkt */
-    sql = sqlite3_mprintf("DELETE FROM %s WHERE id = 1", pt_2d_wkt);
+    sql = sqlite3_mprintf ("DELETE FROM %s WHERE id = 1", pt_2d_wkt);
     ret = sqlite3_exec (handle, sql, NULL, NULL, &err_msg);
-    sqlite3_free(sql);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -11;
-    }
+    sqlite3_free (sql);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -11;
+      }
 
 /* Inserting into pt_3d_wkt */
-    sql = sqlite3_mprintf("INSERT INTO %s (id, pic1, pic2, %s) VALUES "
-                          "(1, zeroblob(16), NULL, GeomFromText('POINTZ(1 2 3)', -1))",
-                          pt_3d_wkt, geometry);
+    sql = sqlite3_mprintf ("INSERT INTO %s (id, pic1, pic2, %s) VALUES "
+			   "(1, zeroblob(16), NULL, GeomFromText('POINTZ(1 2 3)', -1))",
+			   pt_3d_wkt, geometry);
     ret = sqlite3_exec (handle, sql, NULL, NULL, &err_msg);
-    sqlite3_free(sql);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -12;
-    }
+    sqlite3_free (sql);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -12;
+      }
 
 /* checking pt_2d_wkt */
-    sql = sqlite3_mprintf("SELECT AsText(%s) FROM %s", geometry, pt_2d_wkt);
+    sql = sqlite3_mprintf ("SELECT AsText(%s) FROM %s", geometry, pt_2d_wkt);
     ret = sqlite3_get_table (handle, sql, &results, &rows, &columns, &err_msg);
-    sqlite3_free(sql);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -13;
-    }
-    if ((rows != 1) || (columns != 1)) {
-      fprintf (stderr, "Unexpected error: bad result: %i/%i.\n", rows, columns);
-      return -14;
-    }
-    if (results[1] == NULL) {
-      fprintf (stderr, "Unexpected error: NULL result\n");
-      return -15;
-    }
-    if (strcmp(results[1], "POINT(2 3)") != 0) {        
-      fprintf (stderr, "Unexpected error: invalid result\n");
-      return -16;
-    }
+    sqlite3_free (sql);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -13;
+      }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr, "Unexpected error: bad result: %i/%i.\n", rows,
+		   columns);
+	  return -14;
+      }
+    if (results[1] == NULL)
+      {
+	  fprintf (stderr, "Unexpected error: NULL result\n");
+	  return -15;
+      }
+    if (strcmp (results[1], "POINT(2 3)") != 0)
+      {
+	  fprintf (stderr, "Unexpected error: invalid result\n");
+	  return -16;
+      }
     sqlite3_free_table (results);
 
 /* checking pt_3d_wkt */
-    sql = sqlite3_mprintf("SELECT AsText(%s) FROM %s", geometry, pt_3d_wkt);
+    sql = sqlite3_mprintf ("SELECT AsText(%s) FROM %s", geometry, pt_3d_wkt);
     ret = sqlite3_get_table (handle, sql, &results, &rows, &columns, &err_msg);
-    sqlite3_free(sql);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -17;
-    }
-    if ((rows != 1) || (columns != 1)) {
-      fprintf (stderr, "Unexpected error: bad result: %i/%i.\n", rows, columns);
-      return -18;
-    }
-    if (results[1] == NULL) {
-      fprintf (stderr, "Unexpected error: NULL result\n");
-      return -19;
-    }
-    if (strcmp(results[1], "POINT Z(1 2 3)") != 0) {        
-      fprintf (stderr, "Unexpected error: invalid result\n");
-      return -20;
-    }
+    sqlite3_free (sql);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -17;
+      }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr, "Unexpected error: bad result: %i/%i.\n", rows,
+		   columns);
+	  return -18;
+      }
+    if (results[1] == NULL)
+      {
+	  fprintf (stderr, "Unexpected error: NULL result\n");
+	  return -19;
+      }
+    if (strcmp (results[1], "POINT Z(1 2 3)") != 0)
+      {
+	  fprintf (stderr, "Unexpected error: invalid result\n");
+	  return -20;
+      }
     sqlite3_free_table (results);
 
 /* dropping an FDO virtual table */
-    sql = sqlite3_mprintf("DROP TABLE %s", pt_2d_wkt);
+    sql = sqlite3_mprintf ("DROP TABLE %s", pt_2d_wkt);
     ret = sqlite3_exec (handle, sql, NULL, NULL, &err_msg);
-    sqlite3_free(sql);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -21;
-    }
+    sqlite3_free (sql);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -21;
+      }
 
 /* discarding an FDO Geometry column */
-    sql = sqlite3_mprintf("SELECT DiscardFDOGeometryColumn(%Q, %Q)", pt_3d_wkt, geometry);
+    sql =
+	sqlite3_mprintf ("SELECT DiscardFDOGeometryColumn(%Q, %Q)", pt_3d_wkt,
+			 geometry);
     ret = sqlite3_exec (handle, sql, NULL, NULL, &err_msg);
-    sqlite3_free(sql);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -22;
-    }
+    sqlite3_free (sql);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -22;
+      }
 
 /* recovering an FDO Geometry column */
-    sql = sqlite3_mprintf("SELECT RecoverFDOGeometryColumn(%Q, %Q, -1, 1, 3, 'WKT')", pt_3d_wkt, geometry);
+    sql =
+	sqlite3_mprintf
+	("SELECT RecoverFDOGeometryColumn(%Q, %Q, -1, 1, 3, 'WKT')", pt_3d_wkt,
+	 geometry);
     ret = sqlite3_exec (handle, sql, NULL, NULL, &err_msg);
-    sqlite3_free(sql);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -23;
-    }
+    sqlite3_free (sql);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -23;
+      }
 
 /* FDO shut-down */
     sql = "SELECT AutoFDOStop()";
     ret = sqlite3_exec (handle, sql, NULL, NULL, &err_msg);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -24;
-    }
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -24;
+      }
 
     ret = sqlite3_close (handle);
-    if (ret != SQLITE_OK) {
-        fprintf (stderr, "sqlite3_close() error: %s\n", sqlite3_errmsg (handle));
-	return -25;
-    }
-    
-    spatialite_cleanup();
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "sqlite3_close() error: %s\n",
+		   sqlite3_errmsg (handle));
+	  return -25;
+      }
 
-    sqlite3_free(pt_2d_wkt);
-    sqlite3_free(pt_3d_wkt);
-    sqlite3_free(geometry);
-    free(suffix);
-    
+    spatialite_cleanup_ex (cache);
+
+    sqlite3_free (pt_2d_wkt);
+    sqlite3_free (pt_3d_wkt);
+    sqlite3_free (geometry);
+    free (suffix);
+
+    spatialite_shutdown ();
     return 0;
 }

@@ -51,86 +51,127 @@ the terms of any one of the MPL, the GPL or the LGPL.
 #include "sqlite3.h"
 #include "spatialite.h"
 
-int main (int argc, char *argv[])
+int
+main (int argc, char *argv[])
 {
-#ifndef OMIT_ICONV	/* only if ICONV is supported */
+#ifndef OMIT_ICONV		/* only if ICONV is supported */
     int ret;
     sqlite3 *handle;
-    char *dbfname = __FILE__"test.dbf";
+    char *dbfname = __FILE__ "test.dbf";
     char *err_msg = NULL;
     int row_count;
+    void *cache = spatialite_alloc_connection ();
 
-    spatialite_init (0);
-    ret = sqlite3_open_v2 (":memory:", &handle, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
-    if (ret != SQLITE_OK) {
-	fprintf(stderr, "cannot open in-memory database: %s\n", sqlite3_errmsg (handle));
-	sqlite3_close(handle);
-	return -1;
-    }
-    
-    ret = sqlite3_exec (handle, "SELECT InitSpatialMetadata()", NULL, NULL, &err_msg);
-    if (ret != SQLITE_OK) {
-	fprintf (stderr, "InitSpatialMetadata() error: %s\n", err_msg);
-	sqlite3_free(err_msg);
-	sqlite3_close(handle);
-	return -2;
-    }
-    
-    ret = load_shapefile (handle, "./shp/new-caledonia/points", "points", "CP1252", 4326, 
-			  "col1", 1, 0, 1, 0, &row_count, err_msg);
-    if (!ret) {
-        fprintf (stderr, "load_shapefile() error for shp/new-caledonia/points: %s\n", err_msg);
-	sqlite3_close(handle);
-	return -3;
-    }
-    if (row_count != 10) {
-	fprintf (stderr, "unexpected row count for shp/new-caledonia/points: %i\n", row_count);
-	sqlite3_close(handle);
-	return -4;
-    }
+    if (argc > 1 || argv[0] == NULL)
+	argc = 1;		/* silencing stupid compiler warnings */
 
-    ret = load_shapefile (handle, "./shp/new-caledonia/railways", "railways", "CP1252", 4326, 
-			  "col1", 1, 0, 1, 0, &row_count, err_msg);
-    if (!ret) {
-        fprintf (stderr, "load_shapefile() error for shp/new-caledonia/railways: %s\n", err_msg);
-	sqlite3_close(handle);
-	return -5;
-    }
-    if (row_count != 13) {
-	fprintf (stderr, "unexpected row count for shp/new-caledonia/points: %i\n", row_count);
-	sqlite3_close(handle);
-	return -6;
-    }
+    ret =
+	sqlite3_open_v2 (":memory:", &handle,
+			 SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "cannot open in-memory database: %s\n",
+		   sqlite3_errmsg (handle));
+	  sqlite3_close (handle);
+	  return -1;
+      }
 
-    ret = load_shapefile (handle, "./shp/new-caledonia/buildings", "buildings", "CP1252", 4326, 
-			  "col1", 1, 0, 1, 0, &row_count, err_msg);
-    if (!ret) {
-        fprintf (stderr, "load_shapefile() error for shp/new-caledonia/buildings: %s\n", err_msg);
-	sqlite3_close(handle);
-	return -7;
-    }
-    if (row_count != 10) {
-	fprintf (stderr, "unexpected row count for shp/new-caledonia/buildings: %i\n", row_count);
-	sqlite3_close(handle);
-	return -8;
-    }
+    spatialite_init_ex (handle, cache, 0);
+
+    ret =
+	sqlite3_exec (handle, "SELECT InitSpatialMetadata(1)", NULL, NULL,
+		      &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "InitSpatialMetadata() error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+
+    ret =
+	load_shapefile (handle, "./shp/new-caledonia/points", "points",
+			"CP1252", 4326, "col1", 1, 0, 1, 0, &row_count,
+			err_msg);
+    if (!ret)
+      {
+	  fprintf (stderr,
+		   "load_shapefile() error for shp/new-caledonia/points: %s\n",
+		   err_msg);
+	  sqlite3_close (handle);
+	  return -3;
+      }
+    if (row_count != 10)
+      {
+	  fprintf (stderr,
+		   "unexpected row count for shp/new-caledonia/points: %i\n",
+		   row_count);
+	  sqlite3_close (handle);
+	  return -4;
+      }
+
+    ret =
+	load_shapefile (handle, "./shp/new-caledonia/railways", "railways",
+			"CP1252", 4326, "col1", 1, 0, 1, 0, &row_count,
+			err_msg);
+    if (!ret)
+      {
+	  fprintf (stderr,
+		   "load_shapefile() error for shp/new-caledonia/railways: %s\n",
+		   err_msg);
+	  sqlite3_close (handle);
+	  return -5;
+      }
+    if (row_count != 13)
+      {
+	  fprintf (stderr,
+		   "unexpected row count for shp/new-caledonia/points: %i\n",
+		   row_count);
+	  sqlite3_close (handle);
+	  return -6;
+      }
+
+    ret =
+	load_shapefile (handle, "./shp/new-caledonia/buildings", "buildings",
+			"CP1252", 4326, "col1", 1, 0, 1, 0, &row_count,
+			err_msg);
+    if (!ret)
+      {
+	  fprintf (stderr,
+		   "load_shapefile() error for shp/new-caledonia/buildings: %s\n",
+		   err_msg);
+	  sqlite3_close (handle);
+	  return -7;
+      }
+    if (row_count != 10)
+      {
+	  fprintf (stderr,
+		   "unexpected row count for shp/new-caledonia/buildings: %i\n",
+		   row_count);
+	  sqlite3_close (handle);
+	  return -8;
+      }
 
     ret = dump_dbf (handle, "points", dbfname, "CP1252", err_msg);
-    if (!ret) {
-        fprintf (stderr, "dump_dbf() error for points: %s\n", err_msg);
-	sqlite3_close(handle);
-	return -9;
-    }
-    unlink(dbfname);
+    if (!ret)
+      {
+	  fprintf (stderr, "dump_dbf() error for points: %s\n", err_msg);
+	  sqlite3_close (handle);
+	  return -9;
+      }
+    unlink (dbfname);
 
     ret = sqlite3_close (handle);
-    if (ret != SQLITE_OK) {
-        fprintf (stderr, "sqlite3_close() error: %s\n", sqlite3_errmsg (handle));
-	return -9;
-    }
-    
-    spatialite_cleanup();
-#endif	/* end ICONV conditional */
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "sqlite3_close() error: %s\n",
+		   sqlite3_errmsg (handle));
+	  return -9;
+      }
 
+    spatialite_cleanup_ex (cache);
+#endif /* end ICONV conditional */
+
+    spatialite_shutdown ();
     return 0;
 }

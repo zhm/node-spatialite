@@ -1,7 +1,7 @@
 /*
  gg_core.h -- Gaia common support for geometries: core functions
   
- version 4.0, 2012 August 6
+ version 4.2, 2014 July 25
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -23,7 +23,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2012
+Portions created by the Initial Developer are Copyright (C) 2008-2013
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -1166,16 +1166,38 @@ extern "C"
 
  \return 0 if the Geometry is not toxic: otherwise any other different value.
 
- \sa gaiaSanitize
+ \sa gaiaIsToxic_r, gaiaSanitize
 
  \note a \b toxic Geometry is a Geometry containing severely malformed
  Polygons: i.e. containing less than 4 Points.
  \n Or containing severely malformed Linestrings: i.e. containing less 
  than 2 Points.
  \n Attempting to pass any toxic Geometry to GEOS supported functions
- will easily cause a crash.
+ will easily cause a crash.\n
+ not reentrant and thread unsafe.
  */
     GAIAGEO_DECLARE int gaiaIsToxic (gaiaGeomCollPtr geom);
+
+/**
+ Checks for toxic Geometry object
+
+ \param p_cache a memory pointer returned by spatialite_alloc_connection()
+ \param geom pointer to Geometry object
+
+ \return 0 if the Geometry is not toxic: otherwise any other different value.
+
+ \sa gaiaIsToxic, gaiaSanitize
+
+ \note a \b toxic Geometry is a Geometry containing severely malformed
+ Polygons: i.e. containing less than 4 Points.
+ \n Or containing severely malformed Linestrings: i.e. containing less 
+ than 2 Points.
+ \n Attempting to pass any toxic Geometry to GEOS supported functions
+ will easily cause a crash.\n
+ reentrant and thread-safe.
+ */
+    GAIAGEO_DECLARE int gaiaIsToxic_r (const void *p_cache,
+				       gaiaGeomCollPtr geom);
 
 /**
  Checks for not-closed Rings 
@@ -1184,15 +1206,36 @@ extern "C"
 
  \return 0 if the Ring in unclosed: otherwise any other different value.
 
- \sa gaiaIsToxic, gaiaIsNotClosedGeomColl
+ \sa gaiaIsNotClosedRing_r, gaiaIsToxic, gaiaIsNotClosedGeomColl
 
  \note unclosed Rings cause GEOS supported functions to crash.
  \n SpatiaLite will always carefully check any Ring before passing it
  to GEOS, eventually silently inserting a further point required so 
  to properly close the figure.
- \n This function allows to explicitly identify any unclosed Ring.
+ \n This function allows to explicitly identify any unclosed Ring.\n
+ not reentrant and thread unsafe.
  */
     GAIAGEO_DECLARE int gaiaIsNotClosedRing (gaiaRingPtr ring);
+
+/**
+ Checks for not-closed Rings 
+
+ \param p_cache a memory pointer returned by spatialite_alloc_connection()
+ \param ring pointer to Ring object
+
+ \return 0 if the Ring in unclosed: otherwise any other different value.
+
+ \sa gaiaIsNotClosedRing, gaiaIsToxic, gaiaIsNotClosedGeomColl
+
+ \note unclosed Rings cause GEOS supported functions to crash.
+ \n SpatiaLite will always carefully check any Ring before passing it
+ to GEOS, eventually silently inserting a further point required so 
+ to properly close the figure.
+ \n This function allows to explicitly identify any unclosed Ring.\n
+ reentrant and thread-safe.
+ */
+    GAIAGEO_DECLARE int gaiaIsNotClosedRing_r (const void *p_data,
+					       gaiaRingPtr ring);
 
 /**
  Checks for not-closed Rings in a Geometry object
@@ -1201,12 +1244,30 @@ extern "C"
 
  \return 0 if the Geometry has no unclosed Rings: otherwise any other different value.
 
- \sa gaiaIsToxic, gaiaIsNotClosedRing
+ \sa gaiaIsNotClosedGeomColl_r, gaiaIsToxic, gaiaIsNotClosedRing
 
  \note This function allows to explicitly identify any Geometry containing
- at least one unclosed Ring.
+ at least one unclosed Ring.\n
+ not reentrant and thread unsafe.
  */
     GAIAGEO_DECLARE int gaiaIsNotClosedGeomColl (gaiaGeomCollPtr geom);
+
+/**
+ Checks for not-closed Rings in a Geometry object
+
+ \param p_cache a memory pointer returned by spatialite_alloc_connection()
+ \param geom pointer to Geometry object
+
+ \return 0 if the Geometry has no unclosed Rings: otherwise any other different value.
+
+ \sa gaiaIsNotClosedGeomColl, gaiaIsToxic, gaiaIsNotClosedRing
+
+ \note This function allows to explicitly identify any Geometry containing
+ at least one unclosed Ring.\n
+ reentrant and thread-safe.
+ */
+    GAIAGEO_DECLARE int gaiaIsNotClosedGeomColl_r (const void *p_data,
+						   gaiaGeomCollPtr geom);
 
 /**
  Attempts to sanitize a possibly malformed Geometry object
@@ -1349,15 +1410,39 @@ extern "C"
 
  \return the pointer to newly created Geometry: NULL on failure.
 
- \sa gaiaCloneGeomColl
+ \sa gaiaMergeGeometries_r, gaiaCloneGeomColl
 
  \note you are responsible to destroy (before or after) any allocated Geometry,
  this including any Geometry created by gaiaMergeGeometries()
  \n the newly created Geometry will contain any Point, Linestring and/or
- Polygon contained in both input Geometries.
+ Polygon contained in both input Geometries.\n
+ not reentrant and thread unsafe.
  */
     GAIAGEO_DECLARE gaiaGeomCollPtr gaiaMergeGeometries (gaiaGeomCollPtr geom1,
 							 gaiaGeomCollPtr geom2);
+
+/**
+ Merges two Geometry objects into a single one
+
+ \param p_cache a memory pointer returned by spatialite_alloc_connection()
+ \param geom1 pointer to first Geometry object.
+ \param geom2 pointer to second Geometry object.
+
+ \return the pointer to newly created Geometry: NULL on failure.
+
+ \sa gaiaMergeGeometries, gaiaCloneGeomColl
+
+ \note you are responsible to destroy (before or after) any allocated Geometry,
+ this including any Geometry created by gaiaMergeGeometries()
+ \n the newly created Geometry will contain any Point, Linestring and/or
+ Polygon contained in both input Geometries.\n
+ reentrant and thread-safe.
+ */
+    GAIAGEO_DECLARE gaiaGeomCollPtr gaiaMergeGeometries_r (const void *p_cache,
+							   gaiaGeomCollPtr
+							   geom1,
+							   gaiaGeomCollPtr
+							   geom2);
 
 /**
  Return a GeometryCollection containing elements matching the specified range of measures
@@ -1550,8 +1635,6 @@ extern "C"
  latitude values (-180.0 to 180.0 longitude and -90.0 to 90.0 latitude).
 
  \param geom pointer to Geometry object.
- \param shift_x X axis shift factor.
- \param shift_y Y axis shift factor.
 
  \sa gaiaScaleCoords, gaiaRotateCoords, gaiaReflectCoords, gaiaSwapCoords,
      gaiaShiftCoords3D, gaiaShiftLongitude
@@ -1773,6 +1856,101 @@ extern "C"
  */
     GAIAGEO_DECLARE int gaiaConvertLength (double value, int unit_from,
 					   int unit_to, double *cvt);
+
+/**
+ Creates a Circle (Linestring) Geometry
+
+ \param center_x center point X coordinate.
+ \param center_y center point Y coordinate.
+ \param radius the circle's radius.
+ \param step angular distance (in degrees) between points on the circumference.
+
+ \sa gaiaMakeArc, gaiaMakeEllipse, gaiaMakeEllipticArc
+
+ \note simply a convenience method defaulting to gaiaMakeEllipse
+ with both axes set to radius value
+ */
+    GAIAGEO_DECLARE gaiaGeomCollPtr gaiaMakeCircle (double center_x,
+						    double center_y,
+						    double radius, double step);
+
+/**
+ Creates an Ellipse (Linestring) Geometry
+
+ \param center_x center point X coordinate.
+ \param center_y center point Y coordinate.
+ \param x_axis the ellipses's X axis.
+ \param y_axis the ellipses's Y axis.
+ \param step angular distance (in degrees) between points on the ellipse.
+
+ \sa gaiaMakeEllipticArc, gaiaMakeCircle, gaiaMakeArc
+ */
+    GAIAGEO_DECLARE gaiaGeomCollPtr gaiaMakeEllipse (double center_x,
+						     double center_y,
+						     double x_axis,
+						     double y_axis,
+						     double step);
+
+/**
+ Creates a Circular Arc (Linestring) Geometry
+
+ \param center_x center point X coordinate.
+ \param center_y center point Y coordinate.
+ \param radius the circle's radius.
+ \param start the start angle (in degrees).
+ \param start the stop angle (in degrees).
+ \param step angular distance (in degrees) between points on the circumference.
+
+ \sa gaiaMakeCircle, gaiaMakeEllipse, gaiaMakeEllipticArc
+
+ \note simply a convenience method defaulting to gaiaMakeEllipticArc
+ with both axes set to radius value
+ */
+    GAIAGEO_DECLARE gaiaGeomCollPtr gaiaMakeArc (double center_x,
+						 double center_y, double radius,
+						 double start, double stop,
+						 double step);
+
+/**
+ Creates an Elliptic Arc (Linestring) Geometry
+
+ \param center_x center point X coordinate.
+ \param center_y center point Y coordinate.
+ \param x_axis the ellipses's X axis.
+ \param y_axis the ellipses's Y axis.
+ \param start the start angle (in degrees).
+ \param start the stop angle (in degrees).
+ \param step angular distance (in degrees) between points on the ellipse.
+
+ \sa gaiaMakeCircle, gaiaMakeEllipse, gaiaMakeEllipticArc
+ */
+    GAIAGEO_DECLARE gaiaGeomCollPtr gaiaMakeEllipticArc (double center_x,
+							 double center_y,
+							 double x_axis,
+							 double y_axis,
+							 double start,
+							 double stop,
+							 double step);
+
+/**
+ Creates a Polygon from closed Linestrings
+
+ \param exterior a closed Linestring assumed to represent the Exterior Ring.
+ \param interiors one (or more than one) clsed Linestrings assumed to represent 
+ all Interior Rings (could be a Linstring or a MultiLinestring).\n
+ NULL if there are no Interior Rings at all.
+
+ \sa gaiaPolygonize
+
+ \note this method will simply check if all the received Linestrings are 
+ closed, but it could possibly return an invalid Polygon if there is any 
+ topology inconsistency between the exterior and interior rings.
+ You are responsible to destroy (before or after) any allocated Geometry,
+ this including any Geometry returned by gaiaPolygonize()\n
+ not reentrant and thread unsafe.
+ */
+    GAIAGEO_DECLARE gaiaGeomCollPtr gaiaMakePolygon (gaiaGeomCollPtr exterior,
+						     gaiaGeomCollPtr interiors);
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*
  gg_formats.h -- Gaia common support for geometries: formats
   
- version 4.0, 2012 August 6
+ version 4.2, 2014 July 25
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -23,7 +23,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2012
+Portions created by the Initial Developer are Copyright (C) 2008-2013
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -105,6 +105,25 @@ extern "C"
  */
     GAIAGEO_DECLARE int gaiaImport32 (const unsigned char *p, int little_endian,
 				      int little_endian_arch);
+
+/**
+ Import an UINT-32 value in endian-aware fashion
+ 
+ \param p endian-dependent representation (input buffer).
+ \param little_endian 0 if the input buffer is big-endian: any other value
+ for little-endian.
+ \param little_endian_arch the value returned by gaiaEndianArch()
+
+ \return the internal UINT value 
+
+ \sa gaiaEndianArch, gaiaExportU32
+
+ \note you are expected to pass an input buffer corresponding to an
+ allocation size of (at least) 4 bytes.
+ */
+    GAIAGEO_DECLARE unsigned int gaiaImportU32 (const unsigned char *p,
+						int little_endian,
+						int little_endian_arch);
 
 /**
  Import a FLOAT-32 value in endian-aware fashion
@@ -198,6 +217,24 @@ extern "C"
     GAIAGEO_DECLARE void gaiaExport32 (unsigned char *p, int value,
 				       int little_endian,
 				       int little_endian_arch);
+
+/**
+ Export an UINT-32 value in endian-aware fashion
+ 
+ \param p endian-dependent representation (output buffer).
+ \param value the internal value to be exported.
+ \param little_endian 0 if the output buffer has to be big-endian: any other value
+ for little-endian.
+ \param little_endian_arch the value returned by gaiaEndianArch()
+
+ \sa gaiaEndianArch, gaiaImportU32
+
+ \note you are expected to pass an output buffer corresponding to an
+ allocation size of (at least) 4 bytes.
+ */
+    GAIAGEO_DECLARE void gaiaExportU32 (unsigned char *p, unsigned int value,
+					int little_endian,
+					int little_endian_arch);
 
 /**
  Export a FLOAT-32 value in endian-aware fashion
@@ -569,7 +606,7 @@ extern "C"
  \param offset the offset (in bytes) on the input buffer where the Point definition is expected to start.
  \param blob_size lenght (in bytes) of the input buffer.
  \param endian (boolean) states if the EWKB input buffer is little- or big-endian encode.
- \param endiam_arch (boolean) states if the target CPU has a little- or big-endian architecture.
+ \param endian_arch (boolean) states if the target CPU has a little- or big-endian architecture.
  \param dims dimensions: one of GAIA_XY, GAIA_XY_Z, GAIA_XY_M or GAIA_XY_Z_M
 
  \return -1 on failure; otherwise the offset where the next object starts.
@@ -592,7 +629,7 @@ extern "C"
  \param offset the offset (in bytes) on the input buffer where the Point definition is expected to start.
  \param blob_size lenght (in bytes) of the input buffer.
  \param endian (boolean) states if the EWKB input buffer is little- or big-endian encode.
- \param endiam_arch (boolean) states if the target CPU has a little- or big-endian architecture.
+ \param endian_arch (boolean) states if the target CPU has a little- or big-endian architecture.
  \param dims dimensions: one of GAIA_XY, GAIA_XY_Z, GAIA_XY_M or GAIA_XY_Z_M
 
  \return -1 on failure; otherwise the offset where the next object starts.
@@ -615,7 +652,7 @@ extern "C"
  \param offset the offset (in bytes) on the input buffer where the Point definition is expected to start.
  \param blob_size lenght (in bytes) of the input buffer.
  \param endian (boolean) states if the EWKB input buffer is little- or big-endian encode.
- \param endiam_arch (boolean) states if the target CPU has a little- or big-endian architecture.
+ \param endian_arch (boolean) states if the target CPU has a little- or big-endian architecture.
  \param dims dimensions: one of GAIA_XY, GAIA_XY_Z, GAIA_XY_M or GAIA_XY_Z_M
 
  \return -1 on failure; otherwise the offset where the next object starts.
@@ -636,7 +673,7 @@ extern "C"
  \param offset the offset (in bytes) on the input buffer where the Point definition is expected to start.
  \param blob_size lenght (in bytes) of the input buffer.
  \param endian (boolean) states if the EWKB input buffer is little- or big-endian encode.
- \param endiam_arch (boolean) states if the target CPU has a little- or big-endian architecture.
+ \param endian_arch (boolean) states if the target CPU has a little- or big-endian architecture.
  \param dims dimensions: one of GAIA_XY, GAIA_XY_Z, GAIA_XY_M or GAIA_XY_Z_M
 
  \return -1 on failure; otherwise the offset where the next object starts.
@@ -862,16 +899,39 @@ extern "C"
 
  \return the pointer to the newly created Geometry object: NULL on failure
 
- \sa gaiaOutGml
+ \sa gaiaParseGml_r, gaiaOutGml
 
  \note you are responsible to destroy (before or after) any allocated Geometry,
  unless you've passed ownership of the Geometry object to some further object:
  in this case destroying the higher order object will implicitly destroy any
- contained child object.
+ contained child object.\n
+ not reentrant and thread unsafe.
  */
     GAIAGEO_DECLARE gaiaGeomCollPtr gaiaParseGml (const unsigned char
 						  *in_buffer,
 						  sqlite3 * sqlite_handle);
+
+/**
+ Creates a Geometry object from GML notation
+
+ \param p_cache a memory pointer returned by spatialite_alloc_connection()
+ \param in_buffer pointer to GML buffer
+ \param sqlite_handle handle to current DB connection
+
+ \return the pointer to the newly created Geometry object: NULL on failure
+
+ \sa gaiaParseGml, gaiaOutGml
+
+ \note you are responsible to destroy (before or after) any allocated Geometry,
+ unless you've passed ownership of the Geometry object to some further object:
+ in this case destroying the higher order object will implicitly destroy any
+ contained child object.\n
+ reentrant and thread-safe.
+ */
+    GAIAGEO_DECLARE gaiaGeomCollPtr gaiaParseGml_r (const void *p_cache,
+						    const unsigned char
+						    *in_buffer,
+						    sqlite3 * sqlite_handle);
 
 /**
  Encodes a Geometry object into GML notation

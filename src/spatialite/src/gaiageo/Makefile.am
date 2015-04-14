@@ -1,17 +1,18 @@
 
 SUBDIRS = flex lemon
 
-INCLUDES = @CFLAGS@ @GEOS_CFLAGS@
-INCLUDES += -I$(top_srcdir)/src/headers
+AM_CPPFLAGS = @CFLAGS@ @GEOS_CFLAGS@ @LIBXML2_CFLAGS@
+AM_CPPFLAGS += -I$(top_srcdir)/src/headers
 
-noinst_LTLIBRARIES = libgaiageo.la
+noinst_LTLIBRARIES = libgaiageo.la gaiageo.la
 
-libgaiageo_la_SOURCES = gg_advanced.c \
+GAIAGEO_COMMON_SOURCES = gg_advanced.c \
 	gg_endian.c \
 	gg_geodesic.c \
 	gg_geometries.c \
 	gg_geoscvt.c \
 	gg_relations.c \
+	gg_relations_ext.c \
 	gg_lwgeom.c \
 	gg_extras.c \
 	gg_shape.c \
@@ -23,7 +24,18 @@ libgaiageo_la_SOURCES = gg_advanced.c \
 	gg_geoJSON.c \
 	gg_kml.c \
 	gg_gml.c \
-	gg_voronoj.c
+	gg_voronoj.c \
+	gg_xml.c 
+
+libgaiageo_la_SOURCES = $(GAIAGEO_COMMON_SOURCES)
+
+gaiageo_la_SOURCES = $(GAIAGEO_COMMON_SOURCES)
+
+gaiageo_la_CPPFLAGS = @CFLAGS@ @GEOS_CFLAGS@ @LIBXML2_CFLAGS@
+gaiageo_la_CPPFLAGS += -I$(top_srcdir)/src/headers -I.
+gaiageo_la_CPPFLAGS += -DLOADABLE_EXTENSION
+gaiageo_la_LDFLAGS = -module
+gaiageo_la_LIBTOOLFLAGS = --tag=disable-static
 
 MOSTLYCLEANFILES = *.gcna *.gcno *.gcda
 

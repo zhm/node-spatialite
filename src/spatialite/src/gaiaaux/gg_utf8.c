@@ -2,7 +2,7 @@
 
  gg_utf8.c -- locale charset handling
   
- version 4.0, 2012 August 6
+ version 4.2, 2014 July 25
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -24,7 +24,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2012
+Portions created by the Initial Developer are Copyright (C) 2008-2013
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -77,10 +77,6 @@ extern const char *locale_charset (void);
 #include <langinfo.h>
 #endif
 #endif
-
-#define iconv libiconv
-#define iconv_open libiconv_open
-#define iconv_close libiconv_close
 
 #include <spatialite/sqlite.h>
 #include <spatialite/gaiaaux.h>

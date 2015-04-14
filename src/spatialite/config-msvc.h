@@ -5,14 +5,20 @@
 /         using the OsGeo4W libraries
 */
 
+/* Should be defined in order to enable GeoPackage support. */
+/* #undef ENABLE_GEOPACKAGE */
+
+/* Should be defined in order to enable LIBXML2 support. */
+#define ENABLE_LIBXML2 1
+
 /* Should be defined in order to enable LWGEOM support. */
-#undef ENABLE_LWGEOM
+/* #undef ENABLE_LWGEOM */
 
 /* Should be defined in order to enable GEOS_ADVANCED support. */
 #define GEOS_ADVANCED 1
 
 /* Should be defined in order to enable GEOS_TRUNK experimental support. */
-#undef GEOS_TRUNK
+/* #undef GEOS_TRUNK */
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 /* #undef HAVE_DLFCN_H */
@@ -52,6 +58,9 @@
 
 /* Define to 1 if you have the `sqlite3' library (-lsqlite3). */
 #define HAVE_LIBSQLITE3 1
+
+/* Define to 1 if you have the `z' library (-lz). */
+#define HAVE_LIBZ 1
 
 /* Define to 1 if you have the `localtime_r' function. */
 /* #undef HAVE_LOCALTIME_R */
@@ -101,7 +110,7 @@
 #define HAVE_STDLIB_H 1
 
 /* Define to 1 if you have the `strcasecmp' function. */
-#define HAVE_STRCASECMP 1
+/* #undef HAVE_STRCASECMP */
 
 /* Define to 1 if you have the `strerror' function. */
 #define HAVE_STRERROR 1
@@ -116,7 +125,7 @@
 #define HAVE_STRING_H 1
 
 /* Define to 1 if you have the `strncasecmp' function. */
-#define HAVE_STRNCASECMP 1
+/* #undef HAVE_STRNCASECMP */
 
 /* Define to 1 if you have the `strstr' function. */
 #define HAVE_STRSTR 1
@@ -131,8 +140,10 @@
 #define HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
-#define HAVE_UNISTD_H 0
-#define YY_NO_UNISTD_H 1
+#define HAVE_UNISTD_H 1
+
+/* Define to 1 if you have the <zlib.h> header file. */
+#define HAVE_ZLIB_H 1
 
 /* Define to 1 if `lstat' dereferences a symlink specified with a trailing
    slash. */
@@ -176,7 +187,7 @@
 #define PACKAGE_NAME "libspatialite"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "libspatialite 4.0.0"
+#define PACKAGE_STRING "libspatialite 4.2.0"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "libspatialite"
@@ -185,10 +196,16 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "4.0.0"
+#define PACKAGE_VERSION "4.2.0"
+
+/* Should be defined when linking liblwgeom from PostGIS 2.1 (or later). */
+/* #undef POSTGIS_2_1 1 */
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
+
+/* Should contain a text-string describing the intended target CPU */
+#define TARGET_CPU "msvc-32"
 
 /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
 #define TIME_WITH_SYS_TIME 1
@@ -197,7 +214,7 @@
 /* #undef TM_IN_SYS_TIME */
 
 /* Version number of package */
-#define VERSION "4.0.0"
+#define VERSION "4.2.0-rc2"
 
 /* Must be =64 in order to enable huge-file support. */
 #define _FILE_OFFSET_BITS 64

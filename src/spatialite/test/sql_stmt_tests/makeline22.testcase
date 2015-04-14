@@ -1,8 +1,7 @@
-makeline - MULTIPOINT (error)
+makeline - MULTIPOINT - invalid
 :memory: #use in-memory database
-SELECT MakeLine(GeomFromText("MULTIPOINT(1 2,3 4)"))
+SELECT AsText(MakeLine(GeomFromText("MULTIPOINT(1 2,3 4)")))
 1 # rows (not including the header row)
 1 # columns
-MakeLine(GeomFromText("MULTIPOINT(1 2,3 4)"))
+AsText(MakeLine(GeomFromText("MULTIPOINT(1 2,3 4)")))
 (NULL)
-

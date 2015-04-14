@@ -1,7 +1,7 @@
 /* 
  gaiaaux.h -- Gaia common utility functions
   
- version 4.0, 2012 August 6
+ version 4.2, 2014 July 25
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -23,7 +23,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2012
+Portions created by the Initial Developer are Copyright (C) 2008-2013
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -270,11 +270,14 @@ extern "C"
 
  \sa gaiaUpdateSqlLog
 
- \note this function inserts an \i event into the SQL Log, and
+ \note this function inserts an \b event into the SQL Log, and
   is expected to be invoked immediately \b before executing the SQL
   statement itself.
  */
-    GAIAAUX_DECLARE void gaiaInsertIntoSqlLog(sqlite3 *sqlite, const char *user_agent, const char *utf8Sql, sqlite3_int64 *sqllog_pk);
+    GAIAAUX_DECLARE void gaiaInsertIntoSqlLog (sqlite3 * sqlite,
+					       const char *user_agent,
+					       const char *utf8Sql,
+					       sqlite3_int64 * sqllog_pk);
 
 /**
  SQL log: statement start
@@ -287,11 +290,113 @@ extern "C"
 
  \sa gaiaInsertIntoSqlLog
 
- \note this function completes an \i event inserted into the SQL Log, and
+ \note this function completes an \b event inserted into the SQL Log, and
   is expected to be invoked immediately \b after executing the SQL
   statement itself.
  */
-    GAIAAUX_DECLARE void gaiaUpdateSqlLog(sqlite3 *sqlite, sqlite3_int64 sqllog_pk, int success, const char *errMsg);
+    GAIAAUX_DECLARE void gaiaUpdateSqlLog (sqlite3 * sqlite,
+					   sqlite3_int64 sqllog_pk, int success,
+					   const char *errMsg);
+
+/**
+ Creates a persistent MD5 checksum object
+
+ \return the handle of an MD5 checksum object, or NULL on failure
+
+ \sa gaiaFreeMD5Checksum, gaiaUpdateMD5Checksum, gaiaFinalizeMD5Checksum
+
+ \note you must properly destroy the MD5 object 
+ when it isn't any longer used.
+ */
+    GAIAAUX_DECLARE void *gaiaCreateMD5Checksum (void);
+
+/**
+ Destroys an MD5 checksum object
+
+ \param md5 the handle of the MD5 checksum object (returned by
+ a previous call to gaiaCreateMD5Checksum).
+
+ \sa gaiaCreateMD5Checksum
+ */
+    GAIAAUX_DECLARE void gaiaFreeMD5Checksum (void *md5);
+
+/**
+ Updates an MD5 checksum object
+
+ \param md5 the handle of the MD5 checksum object (returned by
+ a previous call to gaiaCreateMD5Checksum).
+ \param blob an arbitrary sequence of binary data
+ \param blob_size the length (in bytes) of the binary data
+
+ \sa gaiaCreateMD5Checksum, gaiaFreeMD5Checksum, gaiaFinalizeMD5Checksum
+
+ \note you can repeatedly invoke gaiaUpdateMD5Checksum more than a single
+ time and always using the same MD5 object. 
+ In this case the final MD5 checksum returned by gaiaGetMD5Checsum will be 
+ the total checksum for any data processed by the MD5 object since its
+ initialization.
+ */
+    GAIAAUX_DECLARE void gaiaUpdateMD5Checksum (void *md5,
+						const unsigned char *blob,
+						int blob_len);
+
+/**
+ Return an MD5 checksum value
+
+ \param md5 the handle of the MD5 checksum object (returned by
+ a previous call to gaiaCreateMD5Checksum).
+
+ \return an hexadecimal text string representing the MD checksum:
+ NULL on failure
+
+ \sa gaiaCreateMD5Checksum, gaiaUpdateMD5Checksum, gaiaFreeMD5Checksum
+
+ \note this function will return the MD5 checksum into a dynamically allocated 
+ buffer created by malloc(). 
+ You are required to explicitly free() any string returned by this function.
+
+ \note gaiaFinalizeMD5Checksum will implicitly reset the MD5 object to its
+ initial state.
+ */
+    GAIAAUX_DECLARE char *gaiaFinalizeMD5Checksum (void *md5);
+
+/**
+ Return longitude and latitude angles from a DMS string
+
+ \param dms a text string representing a valid DMS (Degrees/Minutes/Seconds)
+ expression.
+ \param longitude on completion this variable will contain the longitude angle
+ expressed in Decimal Degrees.
+ \param latitude on completion this variable will contain the latitude angle
+ expressed in Decimal Degrees.
+
+ \return ZERO (FALSE) on failure, any other different value (TRUE) on success.
+
+ \sa gaiaConvertToDMS
+
+ \note this function will return a dynamically allocated buffer created 
+ by malloc(). 
+ You are required to explicitly free() any string returned by this function.
+ */
+    GAIAAUX_DECLARE int gaiaParseDMS (const char *dms, double *longitude,
+				      double *latitude);
+
+/**
+ Return a DMS string
+
+ \param longitude the angle of longitude expressed in Decimal Degrees.
+ \param latitude the angle of latitude expressed in Decimal Degrees.
+
+ \return the corresponding DMS (Degrees/Minutes/Seconds) text string,
+ or NULL on failure
+
+ \sa gaiaLongitudeFromDMS, gaiaLatitudeFromDMS
+
+ \note this function will return a dynamically allocated buffer created 
+ by malloc(). 
+ You are required to explicitly free() any string returned by this function.
+ */
+    GAIAAUX_DECLARE char *gaiaConvertToDMS (double longitude, double latitude);
 
 #ifdef __cplusplus
 }

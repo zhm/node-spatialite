@@ -2,7 +2,7 @@
 
  gg_vanuatu.c -- WKT parser/lexer 
   
- version 4.0, 2012 August 6
+ version 4.2, 2014 July 25
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -24,7 +24,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2012
+Portions created by the Initial Developer are Copyright (C) 2008-2013
 the Initial Developer. All Rights Reserved.
 
 The Vanuatu Team - University of Toronto - Supervisor:
@@ -81,6 +81,82 @@ the terms of any one of the MPL, the GPL or the LGPL.
 
 #define VANUATU_DYN_BLOCK 1024
 
+
+
+/*
+** CAVEAT: we must redefine any Lemon/Flex own macro
+*/
+#define YYMINORTYPE		VANUATU_MINORTYPE
+#define YY_CHAR			VANUATU_YY_CHAR
+#define	input			vanuatu_input
+#define ParseAlloc		vanuatuParseAlloc
+#define ParseFree		vanuatuParseFree
+#define ParseStackPeak		vanuatuParseStackPeak
+#define Parse			vanuatuParse
+#define yyStackEntry		vanuatu_yyStackEntry
+#define yyzerominor		vanuatu_yyzerominor
+#define yy_accept		vanuatu_yy_accept
+#define yy_action		vanuatu_yy_action
+#define yy_base			vanuatu_yy_base
+#define yy_buffer_stack		vanuatu_yy_buffer_stack
+#define yy_buffer_stack_max	vanuatu_yy_buffer_stack_max
+#define yy_buffer_stack_top	vanuatu_yy_buffer_stack_top
+#define yy_c_buf_p		vanuatu_yy_c_buf_p
+#define yy_chk			vanuatu_yy_chk
+#define yy_def			vanuatu_yy_def
+#define yy_default		vanuatu_yy_default
+#define yy_destructor		vanuatu_yy_destructor
+#define yy_ec			vanuatu_yy_ec
+#define yy_fatal_error		vanuatu_yy_fatal_error
+#define yy_find_reduce_action	vanuatu_yy_find_reduce_action
+#define yy_find_shift_action	vanuatu_yy_find_shift_action
+#define yy_get_next_buffer	vanuatu_yy_get_next_buffer
+#define yy_get_previous_state	vanuatu_yy_get_previous_state
+#define yy_init			vanuatu_yy_init
+#define yy_init_globals		vanuatu_yy_init_globals
+#define yy_lookahead		vanuatu_yy_lookahead
+#define yy_meta			vanuatu_yy_meta
+#define yy_nxt			vanuatu_yy_nxt
+#define yy_parse_failed		vanuatu_yy_parse_failed
+#define yy_pop_parser_stack	vanuatu_yy_pop_parser_stack
+#define yy_reduce		vanuatu_yy_reduce
+#define yy_reduce_ofst		vanuatu_yy_reduce_ofst
+#define yy_shift		vanuatu_yy_shift
+#define yy_shift_ofst		vanuatu_yy_shift_ofst
+#define yy_start		vanuatu_yy_start
+#define yy_state_type		vanuatu_yy_state_type
+#define yy_syntax_error		vanuatu_yy_syntax_error
+#define yy_trans_info		vanuatu_yy_trans_info
+#define yy_try_NUL_trans	vanuatu_yy_try_NUL_trans
+#define yyParser		vanuatu_yyParser
+#define yyStackEntry		vanuatu_yyStackEntry
+#define yyStackOverflow		vanuatu_yyStackOverflow
+#define yyRuleInfo		vanuatu_yyRuleInfo
+#define yyunput			vanuatu_yyunput
+#define yyzerominor		vanuatu_yyzerominor
+#define yyTraceFILE		vanuatu_yyTraceFILE
+#define yyTracePrompt		vanuatu_yyTracePrompt
+#define yyTokenName		vanuatu_yyTokenName
+#define yyRuleName		vanuatu_yyRuleName
+#define ParseTrace		vanuatu_ParseTrace
+
+#define yylex			vanuatu_yylex
+#define YY_DECL int yylex (yyscan_t yyscanner)
+
+
+/* including LEMON generated header */
+#include "vanuatuWkt.h"
+
+
+
+typedef union
+{
+    double dval;
+    struct symtab *symp;
+} vanuatu_yystype;
+#define YYSTYPE vanuatu_yystype
+
+
 struct vanuatu_dyn_block
 {
 /* a struct taking trace of dynamic allocations */
@@ -99,6 +175,7 @@ struct vanuatu_data
     struct vanuatu_dyn_block *vanuatu_first_dyn_block;
     struct vanuatu_dyn_block *vanuatu_last_dyn_block;
     gaiaGeomCollPtr result;
+    YYSTYPE VanuatuWktlval;
 };
 
 static struct vanuatu_dyn_block *
@@ -1728,85 +1805,6 @@ vanuatu_geomColl_xyzm (struct vanuatu_data *p_data, gaiaGeomCollPtr first)
 }
 
 
-
-/*
-** CAVEAT: we must redefine any Lemon/Flex own macro
-*/
-#define YYMINORTYPE		VANUATU_MINORTYPE
-#define YY_CHAR			VANUATU_YY_CHAR
-#define	input			vanuatu_input
-#define ParseAlloc		vanuatuParseAlloc
-#define ParseFree		vanuatuParseFree
-#define ParseStackPeak		vanuatuParseStackPeak
-#define Parse			vanuatuParse
-#define yyStackEntry		vanuatu_yyStackEntry
-#define yyzerominor		vanuatu_yyzerominor
-#define yy_accept		vanuatu_yy_accept
-#define yy_action		vanuatu_yy_action
-#define yy_base			vanuatu_yy_base
-#define yy_buffer_stack		vanuatu_yy_buffer_stack
-#define yy_buffer_stack_max	vanuatu_yy_buffer_stack_max
-#define yy_buffer_stack_top	vanuatu_yy_buffer_stack_top
-#define yy_c_buf_p		vanuatu_yy_c_buf_p
-#define yy_chk			vanuatu_yy_chk
-#define yy_def			vanuatu_yy_def
-#define yy_default		vanuatu_yy_default
-#define yy_destructor		vanuatu_yy_destructor
-#define yy_ec			vanuatu_yy_ec
-#define yy_fatal_error		vanuatu_yy_fatal_error
-#define yy_find_reduce_action	vanuatu_yy_find_reduce_action
-#define yy_find_shift_action	vanuatu_yy_find_shift_action
-#define yy_get_next_buffer	vanuatu_yy_get_next_buffer
-#define yy_get_previous_state	vanuatu_yy_get_previous_state
-#define yy_init			vanuatu_yy_init
-#define yy_init_globals		vanuatu_yy_init_globals
-#define yy_lookahead		vanuatu_yy_lookahead
-#define yy_meta			vanuatu_yy_meta
-#define yy_nxt			vanuatu_yy_nxt
-#define yy_parse_failed		vanuatu_yy_parse_failed
-#define yy_pop_parser_stack	vanuatu_yy_pop_parser_stack
-#define yy_reduce		vanuatu_yy_reduce
-#define yy_reduce_ofst		vanuatu_yy_reduce_ofst
-#define yy_shift		vanuatu_yy_shift
-#define yy_shift_ofst		vanuatu_yy_shift_ofst
-#define yy_start		vanuatu_yy_start
-#define yy_state_type		vanuatu_yy_state_type
-#define yy_syntax_error		vanuatu_yy_syntax_error
-#define yy_trans_info		vanuatu_yy_trans_info
-#define yy_try_NUL_trans	vanuatu_yy_try_NUL_trans
-#define yyParser		vanuatu_yyParser
-#define yyStackEntry		vanuatu_yyStackEntry
-#define yyStackOverflow		vanuatu_yyStackOverflow
-#define yyRuleInfo		vanuatu_yyRuleInfo
-#define yyunput			vanuatu_yyunput
-#define yyzerominor		vanuatu_yyzerominor
-#define yyTraceFILE		vanuatu_yyTraceFILE
-#define yyTracePrompt		vanuatu_yyTracePrompt
-#define yyTokenName		vanuatu_yyTokenName
-#define yyRuleName		vanuatu_yyRuleName
-#define ParseTrace		vanuatu_ParseTrace
-
-#define yylex			vanuatu_yylex
-#define YY_DECL int yylex (yyscan_t yyscanner)
-
-
-/* including LEMON generated header */
-#include "vanuatuWkt.h"
-
-
-
-typedef union
-{
-    double dval;
-    struct symtab *symp;
-} vanuatu_yystype;
-#define YYSTYPE vanuatu_yystype
-
-/* extern YYSTYPE yylval; */
-YYSTYPE VanuatuWktlval;
-
-
-
 /* including LEMON generated code */
 #include "vanuatuWkt.c"
 
@@ -1898,11 +1896,7 @@ gaiaParseWkt (const unsigned char *dirty_buffer, short type)
 	    }
 	  tokens->Next = malloc (sizeof (vanuatuFlexToken));
 	  tokens->Next->Next = NULL;
-	  /*
-	     /VanuatuWktlval is a global variable from FLEX.
-	     /VanuatuWktlval is defined in vanuatuLexglobal.h
-	   */
-	  tokens->Next->value = VanuatuWktlval.dval;
+	  tokens->Next->value = str_data.VanuatuWktlval.dval;
 	  /* Pass the token to the wkt parser created from lemon */
 	  Parse (pParser, yv, &(tokens->Next->value), &str_data);
 	  tokens = tokens->Next;

@@ -2,7 +2,7 @@
 
  gg_geometries.c -- Gaia geometric objects
   
- version 4.0, 2012 August 6
+ version 4.2, 2014 July 25
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -24,7 +24,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2012
+Portions created by the Initial Developer are Copyright (C) 2008-2013
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -3628,6 +3628,13 @@ gaiaMakeLine (gaiaGeomCollPtr geom1, gaiaGeomCollPtr geom2,
 GAIAGEO_DECLARE gaiaGeomCollPtr
 gaiaMergeGeometries (gaiaGeomCollPtr geom1, gaiaGeomCollPtr geom2)
 {
+    return gaiaMergeGeometries_r (NULL, geom1, geom2);
+}
+
+GAIAGEO_DECLARE gaiaGeomCollPtr
+gaiaMergeGeometries_r (const void *cache, gaiaGeomCollPtr geom1,
+		       gaiaGeomCollPtr geom2)
+{
 /* mergine two generic Geometries into a single one */
     gaiaGeomCollPtr result;
     gaiaPointPtr pt;
@@ -3649,8 +3656,16 @@ gaiaMergeGeometries (gaiaGeomCollPtr geom1, gaiaGeomCollPtr geom2)
 
     if (geom1 == NULL || geom2 == NULL)
 	return NULL;
-    if (gaiaIsToxic (geom1) || gaiaIsToxic (geom2))
-	return NULL;
+    if (cache != NULL)
+      {
+	  if (gaiaIsToxic_r (cache, geom1) || gaiaIsToxic_r (cache, geom2))
+	      return NULL;
+      }
+    else
+      {
+	  if (gaiaIsToxic (geom1) || gaiaIsToxic (geom2))
+	      return NULL;
+      }
     dims1 = geom1->DimensionModel;
     dims2 = geom2->DimensionModel;
 /* building a new Geometry */
@@ -4535,4 +4550,183 @@ gaiaLocateBetweenMeasures (gaiaGeomCollPtr geom, double m_start, double m_end)
 	  return NULL;
       }
     return new_geom;
+}
+
+static int
+check_closed_multi_linestring (gaiaGeomCollPtr geom, int single)
+{
+/* check if :
+/   - this geometry is a (multi) Linestring 
+/   - all Linestrings are effectively closed
+*/
+    int pts = 0;
+    int lns = 0;
+    int pgs = 0;
+    int closed = 0;
+    gaiaPointPtr pt;
+    gaiaLinestringPtr ln;
+    gaiaPolygonPtr pg;
+    pt = geom->FirstPoint;
+    while (pt)
+      {
+	  pts++;
+	  pt = pt->Next;
+      }
+    ln = geom->FirstLinestring;
+    while (ln)
+      {
+	  if (gaiaIsClosed (ln))
+	      closed++;
+	  lns++;
+	  ln = ln->Next;
+      }
+    pg = geom->FirstPolygon;
+    while (pg)
+      {
+	  pgs++;
+	  pg = pg->Next;
+      }
+    if (closed != lns)
+	return 0;
+    if (single)
+      {
+	  if (pts == 0 && lns == 1 && pgs == 0)
+	      return lns;
+      }
+    else
+      {
+	  if (pts == 0 && lns >= 1 && pgs == 0)
+	      return lns;
+      }
+    return 0;
+}
+
+GAIAGEO_DECLARE gaiaGeomCollPtr
+gaiaMakePolygon (gaiaGeomCollPtr exterior, gaiaGeomCollPtr interiors)
+{
+/* reassembling a Polygon from closed Linestrings */
+    gaiaGeomCollPtr geom;
+    gaiaPolygonPtr pg;
+    gaiaRingPtr rng;
+    gaiaLinestringPtr ln;
+    int iv;
+    double x;
+    double y;
+    double z;
+    double m;
+    int num_interiors = 0;
+    int ib;
+
+    if (exterior == NULL)
+	return NULL;
+    if (!check_closed_multi_linestring (exterior, 1))
+	return NULL;
+    if (interiors != NULL)
+      {
+	  num_interiors = check_closed_multi_linestring (interiors, 0);
+	  if (!num_interiors)
+	      return NULL;
+      }
+
+/* reassembling the Polygon */
+    if (exterior->DimensionModel == GAIA_XY_Z)
+	geom = gaiaAllocGeomCollXYZ ();
+    else if (exterior->DimensionModel == GAIA_XY_M)
+	geom = gaiaAllocGeomCollXYM ();
+    else if (exterior->DimensionModel == GAIA_XY_Z_M)
+	geom = gaiaAllocGeomCollXYZM ();
+    else
+	geom = gaiaAllocGeomColl ();
+    geom->Srid = exterior->Srid;
+    ln = exterior->FirstLinestring;
+    pg = gaiaAddPolygonToGeomColl (geom, ln->Points, num_interiors);
+    rng = pg->Exterior;
+    for (iv = 0; iv < ln->Points; iv++)
+      {
+	  /* exterior ring */
+	  m = 0.0;
+	  z = 0.0;
+	  switch (ln->DimensionModel)
+	    {
+	    case GAIA_XY:
+		gaiaGetPoint (ln->Coords, iv, &x, &y);
+		break;
+	    case GAIA_XY_Z:
+		gaiaGetPointXYZ (ln->Coords, iv, &x, &y, &z);
+		break;
+	    case GAIA_XY_M:
+		gaiaGetPointXYM (ln->Coords, iv, &x, &y, &m);
+		break;
+	    case GAIA_XY_Z_M:
+		gaiaGetPointXYZM (ln->Coords, iv, &x, &y, &z, &m);
+		break;
+	    default:
+		return 0;
+	    };
+	  switch (rng->DimensionModel)
+	    {
+	    case GAIA_XY:
+		gaiaSetPoint (rng->Coords, iv, x, y);
+		break;
+	    case GAIA_XY_Z:
+		gaiaSetPointXYZ (rng->Coords, iv, x, y, z);
+		break;
+	    case GAIA_XY_M:
+		gaiaSetPointXYM (rng->Coords, iv, x, y, m);
+		break;
+	    case GAIA_XY_Z_M:
+		gaiaSetPointXYZM (rng->Coords, iv, x, y, z, m);
+		break;
+	    };
+      }
+    if (interiors != NULL)
+      {
+	  /* setting up the interior rings */
+	  ib = 0;
+	  ln = interiors->FirstLinestring;
+	  while (ln)
+	    {
+		rng = gaiaAddInteriorRing (pg, ib, ln->Points);
+		for (iv = 0; iv < ln->Points; iv++)
+		  {
+		      m = 0.0;
+		      z = 0.0;
+		      switch (ln->DimensionModel)
+			{
+			case GAIA_XY:
+			    gaiaGetPoint (ln->Coords, iv, &x, &y);
+			    break;
+			case GAIA_XY_Z:
+			    gaiaGetPointXYZ (ln->Coords, iv, &x, &y, &z);
+			    break;
+			case GAIA_XY_M:
+			    gaiaGetPointXYM (ln->Coords, iv, &x, &y, &m);
+			    break;
+			case GAIA_XY_Z_M:
+			    gaiaGetPointXYZM (ln->Coords, iv, &x, &y, &z, &m);
+			    break;
+			default:
+			    return 0;
+			};
+		      switch (rng->DimensionModel)
+			{
+			case GAIA_XY:
+			    gaiaSetPoint (rng->Coords, iv, x, y);
+			    break;
+			case GAIA_XY_Z:
+			    gaiaSetPointXYZ (rng->Coords, iv, x, y, z);
+			    break;
+			case GAIA_XY_M:
+			    gaiaSetPointXYM (rng->Coords, iv, x, y, m);
+			    break;
+			case GAIA_XY_Z_M:
+			    gaiaSetPointXYZM (rng->Coords, iv, x, y, z, m);
+			    break;
+			};
+		  }
+		ib++;
+		ln = ln->Next;
+	    }
+      }
+    return geom;
 }

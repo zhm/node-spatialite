@@ -56,62 +56,77 @@ the terms of any one of the MPL, the GPL or the LGPL.
 #include "asprintf4win.h"
 #endif
 
-int main (int argc, char *argv[])
+int
+main (int argc, char *argv[])
 {
-#ifndef OMIT_ICONV	/* only if ICONV is supported */
-    void * converter;
+#ifndef OMIT_ICONV		/* only if ICONV is supported */
+    void *converter;
     char *test_str1;
     int err;
 
-    asprintf(&test_str1, "Hello World");
-    gaiaConvertCharset(&test_str1, "ASCII", "UTF-8");
-    if (strcmp(test_str1, "Hello World") != 0) {
-	fprintf(stderr, "bad ASCII to UTF-8 conversion: %s\n", test_str1);
-	free(test_str1);
-	return -1;
-    }
-    free(test_str1);
+    if (argc > 1 || argv[0] == NULL)
+	argc = 1;		/* silencing stupid compiler warnings */
+
+    asprintf (&test_str1, "Hello World");
+    gaiaConvertCharset (&test_str1, "ASCII", "UTF-8");
+    if (strcmp (test_str1, "Hello World") != 0)
+      {
+	  fprintf (stderr, "bad ASCII to UTF-8 conversion: %s\n", test_str1);
+	  free (test_str1);
+	  return -1;
+      }
+    free (test_str1);
 
 #if 0
     /* TODO: this will cause a buffer overflow */
-    asprintf(&test_str1, "Hello World");
-    gaiaConvertCharset(&test_str1, "ASCII", "UTF-16LE");
-    if (memcmp(test_str1, "H\0e\0l\0l\0o\0 \0W\0o\0r\0l\0d\0\0\0", 24) != 0) {
-	fprintf(stderr, "bad ASCII to UTF-16LE conversion\n");
-	free(test_str1);
-	return -2;
-    }
-    free(test_str1);
+    asprintf (&test_str1, "Hello World");
+    gaiaConvertCharset (&test_str1, "ASCII", "UTF-16LE");
+    if (memcmp (test_str1, "H\0e\0l\0l\0o\0 \0W\0o\0r\0l\0d\0\0\0", 24) != 0)
+      {
+	  fprintf (stderr, "bad ASCII to UTF-16LE conversion\n");
+	  free (test_str1);
+	  return -2;
+      }
+    free (test_str1);
 #endif
 
     converter = gaiaCreateUTF8Converter ("CP1252");
-    if (! converter) {
-	fprintf(stderr, "null UTF8 converter\n");
-	return -3;
-    }
-    
-    test_str1 = gaiaConvertToUTF8(converter, "Hello world", strlen("Hello world"), &err);
-    if (memcmp("Hello world", test_str1, strlen("Hello world") + 1) != 0) {
-	fprintf(stderr, "bad conversion to UTF8: %s\n", test_str1);
-	free(test_str1);
-	return -4;
-    }
-    free(test_str1);
-    
+    if (!converter)
+      {
+	  fprintf (stderr, "null UTF8 converter\n");
+	  return -3;
+      }
+
+    test_str1 =
+	gaiaConvertToUTF8 (converter, "Hello world", strlen ("Hello world"),
+			   &err);
+    if (memcmp ("Hello world", test_str1, strlen ("Hello world") + 1) != 0)
+      {
+	  fprintf (stderr, "bad conversion to UTF8: %s\n", test_str1);
+	  free (test_str1);
+	  return -4;
+      }
+    free (test_str1);
+
     gaiaFreeUTF8Converter (converter);
     converter = NULL;
     /* test null converter */
     gaiaFreeUTF8Converter (converter);
-    
-    test_str1 = gaiaConvertToUTF8(converter, "Hello world", strlen("Hello world"), &err);
-    if ((test_str1 != NULL) || (err != 1)) {
-	fprintf(stderr, "unexpected null converter result: %s, %i\n", test_str1, err);
-	return -5;
-    }
+
+    test_str1 =
+	gaiaConvertToUTF8 (converter, "Hello world", strlen ("Hello world"),
+			   &err);
+    if ((test_str1 != NULL) || (err != 1))
+      {
+	  fprintf (stderr, "unexpected null converter result: %s, %i\n",
+		   test_str1, err);
+	  return -5;
+      }
 
     /* there is no sane way to test this automatically */
-    printf("Local codeset: %s\n", gaiaGetLocaleCharset() );
-#endif	/* end ICONV conditional */
+    printf ("Local codeset: %s\n", gaiaGetLocaleCharset ());
+#endif /* end ICONV conditional */
 
+    spatialite_shutdown ();
     return 0;
 }

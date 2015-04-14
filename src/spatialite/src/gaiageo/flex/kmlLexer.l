@@ -57,19 +57,19 @@ the terms of any one of the MPL, the GPL or the LGPL.
 *  of the two tokens, FLEX will match POINTM.
 */
 %%
-"/"											{ kml_freeString(&(KmlLval.pval)); return KML_END; }
-"="											{ kml_freeString(&(KmlLval.pval)); return KML_EQ; }
-"<"											{ kml_freeString(&(KmlLval.pval)); return KML_OPEN; }
-">"											{ kml_freeString(&(KmlLval.pval)); return KML_CLOSE; }
-[0-9,\.\+-]*								{ kml_saveString(&(KmlLval.pval), yytext); return KML_COORD; }
-\"[^<>\"]*\"								{ kml_saveString(&(KmlLval.pval), yytext); return KML_VALUE; }
-[a-zA-Z_][a-zA-Z_:0-9]*						{ kml_saveString(&(KmlLval.pval), yytext); return KML_KEYWORD; }
+"/"				{ kml_freeString(&(Kmlget_extra(yyscanner)->KmlLval.pval)); return KML_END; }
+"="				{ kml_freeString(&(Kmlget_extra(yyscanner)->KmlLval.pval)); return KML_EQ; }
+"<"				{ kml_freeString(&(Kmlget_extra(yyscanner)->KmlLval.pval)); return KML_OPEN; }
+">"				{ kml_freeString(&(Kmlget_extra(yyscanner)->KmlLval.pval)); return KML_CLOSE; }
+[0-9,\.\+-]*			{ kml_saveString(&(Kmlget_extra(yyscanner)->KmlLval.pval), yytext); return KML_COORD; }
+\"[^<>\"]*\"			{ kml_saveString(&(Kmlget_extra(yyscanner)->KmlLval.pval), yytext); return KML_VALUE; }
+[a-zA-Z_][a-zA-Z_:0-9]*		{ kml_saveString(&(Kmlget_extra(yyscanner)->KmlLval.pval), yytext); return KML_KEYWORD; }
 
-[ \t]   { kml_freeString(&(KmlLval.pval)); Kmlget_extra(yyscanner)->kml_col += (int) strlen(yytext); }               /* ignore but count white space */
+[ \t]   { kml_freeString(&(Kmlget_extra(yyscanner)->KmlLval.pval)); Kmlget_extra(yyscanner)->kml_col += (int) strlen(yytext); }               /* ignore but count white space */
 
-\n      { kml_freeString(&(KmlLval.pval)); Kmlget_extra(yyscanner)->kml_col = 0; Kmlget_extra(yyscanner)->kml_line++; }
+\n      { kml_freeString(&(Kmlget_extra(yyscanner)->KmlLval.pval)); Kmlget_extra(yyscanner)->kml_col = 0; Kmlget_extra(yyscanner)->kml_line++; }
 
-.       { kml_freeString(&(KmlLval.pval)); Kmlget_extra(yyscanner)->kml_col += (int) strlen(yytext); return -1; }
+.       { kml_freeString(&(Kmlget_extra(yyscanner)->KmlLval.pval)); Kmlget_extra(yyscanner)->kml_col += (int) strlen(yytext); return -1; }
 %%
 
 int yywrap(yyscan_t yyscanner )

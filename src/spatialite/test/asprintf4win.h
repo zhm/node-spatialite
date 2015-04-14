@@ -40,41 +40,44 @@
 #endif
 
 int
-asprintf(char **buffer, char *fmt, ...)
+asprintf (char **buffer, char *fmt, ...)
 {
     /* Guess we need no more than 200 chars of space. */
     int size = 200;
     int nchars;
     va_list ap;
-    
-    *buffer = (char*)malloc(size);
-    if (*buffer == NULL) return -1;
-          
+
+    *buffer = (char *) malloc (size);
+    if (*buffer == NULL)
+	return -1;
+
     /* Try to print in the allocated space. */
-    va_start(ap, fmt);
-    nchars = vsnprintf(*buffer, size, fmt, ap);
-    va_end(ap);
+    va_start (ap, fmt);
+    nchars = vsnprintf (*buffer, size, fmt, ap);
+    va_end (ap);
 
     if (nchars >= size)
-    {
-        char *tmpbuff;
-        /* Reallocate buffer now that we know how much space is needed. */
-        size = nchars+1;
-        tmpbuff = (char*)realloc(*buffer, size);
-        
-          
-        if (tmpbuff == NULL) { /* we need to free it*/
-            free(*buffer);
-            return -1;
-        }
-        
-        *buffer=tmpbuff;
-        /* Try again. */
-        va_start(ap, fmt);
-        nchars = vsnprintf(*buffer, size, fmt, ap);
-        va_end(ap);
-    }
+      {
+	  char *tmpbuff;
+	  /* Reallocate buffer now that we know how much space is needed. */
+	  size = nchars + 1;
+	  tmpbuff = (char *) realloc (*buffer, size);
 
-    if (nchars < 0) return nchars;
+
+	  if (tmpbuff == NULL)
+	    {			/* we need to free it */
+		free (*buffer);
+		return -1;
+	    }
+
+	  *buffer = tmpbuff;
+	  /* Try again. */
+	  va_start (ap, fmt);
+	  nchars = vsnprintf (*buffer, size, fmt, ap);
+	  va_end (ap);
+      }
+
+    if (nchars < 0)
+	return nchars;
     return size;
 }

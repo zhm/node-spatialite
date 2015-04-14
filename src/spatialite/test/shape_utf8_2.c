@@ -52,138 +52,184 @@ the terms of any one of the MPL, the GPL or the LGPL.
 #include "sqlite3.h"
 #include "spatialite.h"
 
-int main (int argc, char *argv[])
+int
+main (int argc, char *argv[])
 {
-#ifndef OMIT_ICONV	/* only if ICONV is supported */
+#ifndef OMIT_ICONV		/* only if ICONV is supported */
     int ret;
     sqlite3 *handle;
-    char *kmlname = __FILE__"test.kml";
-    char *geojsonname = __FILE__"test.geojson"; 
+    char *kmlname = __FILE__ "test.kml";
+    char *geojsonname = __FILE__ "test.geojson";
     char *err_msg = NULL;
     int row_count;
+    void *cache = spatialite_alloc_connection ();
 
-    spatialite_init (0);
-    ret = sqlite3_open_v2 (":memory:", &handle, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
-    if (ret != SQLITE_OK) {
-	fprintf(stderr, "cannot open in-memory database: %s\n", sqlite3_errmsg (handle));
-	sqlite3_close(handle);
-	return -1;
-    }
-    
-    ret = sqlite3_exec (handle, "SELECT InitSpatialMetadata()", NULL, NULL, &err_msg);
-    if (ret != SQLITE_OK) {
-	fprintf (stderr, "InitSpatialMetadata() error: %s\n", err_msg);
-	sqlite3_free(err_msg);
-	sqlite3_close(handle);
-	return -2;
-    }
-    
-    ret = load_shapefile (handle, "./shp/taiwan/hystoric", "hystoric", "UTF-8", 4326, 
+    if (argc > 1 || argv[0] == NULL)
+	argc = 1;		/* silencing stupid compiler warnings */
+
+    ret =
+	sqlite3_open_v2 (":memory:", &handle,
+			 SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "cannot open in-memory database: %s\n",
+		   sqlite3_errmsg (handle));
+	  sqlite3_close (handle);
+	  return -1;
+      }
+
+    spatialite_init_ex (handle, cache, 0);
+
+    ret =
+	sqlite3_exec (handle, "SELECT InitSpatialMetadata(1)", NULL, NULL,
+		      &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "InitSpatialMetadata() error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+
+    ret =
+	load_shapefile (handle, "./shp/taiwan/hystoric", "hystoric", "UTF-8",
+			4326, "col1", 1, 0, 1, 0, &row_count, err_msg);
+    if (!ret)
+      {
+	  fprintf (stderr,
+		   "load_shapefile() error for shp/taiwan/hystoric: %s\n",
+		   err_msg);
+	  sqlite3_close (handle);
+	  return -3;
+      }
+    if (row_count != 15)
+      {
+	  fprintf (stderr, "unexpected row count for shp/taiwan/hystoric: %i\n",
+		   row_count);
+	  sqlite3_close (handle);
+	  return -4;
+      }
+
+    ret =
+	load_shapefile (handle, "./shp/taiwan/leisure", "leisure", "UTF-8",
+			4326, "col1", 1, 0, 1, 0, &row_count, err_msg);
+    if (!ret)
+      {
+	  fprintf (stderr,
+		   "load_shapefile() error for shp/taiwan/leisure: %s\n",
+		   err_msg);
+	  sqlite3_close (handle);
+	  return -5;
+      }
+    if (row_count != 5)
+      {
+	  fprintf (stderr, "unexpected row count for shp/taiwan/leisure: %i\n",
+		   row_count);
+	  sqlite3_close (handle);
+	  return -6;
+      }
+
+    ret = load_shapefile (handle, "./shp/taiwan/route", "route", "UTF-8", 4326,
 			  "col1", 1, 0, 1, 0, &row_count, err_msg);
-    if (!ret) {
-        fprintf (stderr, "load_shapefile() error for shp/taiwan/hystoric: %s\n", err_msg);
-	sqlite3_close(handle);
-	return -3;
-    }
-    if (row_count != 15) {
-	fprintf (stderr, "unexpected row count for shp/taiwan/hystoric: %i\n", row_count);
-	sqlite3_close(handle);
-	return -4;
-    }
+    if (!ret)
+      {
+	  fprintf (stderr, "load_shapefile() error for shp/taiwan/route: %s\n",
+		   err_msg);
+	  sqlite3_close (handle);
+	  return -7;
+      }
+    if (row_count != 4)
+      {
+	  fprintf (stderr, "unexpected row count for shp/taiwan/route: %i\n",
+		   row_count);
+	  sqlite3_close (handle);
+	  return -8;
+      }
 
-    ret = load_shapefile (handle, "./shp/taiwan/leisure", "leisure", "UTF-8", 4326, 
-			  "col1", 1, 0, 1, 0, &row_count, err_msg);
-    if (!ret) {
-        fprintf (stderr, "load_shapefile() error for shp/taiwan/leisure: %s\n", err_msg);
-	sqlite3_close(handle);
-	return -5;
-    }
-    if (row_count != 5) {
-	fprintf (stderr, "unexpected row count for shp/taiwan/leisure: %i\n", row_count);
-	sqlite3_close(handle);
-	return -6;
-    }
+#ifndef OMIT_PROJ		/* only if PROJ is supported */
+    if (is_kml_constant (handle, "route", "name"))
+      {
+	  fprintf (stderr, "unexpected result for is_kml_constant (1)\n");
+	  return -9;
+      }
+    if (!is_kml_constant (handle, "route", "foo"))
+      {
+	  fprintf (stderr, "unexpected result for is_kml_constant (2)\n");
+	  return -10;
+      }
 
-    ret = load_shapefile (handle, "./shp/taiwan/route", "route", "UTF-8", 4326, 
-			  "col1", 1, 0, 1, 0, &row_count, err_msg);
-    if (!ret) {
-        fprintf (stderr, "load_shapefile() error for shp/taiwan/route: %s\n", err_msg);
-	sqlite3_close(handle);
-	return -7;
-    }
-    if (row_count != 4) {
-	fprintf (stderr, "unexpected row count for shp/taiwan/route: %i\n", row_count);
-	sqlite3_close(handle);
-	return -8;
-    }
-
-#ifndef OMIT_PROJ	/* only if PROJ is supported */
-    if (is_kml_constant (handle, "route", "name")) {
-	fprintf(stderr, "unexpected result for is_kml_constant (1)\n");
-	return -9;
-    }
-    if (! is_kml_constant (handle, "route", "foo")) {
-	fprintf(stderr, "unexpected result for is_kml_constant (2)\n");
-	return -10;
-    }
-    
     ret = dump_kml (handle, "route", "col1", kmlname, NULL, NULL, 10);
-    if (!ret) {
-        fprintf (stderr, "dump_kml (1) error for shp/taiwan/route: %s\n", err_msg);
-	sqlite3_close(handle);
-	return -11;
-    }
-    unlink(kmlname);
+    if (!ret)
+      {
+	  fprintf (stderr, "dump_kml (1) error for shp/taiwan/route: %s\n",
+		   err_msg);
+	  sqlite3_close (handle);
+	  return -11;
+      }
+    unlink (kmlname);
 
     ret = dump_kml (handle, "route", "col1", kmlname, "name", NULL, 10);
-    if (!ret) {
-        fprintf (stderr, "dump_kml (2) error for shp/taiwan/route: %s\n", err_msg);
-	sqlite3_close(handle);
-	return -12;
-    }
-    unlink(kmlname);
+    if (!ret)
+      {
+	  fprintf (stderr, "dump_kml (2) error for shp/taiwan/route: %s\n",
+		   err_msg);
+	  sqlite3_close (handle);
+	  return -12;
+      }
+    unlink (kmlname);
 
     ret = dump_kml (handle, "route", "col1", kmlname, "theta", NULL, 10);
-    if (!ret) {
-        fprintf (stderr, "dump_kml (3) error for shp/taiwan/route: %s\n", err_msg);
-	sqlite3_close(handle);
-	return -13;
-    }
-    unlink(kmlname);
+    if (!ret)
+      {
+	  fprintf (stderr, "dump_kml (3) error for shp/taiwan/route: %s\n",
+		   err_msg);
+	  sqlite3_close (handle);
+	  return -13;
+      }
+    unlink (kmlname);
 
     ret = dump_kml (handle, "route", "col1", kmlname, "name", "sub_type", 10);
-    if (!ret) {
-        fprintf (stderr, "dump_kml (4) error for shp/taiwan/route: %s\n", err_msg);
-	sqlite3_close(handle);
-	return -14;
-    }
-    unlink(kmlname);
+    if (!ret)
+      {
+	  fprintf (stderr, "dump_kml (4) error for shp/taiwan/route: %s\n",
+		   err_msg);
+	  sqlite3_close (handle);
+	  return -14;
+      }
+    unlink (kmlname);
 
     ret = dump_kml (handle, "route", "col1", kmlname, "theta", "beta", 10);
-    if (!ret) {
-        fprintf (stderr, "dump_kml (5) error for shp/taiwan/route: %s\n", err_msg);
-	sqlite3_close(handle);
-	return -15;
-    }
-    unlink(kmlname);
-#endif	/* end PROJ conditional */
+    if (!ret)
+      {
+	  fprintf (stderr, "dump_kml (5) error for shp/taiwan/route: %s\n",
+		   err_msg);
+	  sqlite3_close (handle);
+	  return -15;
+      }
+    unlink (kmlname);
+#endif /* end PROJ conditional */
 
-    ret = dump_geojson(handle, "route", "col1", geojsonname, 10, 5);
-    if (!ret) {
-        fprintf (stderr, "dump_geojson() error for shp/taiwan/route: %s\n", err_msg);
-       sqlite3_close(handle);
-       return -16;
-    }
-    unlink(geojsonname);
+    ret = dump_geojson (handle, "route", "col1", geojsonname, 10, 5);
+    if (!ret)
+      {
+	  fprintf (stderr, "dump_geojson() error for shp/taiwan/route: %s\n",
+		   err_msg);
+	  sqlite3_close (handle);
+	  return -16;
+      }
+    unlink (geojsonname);
 
     ret = sqlite3_close (handle);
-    if (ret != SQLITE_OK) {
-        fprintf (stderr, "sqlite3_close() error: %s\n", sqlite3_errmsg (handle));
-	return -17;
-    }
-    
-    spatialite_cleanup();
-#endif	/* end ICONV conditional */
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "sqlite3_close() error: %s\n",
+		   sqlite3_errmsg (handle));
+	  return -17;
+      }
 
+    spatialite_cleanup_ex (cache);
+#endif /* end ICONV conditional */
+
+    spatialite_shutdown ();
     return 0;
 }

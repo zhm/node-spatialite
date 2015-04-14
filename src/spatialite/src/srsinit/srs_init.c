@@ -2,7 +2,7 @@
 
  srs_init.c -- populating the SPATIAL_REF_SYS table
 
- version 4.0, 2012 August 6
+ version 4.2, 2014 July 25
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -24,7 +24,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2012
+Portions created by the Initial Developer are Copyright (C) 2008-2013
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -189,7 +189,7 @@ add_srs_wkt (struct epsg_defs *p, int count, const char *text)
     strcat (p->srs_wkt, text);
 }
 
-static void
+SPATIALITE_PRIVATE void
 free_epsg (struct epsg_defs *first)
 {
 /* memory cleanup - destroying the EPSG list */
@@ -211,21 +211,11 @@ populate_spatial_ref_sys (sqlite3 * handle, int mode)
     struct epsg_defs *last = NULL;
     struct epsg_defs *p;
     char sql[1024];
-    char *errMsg = NULL;
     int ret;
     sqlite3_stmt *stmt;
 
 /* initializing the EPSG defs list */
     initialize_epsg (mode, &first, &last);
-
-/* starting a transaction */
-    ret = sqlite3_exec (handle, "BEGIN", NULL, 0, &errMsg);
-    if (ret != SQLITE_OK)
-      {
-	  spatialite_e ("%s\n", errMsg);
-	  sqlite3_free (errMsg);
-	  goto error;
-      }
 
 /* preparing the SQL parameterized statement */
     strcpy (sql, "INSERT INTO spatial_ref_sys ");
@@ -271,27 +261,11 @@ populate_spatial_ref_sys (sqlite3 * handle, int mode)
       }
     sqlite3_finalize (stmt);
 
-/* confirming the transaction */
-    ret = sqlite3_exec (handle, "COMMIT", NULL, 0, &errMsg);
-    if (ret != SQLITE_OK)
-      {
-	  spatialite_e ("%s\n", errMsg);
-	  sqlite3_free (errMsg);
-	  goto error;
-      }
-
 /* freeing the EPSG defs list */
     free_epsg (first);
 
     return 1;
   error:
-/* trying to perform a ROLLBACK anyway */
-    ret = sqlite3_exec (handle, "ROLLBACK", NULL, 0, &errMsg);
-    if (ret != SQLITE_OK)
-      {
-	  spatialite_e ("%s\n", errMsg);
-	  sqlite3_free (errMsg);
-      }
 
 /* freeing the EPSG defs list */
     free_epsg (first);

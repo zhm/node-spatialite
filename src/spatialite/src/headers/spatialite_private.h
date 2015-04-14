@@ -1,7 +1,7 @@
 /* 
  spatialite.h -- Gaia spatial support for SQLite 
   
- version 4.0, 2012 August 6
+ version 4.2, 2014 July 25
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -23,7 +23,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2012
+Portions created by the Initial Developer are Copyright (C) 2008-2013
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -41,6 +41,11 @@ the provisions above, a recipient may use your version of this file under
 the terms of any one of the MPL, the GPL or the LGPL.
  
 */
+
+#include <time.h>
+#include <stdarg.h>
+
+#include <zlib.h>
 
 /**
  \file spatialite_private.h
@@ -84,6 +89,61 @@ extern "C"
 #define SPATIALITE_STATISTICS_VIRTS	3
 #define SPATIALITE_STATISTICS_LEGACY	4
 
+#define SPATIALITE_CACHE_MAGIC1	0xf8
+#define SPATIALITE_CACHE_MAGIC2 0x8f
+
+    struct vxpath_ns
+    {
+/* a Namespace definition */
+	char *Prefix;
+	char *Href;
+	struct vxpath_ns *Next;
+    };
+
+    struct vxpath_namespaces
+    {
+/* Namespace container */
+	struct vxpath_ns *First;
+	struct vxpath_ns *Last;
+    };
+
+    struct splite_geos_cache_item
+    {
+	unsigned char gaiaBlob[64];
+	int gaiaBlobSize;
+	uLong crc32;
+	void *geosGeom;
+	void *preparedGeosGeom;
+    };
+
+    struct splite_xmlSchema_cache_item
+    {
+	time_t timestamp;
+	char *schemaURI;
+	void *schemaDoc;
+	void *parserCtxt;
+	void *schema;
+    };
+
+#define MAX_XMLSCHEMA_CACHE	16
+
+    struct splite_internal_cache
+    {
+	unsigned char magic1;
+	void *GEOS_handle;
+	void *PROJ_handle;
+	void *xmlParsingErrors;
+	void *xmlSchemaValidationErrors;
+	void *xmlXPathErrors;
+	struct splite_geos_cache_item cacheItem1;
+	struct splite_geos_cache_item cacheItem2;
+	struct splite_xmlSchema_cache_item xmlSchemaCache[MAX_XMLSCHEMA_CACHE];
+	int pool_index;
+	void (*geos_warning) (const char *fmt, ...);
+	void (*geos_error) (const char *fmt, ...);
+	unsigned char magic2;
+    };
+
     struct epsg_defs
     {
 	int srid;
@@ -94,6 +154,9 @@ extern "C"
 	char *srs_wkt;
 	struct epsg_defs *next;
     };
+
+    SPATIALITE_PRIVATE void
+	free_internal_cache (struct splite_internal_cache *cache);
 
     SPATIALITE_PRIVATE struct epsg_defs *add_epsg_def (int filter_srid,
 						       struct epsg_defs **first,
@@ -114,6 +177,8 @@ extern "C"
 	initialize_epsg (int filter, struct epsg_defs **first,
 			 struct epsg_defs **last);
 
+    SPATIALITE_PRIVATE void free_epsg (struct epsg_defs *first);
+
     SPATIALITE_PRIVATE int checkSpatialMetaData (const void *sqlite);
 
     SPATIALITE_PRIVATE int delaunay_triangle_check (void *pg);
@@ -121,8 +186,16 @@ extern "C"
     SPATIALITE_PRIVATE void *voronoj_build (int pgs, void *first,
 					    double extra_frame_size);
 
+    SPATIALITE_PRIVATE void *voronoj_build_r (const void *p_cache, int pgs,
+					      void *first,
+					      double extra_frame_size);
+
     SPATIALITE_PRIVATE void *voronoj_export (void *voronoj, void *result,
 					     int only_edges);
+
+    SPATIALITE_PRIVATE void *voronoj_export_r (const void *p_cache,
+					       void *voronoj, void *result,
+					       int only_edges);
 
     SPATIALITE_PRIVATE void voronoj_free (void *voronoj);
 
@@ -130,6 +203,12 @@ extern "C"
 						 int dimension_model,
 						 double factor,
 						 int allow_holes);
+
+    SPATIALITE_PRIVATE void *concave_hull_build_r (const void *p_cache,
+						   void *first,
+						   int dimension_model,
+						   double factor,
+						   int allow_holes);
 
     SPATIALITE_PRIVATE int createAdvancedMetaData (void *sqlite);
 
@@ -154,9 +233,13 @@ extern "C"
 	getRealSQLnames (void *p_sqlite, const char *table, const char *column,
 			 char **real_table, char **real_column);
 
-    SPATIALITE_PRIVATE void
-	buildSpatialIndex (void *p_sqlite, const unsigned char *table,
-			   const char *column);
+    SPATIALITE_PRIVATE void buildSpatialIndex (void *p_sqlite, const unsigned char *table, const char *column);	/* DEPRECATED - always use buildSpatialIndexEx */
+
+    SPATIALITE_PRIVATE int
+	buildSpatialIndexEx (void *p_sqlite, const unsigned char *table,
+			     const char *column);
+
+    SPATIALITE_PRIVATE int validateRowid (void *p_sqlite, const char *table);
 
     SPATIALITE_PRIVATE int
 	doComputeFieldInfos (void *p_sqlite, const char *table,
@@ -169,8 +252,148 @@ extern "C"
 	getEllipsoidParams (void *p_sqlite, int srid, double *a, double *b,
 			    double *rf);
 
+    SPATIALITE_PRIVATE void addVectorLayer (void *list, const char *layer_type,
+					    const char *table_name,
+					    const char *geometry_column,
+					    int geometry_type, int srid,
+					    int spatial_index);
+
+    SPATIALITE_PRIVATE void addVectorLayerExtent (void *list,
+						  const char *table_name,
+						  const char *geometry_column,
+						  int count, double min_x,
+						  double min_y, double max_x,
+						  double max_y);
+
+    SPATIALITE_PRIVATE void addLayerAttributeField (void *list,
+						    const char *table_name,
+						    const char *geometry_column,
+						    int ordinal,
+						    const char *column_name,
+						    int null_values,
+						    int integer_values,
+						    int double_values,
+						    int text_values,
+						    int blob_values,
+						    int null_max_size,
+						    int max_size,
+						    int null_int_range,
+						    void *integer_min,
+						    void *integer_max,
+						    int null_double_range,
+						    double double_min,
+						    double double_max);
+
+    SPATIALITE_PRIVATE int createStylingTables (void *p_sqlite, int relaxed);
+
+    SPATIALITE_PRIVATE int register_external_graphic (void *p_sqlite,
+						      const char *xlink_href,
+						      const unsigned char
+						      *p_blob, int n_bytes,
+						      const char *title,
+						      const char *abstract,
+						      const char *file_name);
+
+    SPATIALITE_PRIVATE int register_vector_styled_layer (void *p_sqlite,
+							 const char
+							 *f_table_name,
+							 const char
+							 *f_geometry_column,
+							 int style_id,
+							 const unsigned char
+							 *p_blob, int n_bytes);
+
+    SPATIALITE_PRIVATE int register_raster_styled_layer (void *p_sqlite,
+							 const char
+							 *coverage_name,
+							 int style_id,
+							 const unsigned char
+							 *p_blob, int n_bytes);
+
+    SPATIALITE_PRIVATE int register_styled_group (void *p_sqlite,
+						  const char *group_name,
+						  const char *f_table_name,
+						  const char *f_geometry_column,
+						  const char *coverage_name,
+						  int paint_order);
+
+    SPATIALITE_PRIVATE int styled_group_set_infos (void *p_sqlite,
+						   const char *group_name,
+						   const char *title,
+						   const char *abstract);
+
+    SPATIALITE_PRIVATE int register_group_style (void *p_sqlite,
+						 const char *group_name,
+						 int style_id,
+						 const unsigned char
+						 *p_blob, int n_bytes);
+
+    SPATIALITE_PRIVATE int createIsoMetadataTables (void *p_sqlite,
+						    int relaxed);
+
+    SPATIALITE_PRIVATE int get_iso_metadata_id (void *p_sqlite,
+						const char *fileIdentifier,
+						void *p_id);
+
+    SPATIALITE_PRIVATE int register_iso_metadata (void *p_sqlite,
+						  const char *scope,
+						  const unsigned char *p_blob,
+						  int n_bytes, void *p_id,
+						  const char *fileIdentifier);
+
+    SPATIALITE_PRIVATE int createRasterCoveragesTable (void *p_sqlite);
+
+    SPATIALITE_PRIVATE int checkPopulatedCoverage (void *p_sqlite,
+						   const char *coverage_name);
+
     SPATIALITE_PRIVATE const char *splite_lwgeom_version (void);
 
+    SPATIALITE_PRIVATE void splite_lwgeom_init (void);
+
+    SPATIALITE_PRIVATE void splite_free_geos_cache_item (struct
+							 splite_geos_cache_item
+							 *p);
+
+    SPATIALITE_PRIVATE void splite_free_geos_cache_item_r (const void *p_cache,
+							   struct
+							   splite_geos_cache_item
+							   *p);
+
+    SPATIALITE_PRIVATE void splite_free_xml_schema_cache_item (struct
+							       splite_xmlSchema_cache_item
+							       *p);
+
+    SPATIALITE_PRIVATE void
+	vxpath_free_namespaces (struct vxpath_namespaces *ns_list);
+
+    SPATIALITE_PRIVATE struct vxpath_namespaces *vxpath_get_namespaces (void
+									*p_xml_doc);
+
+    SPATIALITE_PRIVATE int vxpath_eval_expr (const void *p_cache, void *xml_doc,
+					     const char *xpath_expr,
+					     void *p_xpathCtx,
+					     void *p_xpathObj);
+
+    SPATIALITE_PRIVATE void *register_spatialite_sql_functions (void *db,
+								const void
+								*cache);
+
+    SPATIALITE_PRIVATE void init_spatialite_virtualtables (void *p_db,
+							   const void *p_cache);
+
+    SPATIALITE_PRIVATE void spatialite_splash_screen (int verbose);
+
+    SPATIALITE_PRIVATE void geos_error (const char *fmt, ...);
+
+    SPATIALITE_PRIVATE void geos_warning (const char *fmt, ...);
+
+    SPATIALITE_PRIVATE void splite_cache_semaphore_lock (void);
+
+    SPATIALITE_PRIVATE void splite_cache_semaphore_unlock (void);
+
+    SPATIALITE_PRIVATE void splite_lwgeom_semaphore_lock (void);
+
+    SPATIALITE_PRIVATE void splite_lwgeom_semaphore_unlock (void);
 
 #ifdef __cplusplus
 }

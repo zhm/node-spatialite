@@ -50,7 +50,8 @@ the terms of any one of the MPL, the GPL or the LGPL.
 #include "sqlite3.h"
 #include "spatialite.h"
 
-int main (int argc, char *argv[])
+int
+main (int argc, char *argv[])
 {
 #ifndef OMIT_FREEXL		/* only if FreeXL is supported */
     int ret;
@@ -58,73 +59,101 @@ int main (int argc, char *argv[])
     char *err_msg = NULL;
     unsigned int row_count;
     int rcnt;
+    void *cache = spatialite_alloc_connection ();
 
-    spatialite_init (0);
-    ret = sqlite3_open_v2 (":memory:", &handle, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
-    if (ret != SQLITE_OK) {
-	fprintf(stderr, "cannot open in-memory db: %s\n", sqlite3_errmsg (handle));
-	sqlite3_close(handle);
-	return -1;
-    }
-    
-    ret = sqlite3_exec (handle, "SELECT InitSpatialMetadata()", NULL, NULL, &err_msg);
-    if (ret != SQLITE_OK) {
-	fprintf (stderr, "InitSpatialMetadata() error: %s\n", err_msg);
-	sqlite3_free(err_msg);
-	sqlite3_close(handle);
-	return -2;
-    }
+    if (argc > 1 || argv[0] == NULL)
+	argc = 1;		/* silencing stupid compiler warnings */
 
-    ret = load_XL (handle, "./testcase1.xls", "test1", 0, 0, &row_count, err_msg);
-    if (!ret) {
-        fprintf (stderr, "load_XL() error: %s\n", err_msg);
-	sqlite3_close(handle);
-	return -3;
-    }
-    if (row_count != 17) {
-	fprintf (stderr, "load_XL() unexpected row count: %u\n", row_count);
-	sqlite3_close(handle);
-	return -4;
-    }
+    ret =
+	sqlite3_open_v2 (":memory:", &handle,
+			 SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "cannot open in-memory db: %s\n",
+		   sqlite3_errmsg (handle));
+	  sqlite3_close (handle);
+	  return -1;
+      }
 
-    ret = load_XL (handle, "./testcase1.xls", "test2", 1, 1, &row_count, err_msg);
-    if (!ret) {
-        fprintf (stderr, "load_XL() error sheet 2: %s\n", err_msg);
-	sqlite3_close(handle);
-	return -5;
-    }
-    if (row_count != 19) {
-	fprintf (stderr, "load_XL() unexpected row count sheet 2: %u\n", row_count);
-	sqlite3_close(handle);
-	return -6;
-    }
+    spatialite_init_ex (handle, cache, 0);
+
+    ret =
+	sqlite3_exec (handle, "SELECT InitSpatialMetadata(1)", NULL, NULL,
+		      &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "InitSpatialMetadata() error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+
+    ret =
+	load_XL (handle, "./testcase1.xls", "test1", 0, 0, &row_count, err_msg);
+    if (!ret)
+      {
+	  fprintf (stderr, "load_XL() error: %s\n", err_msg);
+	  sqlite3_close (handle);
+	  return -3;
+      }
+    if (row_count != 17)
+      {
+	  fprintf (stderr, "load_XL() unexpected row count: %u\n", row_count);
+	  sqlite3_close (handle);
+	  return -4;
+      }
+
+    ret =
+	load_XL (handle, "./testcase1.xls", "test2", 1, 1, &row_count, err_msg);
+    if (!ret)
+      {
+	  fprintf (stderr, "load_XL() error sheet 2: %s\n", err_msg);
+	  sqlite3_close (handle);
+	  return -5;
+      }
+    if (row_count != 19)
+      {
+	  fprintf (stderr, "load_XL() unexpected row count sheet 2: %u\n",
+		   row_count);
+	  sqlite3_close (handle);
+	  return -6;
+      }
 
     check_duplicated_rows (handle, "test1", &rcnt);
-    if (rcnt != 0) {
-	fprintf (stderr, "check_duplicated_rows() unexpected duplicate count: %d\n", rcnt);
-	sqlite3_close(handle);
-	return -8;
-    }
+    if (rcnt != 0)
+      {
+	  fprintf (stderr,
+		   "check_duplicated_rows() unexpected duplicate count: %d\n",
+		   rcnt);
+	  sqlite3_close (handle);
+	  return -8;
+      }
 
     check_duplicated_rows (handle, "test2", &rcnt);
-    if (rcnt != 2) {
-	fprintf (stderr, "check_duplicated_rows() unexpected duplicate count sheet 2: %d\n", rcnt);
-	sqlite3_close(handle);
-	return -10;
-    }
+    if (rcnt != 2)
+      {
+	  fprintf (stderr,
+		   "check_duplicated_rows() unexpected duplicate count sheet 2: %d\n",
+		   rcnt);
+	  sqlite3_close (handle);
+	  return -10;
+      }
 
     remove_duplicated_rows (handle, "test1");
 
     remove_duplicated_rows (handle, "test2");
 
     ret = sqlite3_close (handle);
-    if (ret != SQLITE_OK) {
-        fprintf (stderr, "sqlite3_close() error: %s\n", sqlite3_errmsg (handle));
-	return -11;
-    }
-    
-    spatialite_cleanup();
-#endif	/* end FreeXL conditional */
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "sqlite3_close() error: %s\n",
+		   sqlite3_errmsg (handle));
+	  return -11;
+      }
 
+    spatialite_cleanup_ex (cache);
+#endif /* end FreeXL conditional */
+
+    spatialite_shutdown ();
     return 0;
 }

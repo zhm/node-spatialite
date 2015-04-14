@@ -3,7 +3,7 @@ INSTDIR=C:\OSGeo4W
 
 # Uncomment the first for an optimized build, or the second for debug.
 OPTFLAGS=	/nologo /Ox /fp:precise /W3 /MD /D_CRT_SECURE_NO_WARNINGS \
-		/DDLL_EXPORT
+		/DDLL_EXPORT /DYY_NO_UNISTD_H
 #OPTFLAGS=	/nologo /Zi /MD /Fdspatialite.pdb /DDLL_EXPORT
 
 # Set the version number for the DLL.  Normally we leave this blank since

@@ -51,6 +51,7 @@ main (int argc, char *argv[])
     int blob_size;
     int geom_type;
     double measure;
+    void *cache;
 
 
     if (argc != 2)
@@ -58,23 +59,6 @@ main (int argc, char *argv[])
 	  fprintf (stderr, "usage: %s test_db_path\n", argv[0]);
 	  return -1;
       }
-
-
-
-/* 
-VERY IMPORTANT: 
-you must initialize the SpatiaLite extension [and related]
-BEFORE attempting to perform any other SQLite call 
-*/
-    spatialite_init (0);
-
-
-/* showing the SQLite version */
-    printf ("SQLite version: %s\n", sqlite3_libversion ());
-/* showing the SpatiaLite version */
-    printf ("SpatiaLite version: %s\n", spatialite_version ());
-    printf ("\n\n");
-
 
 
 /* 
@@ -92,6 +76,31 @@ Please notice: we'll establish a READ ONLY connection
 	  sqlite3_close (handle);
 	  return -1;
       }
+
+/* 
+VERY IMPORTANT: 
+you must initialize the SpatiaLite extension [and related]
+BEFORE attempting to perform any other SQLite call 
+==========================================================
+Please note: starting since 4.1.0 this is completely canged:
+- a separate memory block (internal cache) is required by
+  each single connection
+- allocating/freeing this block falls under the responsibility 
+  of the program handling the connection
+- in multithreaded programs a connection can never be share by
+  different threads; the internal-cache block must be allocated
+  by the same thread holding the connection
+*/
+    
+    cache = spatialite_alloc_connection ();
+    spatialite_init_ex (handle, cache, 0);
+
+
+/* showing the SQLite version */
+    printf ("SQLite version: %s\n", sqlite3_libversion ());
+/* showing the SpatiaLite version */
+    printf ("SpatiaLite version: %s\n", spatialite_version ());
+    printf ("\n\n");
 
 
 
@@ -341,6 +350,10 @@ for each column we'll then get:
 	  printf ("close() error: %s\n", sqlite3_errmsg (handle));
 	  return -1;
       }
+
+/* freeing the internal-cache memory block */
+    spatialite_cleanup_ex (cache);
+
     printf ("\n\nsample successfully terminated\n");
 /* we have to free the dynamic pointer array used to store geotable names */
     for (i = 0; i < n_geotables; i++)
@@ -349,11 +362,15 @@ for each column we'll then get:
 	  free (p_geotables[i]);
       }
     free (p_geotables);
+    spatialite_shutdown();
     return 0;
 
   abort:
     sqlite3_close (handle);
-    spatialite_cleanup();
+
+/* freeing the internal-cache memory block */
+    spatialite_cleanup_ex (cache);
+
     if (p_geotables)
       {
 /* we have to free the dynamic pointer array used to store geotable names */
@@ -364,5 +381,6 @@ for each column we'll then get:
 	    }
 	  free (p_geotables);
       }
+    spatialite_shutdown();
     return -1;
 }

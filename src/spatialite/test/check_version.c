@@ -50,13 +50,19 @@ the terms of any one of the MPL, the GPL or the LGPL.
 #include "sqlite3.h"
 #include "spatialite.h"
 
-int main (int argc, char *argv[])
+int
+main (int argc, char *argv[])
 {
-    if (strcmp(spatialite_version(), VERSION) != 0) {
-	fprintf(stderr, "SpatiaLite version mismatch: %s and %s\n",
-		VERSION, spatialite_version());
-	return -1;
-    }
-    
+    if (argc > 1 || argv[0] == NULL)
+	argc = 1;		/* silencing stupid compiler warnings */
+
+    if (strcmp (spatialite_version (), VERSION) != 0)
+      {
+	  fprintf (stderr, "SpatiaLite version mismatch: %s and %s\n",
+		   VERSION, spatialite_version ());
+	  return -1;
+      }
+
+    spatialite_shutdown ();
     return 0;
 }

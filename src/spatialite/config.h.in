@@ -1,5 +1,11 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Should be defined in order to enable GeoPackage support. */
+#undef ENABLE_GEOPACKAGE
+
+/* Should be defined in order to enable LIBXML2 support. */
+#undef ENABLE_LIBXML2
+
 /* Should be defined in order to enable LWGEOM support. */
 #undef ENABLE_LWGEOM
 
@@ -47,6 +53,9 @@
 
 /* Define to 1 if you have the `sqlite3' library (-lsqlite3). */
 #undef HAVE_LIBSQLITE3
+
+/* Define to 1 if you have the `z' library (-lz). */
+#undef HAVE_LIBZ
 
 /* Define to 1 if you have the `localtime_r' function. */
 #undef HAVE_LOCALTIME_R
@@ -128,6 +137,9 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* Define to 1 if you have the <zlib.h> header file. */
+#undef HAVE_ZLIB_H
+
 /* Define to 1 if `lstat' dereferences a symlink specified with a trailing
    slash. */
 #undef LSTAT_FOLLOWS_SLASHED_SYMLINK
@@ -181,8 +193,14 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
+/* Should be defined when linking liblwgeom from PostGIS 2.1 (or later). */
+#undef POSTGIS_2_1
+
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
+
+/* Should contain a text-string describing the intended target CPU */
+#undef TARGET_CPU
 
 /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
 #undef TIME_WITH_SYS_TIME

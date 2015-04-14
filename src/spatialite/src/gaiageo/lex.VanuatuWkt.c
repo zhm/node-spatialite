@@ -50,9 +50,10 @@ typedef uint32_t flex_uint32_t;
 typedef signed char flex_int8_t;
 typedef short int flex_int16_t;
 typedef int flex_int32_t;
-typedef unsigned char flex_uint8_t; 
+typedef unsigned char flex_uint8_t;
 typedef unsigned short int flex_uint16_t;
 typedef unsigned int flex_uint32_t;
+#endif /* ! C99 */
 
 /* Limits of integral types. */
 #ifndef INT8_MIN
@@ -83,8 +84,6 @@ typedef unsigned int flex_uint32_t;
 #define UINT32_MAX             (4294967295U)
 #endif
 
-#endif /* ! C99 */
-
 #endif /* ! FLEXINT_H */
 
 #ifdef __cplusplus
@@ -92,15 +91,15 @@ typedef unsigned int flex_uint32_t;
 /* The "const" storage-class-modifier is valid. */
 #define YY_USE_CONST
 
-#else	/* ! __cplusplus */
+#else /* ! __cplusplus */
 
 /* C99 requires __STDC__ to be defined as 1. */
 #if defined (__STDC__)
 
 #define YY_USE_CONST
 
-#endif	/* defined (__STDC__) */
-#endif	/* ! __cplusplus */
+#endif /* defined (__STDC__) */
+#endif /* ! __cplusplus */
 
 #ifdef YY_USE_CONST
 #define yyconst const
@@ -121,7 +120,7 @@ typedef unsigned int flex_uint32_t;
 /* An opaque pointer. */
 #ifndef YY_TYPEDEF_YY_SCANNER_T
 #define YY_TYPEDEF_YY_SCANNER_T
-typedef void* yyscan_t;
+typedef void *yyscan_t;
 #endif
 
 /* For convenience, these vars (plus the bison vars far below)
@@ -158,15 +157,7 @@ typedef void* yyscan_t;
 
 /* Size of default input buffer. */
 #ifndef YY_BUF_SIZE
-#ifdef __ia64__
-/* On IA-64, the buffer size is 16k, not 8k.
- * Moreover, YY_BUF_SIZE is 2*YY_READ_BUF_SIZE in the general case.
- * Ditto for the __ia64__ case accordingly.
- */
-#define YY_BUF_SIZE 32768
-#else
 #define YY_BUF_SIZE 16384
-#endif /* __ia64__ */
 #endif
 
 /* The state buf must be large enough to hold one state per character in the main buffer.
@@ -182,8 +173,8 @@ typedef struct yy_buffer_state *YY_BUFFER_STATE;
 #define EOB_ACT_END_OF_FILE 1
 #define EOB_ACT_LAST_MATCH 2
 
-    #define YY_LESS_LINENO(n)
-    
+#define YY_LESS_LINENO(n)
+
 /* Return all but the first "n" matched characters back to the input stream. */
 #define yyless(n) \
 	do \
@@ -208,66 +199,66 @@ typedef size_t yy_size_t;
 #ifndef YY_STRUCT_YY_BUFFER_STATE
 #define YY_STRUCT_YY_BUFFER_STATE
 struct yy_buffer_state
-	{
-	FILE *yy_input_file;
+{
+    FILE *yy_input_file;
 
-	char *yy_ch_buf;		/* input buffer */
-	char *yy_buf_pos;		/* current position in input buffer */
+    char *yy_ch_buf;		/* input buffer */
+    char *yy_buf_pos;		/* current position in input buffer */
 
-	/* Size of input buffer in bytes, not including room for EOB
-	 * characters.
-	 */
-	yy_size_t yy_buf_size;
+    /* Size of input buffer in bytes, not including room for EOB
+     * characters.
+     */
+    yy_size_t yy_buf_size;
 
-	/* Number of characters read into yy_ch_buf, not including EOB
-	 * characters.
-	 */
-	int yy_n_chars;
+    /* Number of characters read into yy_ch_buf, not including EOB
+     * characters.
+     */
+    int yy_n_chars;
 
-	/* Whether we "own" the buffer - i.e., we know we created it,
-	 * and can realloc() it to grow it, and should free() it to
-	 * delete it.
-	 */
-	int yy_is_our_buffer;
+    /* Whether we "own" the buffer - i.e., we know we created it,
+     * and can realloc() it to grow it, and should free() it to
+     * delete it.
+     */
+    int yy_is_our_buffer;
 
-	/* Whether this is an "interactive" input source; if so, and
-	 * if we're using stdio for input, then we want to use getc()
-	 * instead of fread(), to make sure we stop fetching input after
-	 * each newline.
-	 */
-	int yy_is_interactive;
+    /* Whether this is an "interactive" input source; if so, and
+     * if we're using stdio for input, then we want to use getc()
+     * instead of fread(), to make sure we stop fetching input after
+     * each newline.
+     */
+    int yy_is_interactive;
 
-	/* Whether we're considered to be at the beginning of a line.
-	 * If so, '^' rules will be active on the next match, otherwise
-	 * not.
-	 */
-	int yy_at_bol;
+    /* Whether we're considered to be at the beginning of a line.
+     * If so, '^' rules will be active on the next match, otherwise
+     * not.
+     */
+    int yy_at_bol;
 
     int yy_bs_lineno; /**< The line count. */
     int yy_bs_column; /**< The column count. */
-    
-	/* Whether to try to fill the input buffer when we reach the
-	 * end of it.
-	 */
-	int yy_fill_buffer;
 
-	int yy_buffer_status;
+    /* Whether to try to fill the input buffer when we reach the
+     * end of it.
+     */
+    int yy_fill_buffer;
+
+    int yy_buffer_status;
 
 #define YY_BUFFER_NEW 0
 #define YY_BUFFER_NORMAL 1
-	/* When an EOF's been seen but there's still some text to process
-	 * then we mark the buffer as YY_EOF_PENDING, to indicate that we
-	 * shouldn't try reading from the input source any more.  We might
-	 * still have a bunch of tokens to match, though, because of
-	 * possible backing-up.
-	 *
-	 * When we actually see the EOF, we change the status to "new"
-	 * (via VanuatuWktrestart()), so that the user can continue scanning by
-	 * just pointing yyin at a new input file.
-	 */
+    /* When an EOF's been seen but there's still some text to process
+     * then we mark the buffer as YY_EOF_PENDING, to indicate that we
+     * shouldn't try reading from the input source any more.  We might
+     * still have a bunch of tokens to match, though, because of
+     * possible backing-up.
+     *
+     * When we actually see the EOF, we change the status to "new"
+     * (via VanuatuWktrestart()), so that the user can continue scanning by
+     * just pointing yyin at a new input file.
+     */
 #define YY_BUFFER_EOF_PENDING 2
 
-	};
+};
 #endif /* !YY_STRUCT_YY_BUFFER_STATE */
 
 /* We provide macros for accessing buffer states in case in the
@@ -285,27 +276,34 @@ struct yy_buffer_state
  */
 #define YY_CURRENT_BUFFER_LVALUE yyg->yy_buffer_stack[yyg->yy_buffer_stack_top]
 
-void VanuatuWktrestart (FILE *input_file ,yyscan_t yyscanner );
-void VanuatuWkt_switch_to_buffer (YY_BUFFER_STATE new_buffer ,yyscan_t yyscanner );
-YY_BUFFER_STATE VanuatuWkt_create_buffer (FILE *file,int size ,yyscan_t yyscanner );
-void VanuatuWkt_delete_buffer (YY_BUFFER_STATE b ,yyscan_t yyscanner );
-void VanuatuWkt_flush_buffer (YY_BUFFER_STATE b ,yyscan_t yyscanner );
-void VanuatuWktpush_buffer_state (YY_BUFFER_STATE new_buffer ,yyscan_t yyscanner );
-void VanuatuWktpop_buffer_state (yyscan_t yyscanner );
+void VanuatuWktrestart (FILE * input_file, yyscan_t yyscanner);
+void VanuatuWkt_switch_to_buffer (YY_BUFFER_STATE new_buffer,
+				  yyscan_t yyscanner);
+YY_BUFFER_STATE VanuatuWkt_create_buffer (FILE * file, int size,
+					  yyscan_t yyscanner);
+void VanuatuWkt_delete_buffer (YY_BUFFER_STATE b, yyscan_t yyscanner);
+void VanuatuWkt_flush_buffer (YY_BUFFER_STATE b, yyscan_t yyscanner);
+void VanuatuWktpush_buffer_state (YY_BUFFER_STATE new_buffer,
+				  yyscan_t yyscanner);
+void VanuatuWktpop_buffer_state (yyscan_t yyscanner);
 
-static void VanuatuWktensure_buffer_stack (yyscan_t yyscanner );
-static void VanuatuWkt_load_buffer_state (yyscan_t yyscanner );
-static void VanuatuWkt_init_buffer (YY_BUFFER_STATE b,FILE *file ,yyscan_t yyscanner );
+static void VanuatuWktensure_buffer_stack (yyscan_t yyscanner);
+static void VanuatuWkt_load_buffer_state (yyscan_t yyscanner);
+static void VanuatuWkt_init_buffer (YY_BUFFER_STATE b, FILE * file,
+				    yyscan_t yyscanner);
 
 #define YY_FLUSH_BUFFER VanuatuWkt_flush_buffer(YY_CURRENT_BUFFER ,yyscanner)
 
-YY_BUFFER_STATE VanuatuWkt_scan_buffer (char *base,yy_size_t size ,yyscan_t yyscanner );
-YY_BUFFER_STATE VanuatuWkt_scan_string (yyconst char *yy_str ,yyscan_t yyscanner );
-YY_BUFFER_STATE VanuatuWkt_scan_bytes (yyconst char *bytes,int len ,yyscan_t yyscanner );
+YY_BUFFER_STATE VanuatuWkt_scan_buffer (char *base, yy_size_t size,
+					yyscan_t yyscanner);
+YY_BUFFER_STATE VanuatuWkt_scan_string (yyconst char *yy_str,
+					yyscan_t yyscanner);
+YY_BUFFER_STATE VanuatuWkt_scan_bytes (yyconst char *bytes, int len,
+				       yyscan_t yyscanner);
 
-void *VanuatuWktalloc (yy_size_t ,yyscan_t yyscanner );
-void *VanuatuWktrealloc (void *,yy_size_t ,yyscan_t yyscanner );
-void VanuatuWktfree (void * ,yyscan_t yyscanner );
+void *VanuatuWktalloc (yy_size_t, yyscan_t yyscanner);
+void *VanuatuWktrealloc (void *, yy_size_t, yyscan_t yyscanner);
+void VanuatuWktfree (void *, yyscan_t yyscanner);
 
 #define yy_new_buffer VanuatuWkt_create_buffer
 
@@ -339,10 +337,11 @@ typedef int yy_state_type;
 
 #define yytext_ptr yytext_r
 
-static yy_state_type yy_get_previous_state (yyscan_t yyscanner );
-static yy_state_type yy_try_NUL_trans (yy_state_type current_state  ,yyscan_t yyscanner);
-static int yy_get_next_buffer (yyscan_t yyscanner );
-static void yy_fatal_error (yyconst char msg[] ,yyscan_t yyscanner );
+static yy_state_type yy_get_previous_state (yyscan_t yyscanner);
+static yy_state_type yy_try_NUL_trans (yy_state_type current_state,
+				       yyscan_t yyscanner);
+static int yy_get_next_buffer (yyscan_t yyscanner);
+static void yy_fatal_error (yyconst char msg[], yyscan_t yyscanner);
 
 /* Done after the current pattern has been matched and before the
  * corresponding action - sets up yytext.
@@ -359,174 +358,165 @@ static void yy_fatal_error (yyconst char msg[] ,yyscan_t yyscanner );
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
-	{
-	flex_int32_t yy_verify;
-	flex_int32_t yy_nxt;
-	};
-static yyconst flex_int16_t yy_accept[114] =
-    {   0,
-        0,    0,   37,   35,   33,   34,    3,    4,   35,    2,
-       35,    1,   35,   35,   35,   35,    1,    1,    1,    1,
-        0,    0,    0,    0,    1,    1,    1,    0,    0,    0,
-        0,    0,    1,    1,    0,    0,    0,    0,    0,    0,
-        0,    0,    5,    0,    0,    0,    0,    0,    0,    7,
-        6,    0,    0,    0,    0,    0,    8,   13,    0,    0,
-        0,    0,    0,    0,   15,   14,    0,    0,    0,    0,
-        0,   16,    0,    9,    0,   17,    0,    0,    0,   11,
-       10,    0,    0,   19,   18,    0,    0,   12,    0,   20,
-       25,    0,    0,    0,   27,   26,    0,    0,   28,    0,
+{
+    flex_int32_t yy_verify;
+    flex_int32_t yy_nxt;
+};
+static yyconst flex_int16_t yy_accept[114] = { 0,
+    0, 0, 37, 35, 33, 34, 3, 4, 35, 2,
+    35, 1, 35, 35, 35, 35, 1, 1, 1, 1,
+    0, 0, 0, 0, 1, 1, 1, 0, 0, 0,
+    0, 0, 1, 1, 0, 0, 0, 0, 0, 0,
+    0, 0, 5, 0, 0, 0, 0, 0, 0, 7,
+    6, 0, 0, 0, 0, 0, 8, 13, 0, 0,
+    0, 0, 0, 0, 15, 14, 0, 0, 0, 0,
+    0, 16, 0, 9, 0, 17, 0, 0, 0, 11,
+    10, 0, 0, 19, 18, 0, 0, 12, 0, 20,
+    25, 0, 0, 0, 27, 26, 0, 0, 28, 0,
 
-       21,    0,    0,   23,   22,    0,   24,   29,    0,   31,
-       30,   32,    0
-    } ;
+    21, 0, 0, 23, 22, 0, 24, 29, 0, 31,
+    30, 32, 0
+};
 
-static yyconst flex_int32_t yy_ec[256] =
-    {   0,
-        1,    1,    1,    1,    1,    1,    1,    1,    2,    3,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    2,    1,    1,    1,    1,    1,    1,    1,    4,
-        5,    1,    6,    7,    8,    9,    1,   10,   10,   10,
-       10,   10,   10,   10,   10,   10,   10,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,   11,    1,   12,    1,
-       13,    1,   14,    1,    1,   15,   16,   17,   18,   19,
-        1,   20,   21,   22,   23,    1,    1,    1,   24,   25,
-        1,    1,    1,    1,    1,    1,    1,    1,   26,    1,
+static yyconst flex_int32_t yy_ec[256] = { 0,
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 3,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 2, 1, 1, 1, 1, 1, 1, 1, 4,
+    5, 1, 6, 7, 8, 9, 1, 10, 10, 10,
+    10, 10, 10, 10, 10, 10, 10, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 11, 1, 12, 1,
+    13, 1, 14, 1, 1, 15, 16, 17, 18, 19,
+    1, 20, 21, 22, 23, 1, 1, 1, 24, 25,
+    1, 1, 1, 1, 1, 1, 1, 1, 26, 1,
 
-       27,    1,   28,    1,   29,    1,    1,   30,   31,   32,
-       33,   34,    1,   35,   36,   37,   38,    1,    1,    1,
-       39,   40,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+    27, 1, 28, 1, 29, 1, 1, 30, 31, 32,
+    33, 34, 1, 35, 36, 37, 38, 1, 1, 1,
+    39, 40, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1
-    } ;
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1
+};
 
-static yyconst flex_int32_t yy_meta[41] =
-    {   0,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1
-    } ;
+static yyconst flex_int32_t yy_meta[41] = { 0,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+};
 
-static yyconst flex_int16_t yy_base[115] =
-    {   0,
-        0,   33,  211,  255,  255,  255,  255,  255,  192,  255,
-      191,    2,    2,    3,    4,    0,   11,   13,  185,   15,
-       26,   28,   32,   36,  162,  161,  154,   37,   42,   33,
-       39,   33,   71,   16,   46,   53,   61,   54,   64,   56,
-       57,   65,   80,   67,   66,   67,   74,   79,    0,  255,
-       82,   87,   82,   93,   91,   95,  255,  112,  105,  100,
-      106,  109,  103,    0,  255,  113,  112,  121,  114,  114,
-      125,  255,  124,  144,  118,  154,  130,  143,    0,  255,
-      143,  141,    0,  255,  146,  148,  154,  255,  153,  255,
-      184,  157,  161,    0,  255,  172,  167,  177,  255,  177,
+static yyconst flex_int16_t yy_base[115] = { 0,
+    0, 33, 211, 255, 255, 255, 255, 255, 192, 255,
+    191, 2, 2, 3, 4, 0, 11, 13, 185, 15,
+    26, 28, 32, 36, 162, 161, 154, 37, 42, 33,
+    39, 33, 71, 16, 46, 53, 61, 54, 64, 56,
+    57, 65, 80, 67, 66, 67, 74, 79, 0, 255,
+    82, 87, 82, 93, 91, 95, 255, 112, 105, 100,
+    106, 109, 103, 0, 255, 113, 112, 121, 114, 114,
+    125, 255, 124, 144, 118, 154, 130, 143, 0, 255,
+    143, 141, 0, 255, 146, 148, 154, 255, 153, 255,
+    184, 157, 161, 0, 255, 172, 167, 177, 255, 177,
 
-      194,  174,    0,  255,  182,  182,  255,  214,    0,  255,
-      192,  255,  255,    0
-    } ;
+    194, 174, 0, 255, 182, 182, 255, 214, 0, 255,
+    192, 255, 255, 0
+};
 
-static yyconst flex_int16_t yy_def[115] =
-    {   0,
-      114,  114,  113,  113,  113,  113,  113,  113,  113,  113,
-      113,  113,  113,  113,  113,  113,  113,  113,  113,  113,
-      113,  113,  113,  113,  113,  113,  113,  113,  113,  113,
-      113,  113,  113,  113,  113,  113,  113,  113,  113,  113,
-      113,  113,  113,  113,  113,  113,  113,  113,   43,  113,
-      113,  113,  113,  113,  113,  113,  113,  113,  113,  113,
-      113,  113,  113,   58,  113,  113,  113,  113,  113,  113,
-      113,  113,  113,  113,  113,  113,  113,  113,   74,  113,
-      113,  113,   76,  113,  113,  113,  113,  113,  113,  113,
-      113,  113,  113,   91,  113,  113,  113,  113,  113,  113,
+static yyconst flex_int16_t yy_def[115] = { 0,
+    114, 114, 113, 113, 113, 113, 113, 113, 113, 113,
+    113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
+    113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
+    113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
+    113, 113, 113, 113, 113, 113, 113, 113, 43, 113,
+    113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
+    113, 113, 113, 58, 113, 113, 113, 113, 113, 113,
+    113, 113, 113, 113, 113, 113, 113, 113, 74, 113,
+    113, 113, 76, 113, 113, 113, 113, 113, 113, 113,
+    113, 113, 113, 91, 113, 113, 113, 113, 113, 113,
 
-      113,  113,  101,  113,  113,  113,  113,  113,  108,  113,
-      113,  113,    0,  113
-    } ;
+    113, 113, 101, 113, 113, 113, 113, 113, 108, 113,
+    113, 113, 0, 113
+};
 
-static yyconst flex_int16_t yy_nxt[296] =
-    {   0,
-        4,    5,    6,    7,    8,    9,   10,   11,  113,   12,
-       19,   20,   13,   21,   14,   15,   22,   24,   16,   25,
-       17,   26,   18,   19,   20,   34,   23,   13,   21,   14,
-       15,   22,   24,   16,    5,    6,    7,    8,    9,   10,
-       11,   23,   12,   28,   29,   13,   30,   14,   15,   31,
-       32,   16,   35,   36,   37,   38,   39,   40,   28,   29,
-       13,   30,   14,   15,   31,   32,   16,   35,   36,   37,
-       38,   39,   40,   41,   42,   43,   44,   45,   46,   47,
-       33,   49,   49,   48,   52,   53,   54,   55,   41,   42,
-       43,   44,   45,   46,   47,   50,   56,   57,   48,   52,
+static yyconst flex_int16_t yy_nxt[296] = { 0,
+    4, 5, 6, 7, 8, 9, 10, 11, 113, 12,
+    19, 20, 13, 21, 14, 15, 22, 24, 16, 25,
+    17, 26, 18, 19, 20, 34, 23, 13, 21, 14,
+    15, 22, 24, 16, 5, 6, 7, 8, 9, 10,
+    11, 23, 12, 28, 29, 13, 30, 14, 15, 31,
+    32, 16, 35, 36, 37, 38, 39, 40, 28, 29,
+    13, 30, 14, 15, 31, 32, 16, 35, 36, 37,
+    38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+    33, 49, 49, 48, 52, 53, 54, 55, 41, 42,
+    43, 44, 45, 46, 47, 50, 56, 57, 48, 52,
 
-       53,   54,   55,   58,   51,   59,   60,   61,   62,   63,
-       50,   56,   57,   64,   64,   67,   68,   69,   58,   51,
-       59,   60,   61,   62,   63,   70,   71,   65,   72,   73,
-       67,   68,   69,   74,   75,   76,   66,   77,   78,   82,
-       70,   71,   65,   72,   73,   79,   79,   86,   74,   75,
-       76,   66,   77,   78,   82,   83,   83,   87,   88,   80,
-       89,   90,   86,   27,   91,   92,   93,   97,   81,   84,
-       34,   33,   87,   88,   80,   89,   90,   98,   85,   91,
-       92,   93,   97,   81,   84,   94,   94,   99,  100,  101,
-      102,  106,   98,   85,   27,  103,  103,  107,  108,   95,
+    53, 54, 55, 58, 51, 59, 60, 61, 62, 63,
+    50, 56, 57, 64, 64, 67, 68, 69, 58, 51,
+    59, 60, 61, 62, 63, 70, 71, 65, 72, 73,
+    67, 68, 69, 74, 75, 76, 66, 77, 78, 82,
+    70, 71, 65, 72, 73, 79, 79, 86, 74, 75,
+    76, 66, 77, 78, 82, 83, 83, 87, 88, 80,
+    89, 90, 86, 27, 91, 92, 93, 97, 81, 84,
+    34, 33, 87, 88, 80, 89, 90, 98, 85, 91,
+    92, 93, 97, 81, 84, 94, 94, 99, 100, 101,
+    102, 106, 98, 85, 27, 103, 103, 107, 108, 95,
 
-       18,   17,   99,  100,  101,  102,  106,  112,   96,  104,
-      113,  113,  107,  108,   95,  109,  109,  113,  105,  113,
-      113,  113,  112,   96,  104,  113,  113,  113,  113,  110,
-      113,  113,  113,  105,  113,  113,  113,  113,  111,  113,
-      113,  113,  113,  113,  110,  113,  113,  113,  113,  113,
-      113,  113,  113,  111,    3,  113,  113,  113,  113,  113,
-      113,  113,  113,  113,  113,  113,  113,  113,  113,  113,
-      113,  113,  113,  113,  113,  113,  113,  113,  113,  113,
-      113,  113,  113,  113,  113,  113,  113,  113,  113,  113,
-      113,  113,  113,  113,  113
+    18, 17, 99, 100, 101, 102, 106, 112, 96, 104,
+    113, 113, 107, 108, 95, 109, 109, 113, 105, 113,
+    113, 113, 112, 96, 104, 113, 113, 113, 113, 110,
+    113, 113, 113, 105, 113, 113, 113, 113, 111, 113,
+    113, 113, 113, 113, 110, 113, 113, 113, 113, 113,
+    113, 113, 113, 111, 3, 113, 113, 113, 113, 113,
+    113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
+    113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
+    113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
+    113, 113, 113, 113, 113
+};
 
-    } ;
+static yyconst flex_int16_t yy_chk[296] = { 0,
+    114, 1, 1, 1, 1, 1, 1, 1, 0, 1,
+    12, 12, 1, 13, 1, 1, 14, 16, 1, 17,
+    17, 18, 18, 20, 20, 34, 15, 1, 13, 1,
+    1, 14, 16, 1, 2, 2, 2, 2, 2, 2,
+    2, 15, 2, 21, 22, 2, 23, 2, 2, 24,
+    24, 2, 28, 29, 30, 31, 32, 35, 21, 22,
+    2, 23, 2, 2, 24, 24, 2, 28, 29, 30,
+    31, 32, 35, 36, 37, 38, 39, 40, 41, 42,
+    33, 43, 43, 42, 44, 45, 46, 47, 36, 37,
+    38, 39, 40, 41, 42, 43, 48, 51, 42, 44,
 
-static yyconst flex_int16_t yy_chk[296] =
-    {   0,
-      114,    1,    1,    1,    1,    1,    1,    1,    0,    1,
-       12,   12,    1,   13,    1,    1,   14,   16,    1,   17,
-       17,   18,   18,   20,   20,   34,   15,    1,   13,    1,
-        1,   14,   16,    1,    2,    2,    2,    2,    2,    2,
-        2,   15,    2,   21,   22,    2,   23,    2,    2,   24,
-       24,    2,   28,   29,   30,   31,   32,   35,   21,   22,
-        2,   23,    2,    2,   24,   24,    2,   28,   29,   30,
-       31,   32,   35,   36,   37,   38,   39,   40,   41,   42,
-       33,   43,   43,   42,   44,   45,   46,   47,   36,   37,
-       38,   39,   40,   41,   42,   43,   48,   51,   42,   44,
+    45, 46, 47, 52, 43, 53, 54, 55, 56, 56,
+    43, 48, 51, 58, 58, 59, 60, 61, 52, 43,
+    53, 54, 55, 56, 56, 62, 63, 58, 66, 67,
+    59, 60, 61, 68, 69, 70, 58, 71, 73, 75,
+    62, 63, 58, 66, 67, 74, 74, 77, 68, 69,
+    70, 58, 71, 73, 75, 76, 76, 78, 81, 74,
+    82, 85, 77, 27, 86, 87, 89, 92, 74, 76,
+    26, 25, 78, 81, 74, 82, 85, 93, 76, 86,
+    87, 89, 92, 74, 76, 91, 91, 96, 97, 98,
+    100, 102, 93, 76, 19, 101, 101, 105, 106, 91,
 
-       45,   46,   47,   52,   43,   53,   54,   55,   56,   56,
-       43,   48,   51,   58,   58,   59,   60,   61,   52,   43,
-       53,   54,   55,   56,   56,   62,   63,   58,   66,   67,
-       59,   60,   61,   68,   69,   70,   58,   71,   73,   75,
-       62,   63,   58,   66,   67,   74,   74,   77,   68,   69,
-       70,   58,   71,   73,   75,   76,   76,   78,   81,   74,
-       82,   85,   77,   27,   86,   87,   89,   92,   74,   76,
-       26,   25,   78,   81,   74,   82,   85,   93,   76,   86,
-       87,   89,   92,   74,   76,   91,   91,   96,   97,   98,
-      100,  102,   93,   76,   19,  101,  101,  105,  106,   91,
-
-       11,    9,   96,   97,   98,  100,  102,  111,   91,  101,
-        3,    0,  105,  106,   91,  108,  108,    0,  101,    0,
-        0,    0,  111,   91,  101,    0,    0,    0,    0,  108,
-        0,    0,    0,  101,    0,    0,    0,    0,  108,    0,
-        0,    0,    0,    0,  108,    0,    0,    0,    0,    0,
-        0,    0,    0,  108,  113,  113,  113,  113,  113,  113,
-      113,  113,  113,  113,  113,  113,  113,  113,  113,  113,
-      113,  113,  113,  113,  113,  113,  113,  113,  113,  113,
-      113,  113,  113,  113,  113,  113,  113,  113,  113,  113,
-      113,  113,  113,  113,  113
-
-    } ;
+    11, 9, 96, 97, 98, 100, 102, 111, 91, 101,
+    3, 0, 105, 106, 91, 108, 108, 0, 101, 0,
+    0, 0, 111, 91, 101, 0, 0, 0, 0, 108,
+    0, 0, 0, 101, 0, 0, 0, 0, 108, 0,
+    0, 0, 0, 0, 108, 0, 0, 0, 0, 0,
+    0, 0, 0, 108, 113, 113, 113, 113, 113, 113,
+    113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
+    113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
+    113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
+    113, 113, 113, 113, 113
+};
 
 /* The intent behind this definition is that it'll catch
  * any uses of REJECT which flex missed.
@@ -623,16 +613,16 @@ Greg Wilson			gvwilson@cs.toronto.ca
 
 /* Holds the entire state of the reentrant scanner. */
 struct yyguts_t
-    {
+{
 
     /* User-defined. Not touched by flex. */
     YY_EXTRA_TYPE yyextra_r;
 
     /* The rest are the same as the globals declared in the non-reentrant scanner. */
     FILE *yyin_r, *yyout_r;
-    size_t yy_buffer_stack_top; /**< index of top of stack. */
-    size_t yy_buffer_stack_max; /**< capacity of stack. */
-    YY_BUFFER_STATE * yy_buffer_stack; /**< Stack as an array. */
+    size_t yy_buffer_stack_top;	/**< index of top of stack. */
+    size_t yy_buffer_stack_max;	/**< capacity of stack. */
+    YY_BUFFER_STATE *yy_buffer_stack;  /**< Stack as an array. */
     char yy_hold_char;
     int yy_n_chars;
     int yyleng_r;
@@ -644,7 +634,7 @@ struct yyguts_t
     int yy_start_stack_depth;
     int *yy_start_stack;
     yy_state_type yy_last_accepting_state;
-    char* yy_last_accepting_cpos;
+    char *yy_last_accepting_cpos;
 
     int yylineno_r;
     int yy_flex_debug_r;
@@ -653,42 +643,46 @@ struct yyguts_t
     int yy_more_flag;
     int yy_more_len;
 
-    }; /* end struct yyguts_t */
+};				/* end struct yyguts_t */
 
-static int yy_init_globals (yyscan_t yyscanner );
+static int yy_init_globals (yyscan_t yyscanner);
 
-int VanuatuWktlex_init (yyscan_t* scanner);
+int VanuatuWktlex_init (yyscan_t * scanner);
 
-int VanuatuWktlex_init_extra (YY_EXTRA_TYPE user_defined,yyscan_t* scanner);
+int VanuatuWktlex_init_extra (YY_EXTRA_TYPE user_defined, yyscan_t * scanner);
 
 /* Accessor methods to globals.
    These are made visible to non-reentrant scanners for convenience. */
 
-int VanuatuWktlex_destroy (yyscan_t yyscanner );
+int VanuatuWktlex_destroy (yyscan_t yyscanner);
 
-int VanuatuWktget_debug (yyscan_t yyscanner );
+int VanuatuWktget_debug (yyscan_t yyscanner);
 
-void VanuatuWktset_debug (int debug_flag ,yyscan_t yyscanner );
+void VanuatuWktset_debug (int debug_flag, yyscan_t yyscanner);
 
-YY_EXTRA_TYPE VanuatuWktget_extra (yyscan_t yyscanner );
+YY_EXTRA_TYPE VanuatuWktget_extra (yyscan_t yyscanner);
 
-void VanuatuWktset_extra (YY_EXTRA_TYPE user_defined ,yyscan_t yyscanner );
+void VanuatuWktset_extra (YY_EXTRA_TYPE user_defined, yyscan_t yyscanner);
 
-FILE *VanuatuWktget_in (yyscan_t yyscanner );
+FILE *VanuatuWktget_in (yyscan_t yyscanner);
 
-void VanuatuWktset_in  (FILE * in_str ,yyscan_t yyscanner );
+void VanuatuWktset_in (FILE * in_str, yyscan_t yyscanner);
 
-FILE *VanuatuWktget_out (yyscan_t yyscanner );
+FILE *VanuatuWktget_out (yyscan_t yyscanner);
 
-void VanuatuWktset_out  (FILE * out_str ,yyscan_t yyscanner );
+void VanuatuWktset_out (FILE * out_str, yyscan_t yyscanner);
 
-int VanuatuWktget_leng (yyscan_t yyscanner );
+int VanuatuWktget_leng (yyscan_t yyscanner);
 
-char *VanuatuWktget_text (yyscan_t yyscanner );
+char *VanuatuWktget_text (yyscan_t yyscanner);
 
-int VanuatuWktget_lineno (yyscan_t yyscanner );
+int VanuatuWktget_lineno (yyscan_t yyscanner);
 
-void VanuatuWktset_lineno (int line_number ,yyscan_t yyscanner );
+void VanuatuWktset_lineno (int line_number, yyscan_t yyscanner);
+
+int VanuatuWktget_column (yyscan_t yyscanner);
+
+void VanuatuWktset_column (int column_no, yyscan_t yyscanner);
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -696,38 +690,33 @@ void VanuatuWktset_lineno (int line_number ,yyscan_t yyscanner );
 
 #ifndef YY_SKIP_YYWRAP
 #ifdef __cplusplus
-extern "C" int VanuatuWktwrap (yyscan_t yyscanner );
+extern "C" int VanuatuWktwrap (yyscan_t yyscanner);
 #else
-extern int VanuatuWktwrap (yyscan_t yyscanner );
+extern int VanuatuWktwrap (yyscan_t yyscanner);
 #endif
 #endif
 
 #ifndef yytext_ptr
-static void yy_flex_strncpy (char *,yyconst char *,int ,yyscan_t yyscanner);
+static void yy_flex_strncpy (char *, yyconst char *, int, yyscan_t yyscanner);
 #endif
 
 #ifdef YY_NEED_STRLEN
-static int yy_flex_strlen (yyconst char * ,yyscan_t yyscanner);
+static int yy_flex_strlen (yyconst char *, yyscan_t yyscanner);
 #endif
 
 #ifndef YY_NO_INPUT
 
 #ifdef __cplusplus
-static int yyinput (yyscan_t yyscanner );
+static int yyinput (yyscan_t yyscanner);
 #else
-static int input (yyscan_t yyscanner );
+static int input (yyscan_t yyscanner);
 #endif
 
 #endif
 
 /* Amount of stuff to slurp up with each read. */
 #ifndef YY_READ_BUF_SIZE
-#ifdef __ia64__
-/* On IA-64, the buffer size is 16k, not 8k */
-#define YY_READ_BUF_SIZE 16384
-#else
 #define YY_READ_BUF_SIZE 8192
-#endif /* __ia64__ */
 #endif
 
 /* Copy whatever the last rule matched to the standard output. */
@@ -746,7 +735,7 @@ static int input (yyscan_t yyscanner );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		size_t n; \
+		unsigned n; \
 		for ( n = 0; n < max_size && \
 			     (c = getc( yyin )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \
@@ -824,337 +813,405 @@ extern int VanuatuWktlex (yyscan_t yyscanner);
  */
 YY_DECL
 {
-	register yy_state_type yy_current_state;
-	register char *yy_cp, *yy_bp;
-	register int yy_act;
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    register yy_state_type yy_current_state;
+    register char *yy_cp, *yy_bp;
+    register int yy_act;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
 
-	if ( !yyg->yy_init )
-		{
-		yyg->yy_init = 1;
+    if (!yyg->yy_init)
+      {
+	  yyg->yy_init = 1;
 
 #ifdef YY_USER_INIT
-		YY_USER_INIT;
+	  YY_USER_INIT;
 #endif
 
-		if ( ! yyg->yy_start )
-			yyg->yy_start = 1;	/* first start state */
+	  if (!yyg->yy_start)
+	      yyg->yy_start = 1;	/* first start state */
 
-		if ( ! yyin )
-			yyin = stdin;
+	  if (!yyin)
+	      yyin = stdin;
 
-		if ( ! yyout )
-			yyout = stdout;
+	  if (!yyout)
+	      yyout = stdout;
 
-		if ( ! YY_CURRENT_BUFFER ) {
-			VanuatuWktensure_buffer_stack (yyscanner);
-			YY_CURRENT_BUFFER_LVALUE =
-				VanuatuWkt_create_buffer(yyin,YY_BUF_SIZE ,yyscanner);
-		}
+	  if (!YY_CURRENT_BUFFER)
+	    {
+		VanuatuWktensure_buffer_stack (yyscanner);
+		YY_CURRENT_BUFFER_LVALUE =
+		    VanuatuWkt_create_buffer (yyin, YY_BUF_SIZE, yyscanner);
+	    }
 
-		VanuatuWkt_load_buffer_state(yyscanner );
-		}
+	  VanuatuWkt_load_buffer_state (yyscanner);
+      }
 
-	while ( 1 )		/* loops until end-of-file is reached */
-		{
-		yy_cp = yyg->yy_c_buf_p;
+    while (1)			/* loops until end-of-file is reached */
+      {
+	  yy_cp = yyg->yy_c_buf_p;
 
-		/* Support of yytext. */
-		*yy_cp = yyg->yy_hold_char;
+	  /* Support of yytext. */
+	  *yy_cp = yyg->yy_hold_char;
 
-		/* yy_bp points to the position in yy_ch_buf of the start of
-		 * the current run.
-		 */
-		yy_bp = yy_cp;
+	  /* yy_bp points to the position in yy_ch_buf of the start of
+	   * the current run.
+	   */
+	  yy_bp = yy_cp;
 
-		yy_current_state = yyg->yy_start;
-yy_match:
-		do
-			{
-			register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)];
-			if ( yy_accept[yy_current_state] )
-				{
-				yyg->yy_last_accepting_state = yy_current_state;
-				yyg->yy_last_accepting_cpos = yy_cp;
-				}
-			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
-				{
-				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 114 )
-					yy_c = yy_meta[(unsigned int) yy_c];
-				}
-			yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
-			++yy_cp;
-			}
-		while ( yy_base[yy_current_state] != 255 );
+	  yy_current_state = yyg->yy_start;
+	yy_match:
+	  do
+	    {
+		register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI (*yy_cp)];
+		if (yy_accept[yy_current_state])
+		  {
+		      yyg->yy_last_accepting_state = yy_current_state;
+		      yyg->yy_last_accepting_cpos = yy_cp;
+		  }
+		while (yy_chk[yy_base[yy_current_state] + yy_c] !=
+		       yy_current_state)
+		  {
+		      yy_current_state = (int) yy_def[yy_current_state];
+		      if (yy_current_state >= 114)
+			  yy_c = yy_meta[(unsigned int) yy_c];
+		  }
+		yy_current_state =
+		    yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
+		++yy_cp;
+	    }
+	  while (yy_base[yy_current_state] != 255);
 
-yy_find_action:
+	yy_find_action:
+	  yy_act = yy_accept[yy_current_state];
+	  if (yy_act == 0)
+	    {			/* have to back up */
+		yy_cp = yyg->yy_last_accepting_cpos;
+		yy_current_state = yyg->yy_last_accepting_state;
 		yy_act = yy_accept[yy_current_state];
-		if ( yy_act == 0 )
-			{ /* have to back up */
-			yy_cp = yyg->yy_last_accepting_cpos;
-			yy_current_state = yyg->yy_last_accepting_state;
-			yy_act = yy_accept[yy_current_state];
-			}
+	    }
 
-		YY_DO_BEFORE_ACTION;
+	  YY_DO_BEFORE_ACTION;
 
-do_action:	/* This label is used only to access EOF actions. */
+	do_action:		/* This label is used only to access EOF actions. */
 
-		switch ( yy_act )
-	{ /* beginning of action switch */
-			case 0: /* must back up */
-			/* undo the effects of YY_DO_BEFORE_ACTION */
-			*yy_cp = yyg->yy_hold_char;
-			yy_cp = yyg->yy_last_accepting_cpos;
-			yy_current_state = yyg->yy_last_accepting_state;
-			goto yy_find_action;
-
-case 1:
-YY_RULE_SETUP
-{ VanuatuWktget_extra(yyscanner)->vanuatu_col += (int) strlen(yytext);  VanuatuWktlval.dval = atof(yytext); return VANUATU_NUM; }
-	YY_BREAK
-case 2:
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_COMMA; }
-	YY_BREAK
-case 3:
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_OPEN_BRACKET; }
-	YY_BREAK
-case 4:
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_CLOSE_BRACKET; }
-	YY_BREAK
-case 5:
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_POINT; }
-	YY_BREAK
-case 6:
-/* rule 6 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_POINT_Z; }
-	YY_BREAK
-case 7:
-/* rule 7 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_POINT_M; }
-	YY_BREAK
-case 8:
-/* rule 8 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_POINT_ZM; }
-	YY_BREAK
-case 9:
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_LINESTRING; }
-	YY_BREAK
-case 10:
-/* rule 10 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_LINESTRING_Z; }
-	YY_BREAK
-case 11:
-/* rule 11 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_LINESTRING_M; }
-	YY_BREAK
-case 12:
-/* rule 12 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_LINESTRING_ZM; }
-	YY_BREAK
-case 13:
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_POLYGON; }
-	YY_BREAK
-case 14:
-/* rule 14 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_POLYGON_Z; }
-	YY_BREAK
-case 15:
-/* rule 15 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_POLYGON_M; }
-	YY_BREAK
-case 16:
-/* rule 16 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_POLYGON_ZM; }
-	YY_BREAK
-case 17:
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_MULTIPOINT; }
-	YY_BREAK
-case 18:
-/* rule 18 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_MULTIPOINT_Z; }
-	YY_BREAK
-case 19:
-/* rule 19 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_MULTIPOINT_M; }
-	YY_BREAK
-case 20:
-/* rule 20 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_MULTIPOINT_ZM; }
-	YY_BREAK
-case 21:
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_MULTILINESTRING; }
-	YY_BREAK
-case 22:
-/* rule 22 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_MULTILINESTRING_Z; }
-	YY_BREAK
-case 23:
-/* rule 23 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_MULTILINESTRING_M; }
-	YY_BREAK
-case 24:
-/* rule 24 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_MULTILINESTRING_ZM; }	
-	YY_BREAK
-case 25:
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_MULTIPOLYGON; }
-	YY_BREAK
-case 26:
-/* rule 26 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_MULTIPOLYGON_Z; }
-	YY_BREAK
-case 27:
-/* rule 27 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_MULTIPOLYGON_M; }
-	YY_BREAK
-case 28:
-/* rule 28 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_MULTIPOLYGON_ZM; }
-	YY_BREAK
-case 29:
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_GEOMETRYCOLLECTION; }
-	YY_BREAK
-case 30:
-/* rule 30 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_GEOMETRYCOLLECTION_Z; }
-	YY_BREAK
-case 31:
-/* rule 31 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_GEOMETRYCOLLECTION_M; }
-	YY_BREAK
-case 32:
-/* rule 32 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktlval.dval = 0; return VANUATU_GEOMETRYCOLLECTION_ZM; }
-	YY_BREAK
-case 33:
-YY_RULE_SETUP
-{ VanuatuWktget_extra(yyscanner)->vanuatu_col += (int) strlen(yytext); }               /* ignore but count white space */
-	YY_BREAK
-case 34:
-/* rule 34 can match eol */
-YY_RULE_SETUP
-{ VanuatuWktget_extra(yyscanner)->vanuatu_col = 0; VanuatuWktget_extra(yyscanner)->vanuatu_line++; }
-	YY_BREAK
-case 35:
-YY_RULE_SETUP
-{ VanuatuWktget_extra(yyscanner)->vanuatu_col += (int) strlen(yytext); return -1; }
-	YY_BREAK
-case 36:
-YY_RULE_SETUP
-ECHO;
-	YY_BREAK
-case YY_STATE_EOF(INITIAL):
-	yyterminate();
-
-	case YY_END_OF_BUFFER:
-		{
-		/* Amount of text matched not including the EOB char. */
-		int yy_amount_of_matched_text = (int) (yy_cp - yyg->yytext_ptr) - 1;
-
-		/* Undo the effects of YY_DO_BEFORE_ACTION. */
+	  switch (yy_act)
+	    {			/* beginning of action switch */
+	    case 0:		/* must back up */
+		/* undo the effects of YY_DO_BEFORE_ACTION */
 		*yy_cp = yyg->yy_hold_char;
-		YY_RESTORE_YY_MORE_OFFSET
+		yy_cp = yyg->yy_last_accepting_cpos;
+		yy_current_state = yyg->yy_last_accepting_state;
+		goto yy_find_action;
 
-		if ( YY_CURRENT_BUFFER_LVALUE->yy_buffer_status == YY_BUFFER_NEW )
-			{
-			/* We're scanning a new file or input source.  It's
-			 * possible that this happened because the user
-			 * just pointed yyin at a new source and called
-			 * VanuatuWktlex().  If so, then we have to assure
-			 * consistency between YY_CURRENT_BUFFER and our
-			 * globals.  Here is the right place to do so, because
-			 * this is the first action (other than possibly a
-			 * back-up) that will match for the new input source.
-			 */
-			yyg->yy_n_chars = YY_CURRENT_BUFFER_LVALUE->yy_n_chars;
-			YY_CURRENT_BUFFER_LVALUE->yy_input_file = yyin;
-			YY_CURRENT_BUFFER_LVALUE->yy_buffer_status = YY_BUFFER_NORMAL;
-			}
+	    case 1:
+		YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->vanuatu_col +=
+			(int) strlen (yytext);
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval =
+			atof (yytext);
+		    return VANUATU_NUM;
+		}
+		YY_BREAK case 2:YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_COMMA;
+		}
+		YY_BREAK case 3:YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_OPEN_BRACKET;
+		}
+		YY_BREAK case 4:YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_CLOSE_BRACKET;
+		}
+		YY_BREAK case 5:YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_POINT;
+		}
+		YY_BREAK case 6:
+/* rule 6 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_POINT_Z;
+		}
+		YY_BREAK case 7:
+/* rule 7 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_POINT_M;
+		}
+		YY_BREAK case 8:
+/* rule 8 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_POINT_ZM;
+		}
+		YY_BREAK case 9:YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_LINESTRING;
+		}
+		YY_BREAK case 10:
+/* rule 10 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_LINESTRING_Z;
+		}
+		YY_BREAK case 11:
+/* rule 11 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_LINESTRING_M;
+		}
+		YY_BREAK case 12:
+/* rule 12 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_LINESTRING_ZM;
+		}
+		YY_BREAK case 13:YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_POLYGON;
+		}
+		YY_BREAK case 14:
+/* rule 14 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_POLYGON_Z;
+		}
+		YY_BREAK case 15:
+/* rule 15 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_POLYGON_M;
+		}
+		YY_BREAK case 16:
+/* rule 16 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_POLYGON_ZM;
+		}
+		YY_BREAK case 17:YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_MULTIPOINT;
+		}
+		YY_BREAK case 18:
+/* rule 18 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_MULTIPOINT_Z;
+		}
+		YY_BREAK case 19:
+/* rule 19 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_MULTIPOINT_M;
+		}
+		YY_BREAK case 20:
+/* rule 20 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_MULTIPOINT_ZM;
+		}
+		YY_BREAK case 21:YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_MULTILINESTRING;
+		}
+		YY_BREAK case 22:
+/* rule 22 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_MULTILINESTRING_Z;
+		}
+		YY_BREAK case 23:
+/* rule 23 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_MULTILINESTRING_M;
+		}
+		YY_BREAK case 24:
+/* rule 24 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_MULTILINESTRING_ZM;
+		}
+		YY_BREAK case 25:YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_MULTIPOLYGON;
+		}
+		YY_BREAK case 26:
+/* rule 26 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_MULTIPOLYGON_Z;
+		}
+		YY_BREAK case 27:
+/* rule 27 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_MULTIPOLYGON_M;
+		}
+		YY_BREAK case 28:
+/* rule 28 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_MULTIPOLYGON_ZM;
+		}
+		YY_BREAK case 29:YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_GEOMETRYCOLLECTION;
+		}
+		YY_BREAK case 30:
+/* rule 30 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_GEOMETRYCOLLECTION_Z;
+		}
+		YY_BREAK case 31:
+/* rule 31 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_GEOMETRYCOLLECTION_M;
+		}
+		YY_BREAK case 32:
+/* rule 32 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->VanuatuWktlval.dval = 0;
+		    return VANUATU_GEOMETRYCOLLECTION_ZM;
+		}
+		YY_BREAK case 33:YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->vanuatu_col +=
+			(int) strlen (yytext);
+		}		/* ignore but count white space */
+		YY_BREAK case 34:
+/* rule 34 can match eol */
+		  YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->vanuatu_col = 0;
+		    VanuatuWktget_extra (yyscanner)->vanuatu_line++;
+		}
+		YY_BREAK case 35:YY_RULE_SETUP
+		{
+		    VanuatuWktget_extra (yyscanner)->vanuatu_col +=
+			(int) strlen (yytext);
+		    return -1;
+		}
+		YY_BREAK case 36:YY_RULE_SETUP ECHO;
+		YY_BREAK case YY_STATE_EOF (INITIAL):yyterminate ();
 
-		/* Note that here we test for yy_c_buf_p "<=" to the position
-		 * of the first EOB in the buffer, since yy_c_buf_p will
-		 * already have been incremented past the NUL character
-		 * (since all states make transitions on EOB to the
-		 * end-of-buffer state).  Contrast this with the test
-		 * in input().
-		 */
-		if ( yyg->yy_c_buf_p <= &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars] )
-			{ /* This was really a NUL. */
-			yy_state_type yy_next_state;
+	    case YY_END_OF_BUFFER:
+		{
+		    /* Amount of text matched not including the EOB char. */
+		    int yy_amount_of_matched_text =
+			(int) (yy_cp - yyg->yytext_ptr) - 1;
 
-			yyg->yy_c_buf_p = yyg->yytext_ptr + yy_amount_of_matched_text;
+		    /* Undo the effects of YY_DO_BEFORE_ACTION. */
+		    *yy_cp = yyg->yy_hold_char;
+		    YY_RESTORE_YY_MORE_OFFSET
+			if (YY_CURRENT_BUFFER_LVALUE->yy_buffer_status ==
+			    YY_BUFFER_NEW)
+		      {
+			  /* We're scanning a new file or input source.  It's
+			   * possible that this happened because the user
+			   * just pointed yyin at a new source and called
+			   * VanuatuWktlex().  If so, then we have to assure
+			   * consistency between YY_CURRENT_BUFFER and our
+			   * globals.  Here is the right place to do so, because
+			   * this is the first action (other than possibly a
+			   * back-up) that will match for the new input source.
+			   */
+			  yyg->yy_n_chars =
+			      YY_CURRENT_BUFFER_LVALUE->yy_n_chars;
+			  YY_CURRENT_BUFFER_LVALUE->yy_input_file = yyin;
+			  YY_CURRENT_BUFFER_LVALUE->yy_buffer_status =
+			      YY_BUFFER_NORMAL;
+		      }
 
-			yy_current_state = yy_get_previous_state( yyscanner );
+		    /* Note that here we test for yy_c_buf_p "<=" to the position
+		     * of the first EOB in the buffer, since yy_c_buf_p will
+		     * already have been incremented past the NUL character
+		     * (since all states make transitions on EOB to the
+		     * end-of-buffer state).  Contrast this with the test
+		     * in input().
+		     */
+		    if (yyg->yy_c_buf_p <=
+			&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars])
+		      {		/* This was really a NUL. */
+			  yy_state_type yy_next_state;
 
-			/* Okay, we're now positioned to make the NUL
-			 * transition.  We couldn't have
-			 * yy_get_previous_state() go ahead and do it
-			 * for us because it doesn't know how to deal
-			 * with the possibility of jamming (and we don't
-			 * want to build jamming into it because then it
-			 * will run more slowly).
-			 */
+			  yyg->yy_c_buf_p =
+			      yyg->yytext_ptr + yy_amount_of_matched_text;
 
-			yy_next_state = yy_try_NUL_trans( yy_current_state , yyscanner);
+			  yy_current_state = yy_get_previous_state (yyscanner);
 
-			yy_bp = yyg->yytext_ptr + YY_MORE_ADJ;
+			  /* Okay, we're now positioned to make the NUL
+			   * transition.  We couldn't have
+			   * yy_get_previous_state() go ahead and do it
+			   * for us because it doesn't know how to deal
+			   * with the possibility of jamming (and we don't
+			   * want to build jamming into it because then it
+			   * will run more slowly).
+			   */
 
-			if ( yy_next_state )
-				{
+			  yy_next_state =
+			      yy_try_NUL_trans (yy_current_state, yyscanner);
+
+			  yy_bp = yyg->yytext_ptr + YY_MORE_ADJ;
+
+			  if (yy_next_state)
+			    {
 				/* Consume the NUL. */
 				yy_cp = ++yyg->yy_c_buf_p;
 				yy_current_state = yy_next_state;
 				goto yy_match;
-				}
+			    }
 
-			else
-				{
+			  else
+			    {
 				yy_cp = yyg->yy_c_buf_p;
 				goto yy_find_action;
-				}
-			}
+			    }
+		      }
 
-		else switch ( yy_get_next_buffer( yyscanner ) )
-			{
-			case EOB_ACT_END_OF_FILE:
-				{
-				yyg->yy_did_buffer_switch_on_eof = 0;
+		    else
+			switch (yy_get_next_buffer (yyscanner))
+			  {
+			  case EOB_ACT_END_OF_FILE:
+			      {
+				  yyg->yy_did_buffer_switch_on_eof = 0;
 
-				if ( VanuatuWktwrap(yyscanner ) )
-					{
+				  if (VanuatuWktwrap (yyscanner))
+				    {
 					/* Note: because we've taken care in
 					 * yy_get_next_buffer() to have set up
 					 * yytext, we can now set up
@@ -1164,49 +1221,53 @@ case YY_STATE_EOF(INITIAL):
 					 * YY_NULL, it'll still work - another
 					 * YY_NULL will get returned.
 					 */
-					yyg->yy_c_buf_p = yyg->yytext_ptr + YY_MORE_ADJ;
+					yyg->yy_c_buf_p =
+					    yyg->yytext_ptr + YY_MORE_ADJ;
 
-					yy_act = YY_STATE_EOF(YY_START);
+					yy_act = YY_STATE_EOF (YY_START);
 					goto do_action;
-					}
+				    }
 
-				else
-					{
-					if ( ! yyg->yy_did_buffer_switch_on_eof )
-						YY_NEW_FILE;
-					}
-				break;
-				}
+				  else
+				    {
+					if (!yyg->yy_did_buffer_switch_on_eof)
+					    YY_NEW_FILE;
+				    }
+				  break;
+			      }
 
-			case EOB_ACT_CONTINUE_SCAN:
-				yyg->yy_c_buf_p =
-					yyg->yytext_ptr + yy_amount_of_matched_text;
+			  case EOB_ACT_CONTINUE_SCAN:
+			      yyg->yy_c_buf_p =
+				  yyg->yytext_ptr + yy_amount_of_matched_text;
 
-				yy_current_state = yy_get_previous_state( yyscanner );
+			      yy_current_state =
+				  yy_get_previous_state (yyscanner);
 
-				yy_cp = yyg->yy_c_buf_p;
-				yy_bp = yyg->yytext_ptr + YY_MORE_ADJ;
-				goto yy_match;
+			      yy_cp = yyg->yy_c_buf_p;
+			      yy_bp = yyg->yytext_ptr + YY_MORE_ADJ;
+			      goto yy_match;
 
-			case EOB_ACT_LAST_MATCH:
-				yyg->yy_c_buf_p =
-				&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars];
+			  case EOB_ACT_LAST_MATCH:
+			      yyg->yy_c_buf_p =
+				  &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->
+								       yy_n_chars];
 
-				yy_current_state = yy_get_previous_state( yyscanner );
+			      yy_current_state =
+				  yy_get_previous_state (yyscanner);
 
-				yy_cp = yyg->yy_c_buf_p;
-				yy_bp = yyg->yytext_ptr + YY_MORE_ADJ;
-				goto yy_find_action;
-			}
-		break;
+			      yy_cp = yyg->yy_c_buf_p;
+			      yy_bp = yyg->yytext_ptr + YY_MORE_ADJ;
+			      goto yy_find_action;
+			  }
+		    break;
 		}
 
-	default:
-		YY_FATAL_ERROR(
-			"fatal flex scanner internal error--no action found" );
-	} /* end of action switch */
-		} /* end of scanning one token */
-} /* end of VanuatuWktlex */
+	    default:
+		YY_FATAL_ERROR
+		    ("fatal flex scanner internal error--no action found");
+	    }			/* end of action switch */
+      }				/* end of scanning one token */
+}				/* end of VanuatuWktlex */
 
 /* yy_get_next_buffer - try to read in a new buffer
  *
@@ -1215,167 +1276,180 @@ case YY_STATE_EOF(INITIAL):
  *	EOB_ACT_CONTINUE_SCAN - continue scanning from current position
  *	EOB_ACT_END_OF_FILE - end of file
  */
-static int yy_get_next_buffer (yyscan_t yyscanner)
+static int
+yy_get_next_buffer (yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-	register char *dest = YY_CURRENT_BUFFER_LVALUE->yy_ch_buf;
-	register char *source = yyg->yytext_ptr;
-	register int number_to_move, i;
-	int ret_val;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
+    register char *dest = YY_CURRENT_BUFFER_LVALUE->yy_ch_buf;
+    register char *source = yyg->yytext_ptr;
+    register int number_to_move, i;
+    int ret_val;
 
-	if ( yyg->yy_c_buf_p > &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars + 1] )
-		YY_FATAL_ERROR(
-		"fatal flex scanner internal error--end of buffer missed" );
+    if (yyg->yy_c_buf_p >
+	&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars + 1])
+	YY_FATAL_ERROR
+	    ("fatal flex scanner internal error--end of buffer missed");
 
-	if ( YY_CURRENT_BUFFER_LVALUE->yy_fill_buffer == 0 )
-		{ /* Don't try to fill the buffer, so this is an EOF. */
-		if ( yyg->yy_c_buf_p - yyg->yytext_ptr - YY_MORE_ADJ == 1 )
-			{
-			/* We matched a single character, the EOB, so
-			 * treat this as a final EOF.
-			 */
-			return EOB_ACT_END_OF_FILE;
-			}
-
-		else
-			{
-			/* We matched some text prior to the EOB, first
-			 * process it.
-			 */
-			return EOB_ACT_LAST_MATCH;
-			}
-		}
-
-	/* Try to read more data. */
-
-	/* First move last chars to start of buffer. */
-	number_to_move = (int) (yyg->yy_c_buf_p - yyg->yytext_ptr) - 1;
-
-	for ( i = 0; i < number_to_move; ++i )
-		*(dest++) = *(source++);
-
-	if ( YY_CURRENT_BUFFER_LVALUE->yy_buffer_status == YY_BUFFER_EOF_PENDING )
-		/* don't do the read, it's not guaranteed to return an EOF,
-		 * just force an EOF
+    if (YY_CURRENT_BUFFER_LVALUE->yy_fill_buffer == 0)
+      {				/* Don't try to fill the buffer, so this is an EOF. */
+	  if (yyg->yy_c_buf_p - yyg->yytext_ptr - YY_MORE_ADJ == 1)
+	    {
+		/* We matched a single character, the EOB, so
+		 * treat this as a final EOF.
 		 */
-		YY_CURRENT_BUFFER_LVALUE->yy_n_chars = yyg->yy_n_chars = 0;
+		return EOB_ACT_END_OF_FILE;
+	    }
 
-	else
-		{
-			int num_to_read =
-			YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
+	  else
+	    {
+		/* We matched some text prior to the EOB, first
+		 * process it.
+		 */
+		return EOB_ACT_LAST_MATCH;
+	    }
+      }
 
-		while ( num_to_read <= 0 )
-			{ /* Not enough room in the buffer - grow it. */
+    /* Try to read more data. */
 
-			/* just a shorter name for the current buffer */
-			YY_BUFFER_STATE b = YY_CURRENT_BUFFER;
+    /* First move last chars to start of buffer. */
+    number_to_move = (int) (yyg->yy_c_buf_p - yyg->yytext_ptr) - 1;
 
-			int yy_c_buf_p_offset =
-				(int) (yyg->yy_c_buf_p - b->yy_ch_buf);
+    for (i = 0; i < number_to_move; ++i)
+	*(dest++) = *(source++);
 
-			if ( b->yy_is_our_buffer )
-				{
-				int new_size = b->yy_buf_size * 2;
+    if (YY_CURRENT_BUFFER_LVALUE->yy_buffer_status == YY_BUFFER_EOF_PENDING)
+	/* don't do the read, it's not guaranteed to return an EOF,
+	 * just force an EOF
+	 */
+	YY_CURRENT_BUFFER_LVALUE->yy_n_chars = yyg->yy_n_chars = 0;
 
-				if ( new_size <= 0 )
-					b->yy_buf_size += b->yy_buf_size / 8;
-				else
-					b->yy_buf_size *= 2;
+    else
+      {
+	  int num_to_read =
+	      YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
 
-				b->yy_ch_buf = (char *)
-					/* Include room in for 2 EOB chars. */
-					VanuatuWktrealloc((void *) b->yy_ch_buf,b->yy_buf_size + 2 ,yyscanner );
-				}
-			else
-				/* Can't grow it, we don't own it. */
-				b->yy_ch_buf = 0;
+	  while (num_to_read <= 0)
+	    {			/* Not enough room in the buffer - grow it. */
 
-			if ( ! b->yy_ch_buf )
-				YY_FATAL_ERROR(
-				"fatal error - scanner input buffer overflow" );
+		/* just a shorter name for the current buffer */
+		YY_BUFFER_STATE b = YY_CURRENT_BUFFER;
 
-			yyg->yy_c_buf_p = &b->yy_ch_buf[yy_c_buf_p_offset];
+		int yy_c_buf_p_offset = (int) (yyg->yy_c_buf_p - b->yy_ch_buf);
 
-			num_to_read = YY_CURRENT_BUFFER_LVALUE->yy_buf_size -
-						number_to_move - 1;
+		if (b->yy_is_our_buffer)
+		  {
+		      int new_size = b->yy_buf_size * 2;
 
-			}
+		      if (new_size <= 0)
+			  b->yy_buf_size += b->yy_buf_size / 8;
+		      else
+			  b->yy_buf_size *= 2;
 
-		if ( num_to_read > YY_READ_BUF_SIZE )
-			num_to_read = YY_READ_BUF_SIZE;
-
-		/* Read in more data. */
-		YY_INPUT( (&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move]),
-			yyg->yy_n_chars, (size_t) num_to_read );
-
-		YY_CURRENT_BUFFER_LVALUE->yy_n_chars = yyg->yy_n_chars;
-		}
-
-	if ( yyg->yy_n_chars == 0 )
-		{
-		if ( number_to_move == YY_MORE_ADJ )
-			{
-			ret_val = EOB_ACT_END_OF_FILE;
-			VanuatuWktrestart(yyin  ,yyscanner);
-			}
-
+		      b->yy_ch_buf = (char *)
+			  /* Include room in for 2 EOB chars. */
+			  VanuatuWktrealloc ((void *) b->yy_ch_buf,
+					     b->yy_buf_size + 2, yyscanner);
+		  }
 		else
-			{
-			ret_val = EOB_ACT_LAST_MATCH;
-			YY_CURRENT_BUFFER_LVALUE->yy_buffer_status =
-				YY_BUFFER_EOF_PENDING;
-			}
-		}
+		    /* Can't grow it, we don't own it. */
+		    b->yy_ch_buf = 0;
 
-	else
-		ret_val = EOB_ACT_CONTINUE_SCAN;
+		if (!b->yy_ch_buf)
+		    YY_FATAL_ERROR
+			("fatal error - scanner input buffer overflow");
 
-	if ((yy_size_t) (yyg->yy_n_chars + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
-		/* Extend the array by 50%, plus the number we really need. */
-		yy_size_t new_size = yyg->yy_n_chars + number_to_move + (yyg->yy_n_chars >> 1);
-		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char *) VanuatuWktrealloc((void *) YY_CURRENT_BUFFER_LVALUE->yy_ch_buf,new_size ,yyscanner );
-		if ( ! YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
-			YY_FATAL_ERROR( "out of dynamic memory in yy_get_next_buffer()" );
-	}
+		yyg->yy_c_buf_p = &b->yy_ch_buf[yy_c_buf_p_offset];
 
-	yyg->yy_n_chars += number_to_move;
-	YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars] = YY_END_OF_BUFFER_CHAR;
-	YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars + 1] = YY_END_OF_BUFFER_CHAR;
+		num_to_read = YY_CURRENT_BUFFER_LVALUE->yy_buf_size -
+		    number_to_move - 1;
 
-	yyg->yytext_ptr = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[0];
+	    }
 
-	return ret_val;
+	  if (num_to_read > YY_READ_BUF_SIZE)
+	      num_to_read = YY_READ_BUF_SIZE;
+
+	  /* Read in more data. */
+	  YY_INPUT ((&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move]),
+		    yyg->yy_n_chars, (size_t) num_to_read);
+
+	  YY_CURRENT_BUFFER_LVALUE->yy_n_chars = yyg->yy_n_chars;
+      }
+
+    if (yyg->yy_n_chars == 0)
+      {
+	  if (number_to_move == YY_MORE_ADJ)
+	    {
+		ret_val = EOB_ACT_END_OF_FILE;
+		VanuatuWktrestart (yyin, yyscanner);
+	    }
+
+	  else
+	    {
+		ret_val = EOB_ACT_LAST_MATCH;
+		YY_CURRENT_BUFFER_LVALUE->yy_buffer_status =
+		    YY_BUFFER_EOF_PENDING;
+	    }
+      }
+
+    else
+	ret_val = EOB_ACT_CONTINUE_SCAN;
+
+    if ((yy_size_t) (yyg->yy_n_chars + number_to_move) >
+	YY_CURRENT_BUFFER_LVALUE->yy_buf_size)
+      {
+	  /* Extend the array by 50%, plus the number we really need. */
+	  yy_size_t new_size =
+	      yyg->yy_n_chars + number_to_move + (yyg->yy_n_chars >> 1);
+	  YY_CURRENT_BUFFER_LVALUE->yy_ch_buf =
+	      (char *) VanuatuWktrealloc ((void *)
+					  YY_CURRENT_BUFFER_LVALUE->yy_ch_buf,
+					  new_size, yyscanner);
+	  if (!YY_CURRENT_BUFFER_LVALUE->yy_ch_buf)
+	      YY_FATAL_ERROR ("out of dynamic memory in yy_get_next_buffer()");
+      }
+
+    yyg->yy_n_chars += number_to_move;
+    YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars] =
+	YY_END_OF_BUFFER_CHAR;
+    YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars + 1] =
+	YY_END_OF_BUFFER_CHAR;
+
+    yyg->yytext_ptr = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[0];
+
+    return ret_val;
 }
 
 /* yy_get_previous_state - get the state just before the EOB char was reached */
 
-    static yy_state_type yy_get_previous_state (yyscan_t yyscanner)
+static yy_state_type
+yy_get_previous_state (yyscan_t yyscanner)
 {
-	register yy_state_type yy_current_state;
-	register char *yy_cp;
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    register yy_state_type yy_current_state;
+    register char *yy_cp;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
 
-	yy_current_state = yyg->yy_start;
+    yy_current_state = yyg->yy_start;
 
-	for ( yy_cp = yyg->yytext_ptr + YY_MORE_ADJ; yy_cp < yyg->yy_c_buf_p; ++yy_cp )
-		{
-		register YY_CHAR yy_c = (*yy_cp ? yy_ec[YY_SC_TO_UI(*yy_cp)] : 1);
-		if ( yy_accept[yy_current_state] )
-			{
-			yyg->yy_last_accepting_state = yy_current_state;
-			yyg->yy_last_accepting_cpos = yy_cp;
-			}
-		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
-			{
-			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 114 )
-				yy_c = yy_meta[(unsigned int) yy_c];
-			}
-		yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
-		}
+    for (yy_cp = yyg->yytext_ptr + YY_MORE_ADJ; yy_cp < yyg->yy_c_buf_p;
+	 ++yy_cp)
+      {
+	  register YY_CHAR yy_c = (*yy_cp ? yy_ec[YY_SC_TO_UI (*yy_cp)] : 1);
+	  if (yy_accept[yy_current_state])
+	    {
+		yyg->yy_last_accepting_state = yy_current_state;
+		yyg->yy_last_accepting_cpos = yy_cp;
+	    }
+	  while (yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state)
+	    {
+		yy_current_state = (int) yy_def[yy_current_state];
+		if (yy_current_state >= 114)
+		    yy_c = yy_meta[(unsigned int) yy_c];
+	    }
+	  yy_current_state =
+	      yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
+      }
 
-	return yy_current_state;
+    return yy_current_state;
 }
 
 /* yy_try_NUL_trans - try to make a transition on the NUL character
@@ -1383,167 +1457,172 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
  * synopsis
  *	next_state = yy_try_NUL_trans( current_state );
  */
-    static yy_state_type yy_try_NUL_trans  (yy_state_type yy_current_state , yyscan_t yyscanner)
+static yy_state_type
+yy_try_NUL_trans (yy_state_type yy_current_state, yyscan_t yyscanner)
 {
-	register int yy_is_jam;
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner; /* This var may be unused depending upon options. */
-	register char *yy_cp = yyg->yy_c_buf_p;
+    register int yy_is_jam;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;	/* This var may be unused depending upon options. */
+    register char *yy_cp = yyg->yy_c_buf_p;
 
-	register YY_CHAR yy_c = 1;
-	if ( yy_accept[yy_current_state] )
-		{
-		yyg->yy_last_accepting_state = yy_current_state;
-		yyg->yy_last_accepting_cpos = yy_cp;
-		}
-	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
-		{
-		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 114 )
-			yy_c = yy_meta[(unsigned int) yy_c];
-		}
-	yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
-	yy_is_jam = (yy_current_state == 113);
+    register YY_CHAR yy_c = 1;
+    if (yy_accept[yy_current_state])
+      {
+	  yyg->yy_last_accepting_state = yy_current_state;
+	  yyg->yy_last_accepting_cpos = yy_cp;
+      }
+    while (yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state)
+      {
+	  yy_current_state = (int) yy_def[yy_current_state];
+	  if (yy_current_state >= 114)
+	      yy_c = yy_meta[(unsigned int) yy_c];
+      }
+    yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
+    yy_is_jam = (yy_current_state == 113);
 
-	return yy_is_jam ? 0 : yy_current_state;
+    return yy_is_jam ? 0 : yy_current_state;
 }
 
 #ifndef YY_NO_INPUT
 #ifdef __cplusplus
-    static int yyinput (yyscan_t yyscanner)
+static int
+yyinput (yyscan_t yyscanner)
 #else
-    static int input  (yyscan_t yyscanner)
+static int
+input (yyscan_t yyscanner)
 #endif
-
 {
-	int c;
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    int c;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
 
-	*yyg->yy_c_buf_p = yyg->yy_hold_char;
+    *yyg->yy_c_buf_p = yyg->yy_hold_char;
 
-	if ( *yyg->yy_c_buf_p == YY_END_OF_BUFFER_CHAR )
-		{
-		/* yy_c_buf_p now points to the character we want to return.
-		 * If this occurs *before* the EOB characters, then it's a
-		 * valid NUL; if not, then we've hit the end of the buffer.
-		 */
-		if ( yyg->yy_c_buf_p < &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars] )
-			/* This was really a NUL. */
-			*yyg->yy_c_buf_p = '\0';
+    if (*yyg->yy_c_buf_p == YY_END_OF_BUFFER_CHAR)
+      {
+	  /* yy_c_buf_p now points to the character we want to return.
+	   * If this occurs *before* the EOB characters, then it's a
+	   * valid NUL; if not, then we've hit the end of the buffer.
+	   */
+	  if (yyg->yy_c_buf_p <
+	      &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars])
+	      /* This was really a NUL. */
+	      *yyg->yy_c_buf_p = '\0';
 
-		else
-			{ /* need more input */
-			int offset = yyg->yy_c_buf_p - yyg->yytext_ptr;
-			++yyg->yy_c_buf_p;
+	  else
+	    {			/* need more input */
+		int offset = yyg->yy_c_buf_p - yyg->yytext_ptr;
+		++yyg->yy_c_buf_p;
 
-			switch ( yy_get_next_buffer( yyscanner ) )
-				{
-				case EOB_ACT_LAST_MATCH:
-					/* This happens because yy_g_n_b()
-					 * sees that we've accumulated a
-					 * token and flags that we need to
-					 * try matching the token before
-					 * proceeding.  But for input(),
-					 * there's no matching to consider.
-					 * So convert the EOB_ACT_LAST_MATCH
-					 * to EOB_ACT_END_OF_FILE.
-					 */
+		switch (yy_get_next_buffer (yyscanner))
+		  {
+		  case EOB_ACT_LAST_MATCH:
+		      /* This happens because yy_g_n_b()
+		       * sees that we've accumulated a
+		       * token and flags that we need to
+		       * try matching the token before
+		       * proceeding.  But for input(),
+		       * there's no matching to consider.
+		       * So convert the EOB_ACT_LAST_MATCH
+		       * to EOB_ACT_END_OF_FILE.
+		       */
 
-					/* Reset buffer status. */
-					VanuatuWktrestart(yyin ,yyscanner);
+		      /* Reset buffer status. */
+		      VanuatuWktrestart (yyin, yyscanner);
 
-					/*FALLTHROUGH*/
+		   /*FALLTHROUGH*/ case EOB_ACT_END_OF_FILE:
+		      {
+			  if (VanuatuWktwrap (yyscanner))
+			      return EOF;
 
-				case EOB_ACT_END_OF_FILE:
-					{
-					if ( VanuatuWktwrap(yyscanner ) )
-						return EOF;
-
-					if ( ! yyg->yy_did_buffer_switch_on_eof )
-						YY_NEW_FILE;
+			  if (!yyg->yy_did_buffer_switch_on_eof)
+			      YY_NEW_FILE;
 #ifdef __cplusplus
-					return yyinput(yyscanner);
+			  return yyinput (yyscanner);
 #else
-					return input(yyscanner);
+			  return input (yyscanner);
 #endif
-					}
+		      }
 
-				case EOB_ACT_CONTINUE_SCAN:
-					yyg->yy_c_buf_p = yyg->yytext_ptr + offset;
-					break;
-				}
-			}
-		}
+		  case EOB_ACT_CONTINUE_SCAN:
+		      yyg->yy_c_buf_p = yyg->yytext_ptr + offset;
+		      break;
+		  }
+	    }
+      }
 
-	c = *(unsigned char *) yyg->yy_c_buf_p;	/* cast for 8-bit char's */
-	*yyg->yy_c_buf_p = '\0';	/* preserve yytext */
-	yyg->yy_hold_char = *++yyg->yy_c_buf_p;
+    c = *(unsigned char *) yyg->yy_c_buf_p;	/* cast for 8-bit char's */
+    *yyg->yy_c_buf_p = '\0';	/* preserve yytext */
+    yyg->yy_hold_char = *++yyg->yy_c_buf_p;
 
-	return c;
+    return c;
 }
-#endif	/* ifndef YY_NO_INPUT */
+#endif /* ifndef YY_NO_INPUT */
 
 /** Immediately switch to a different input stream.
  * @param input_file A readable stream.
  * @param yyscanner The scanner object.
  * @note This function does not reset the start condition to @c INITIAL .
  */
-    void VanuatuWktrestart  (FILE * input_file , yyscan_t yyscanner)
+void
+VanuatuWktrestart (FILE * input_file, yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
 
-	if ( ! YY_CURRENT_BUFFER ){
-        VanuatuWktensure_buffer_stack (yyscanner);
-		YY_CURRENT_BUFFER_LVALUE =
-            VanuatuWkt_create_buffer(yyin,YY_BUF_SIZE ,yyscanner);
-	}
+    if (!YY_CURRENT_BUFFER)
+      {
+	  VanuatuWktensure_buffer_stack (yyscanner);
+	  YY_CURRENT_BUFFER_LVALUE =
+	      VanuatuWkt_create_buffer (yyin, YY_BUF_SIZE, yyscanner);
+      }
 
-	VanuatuWkt_init_buffer(YY_CURRENT_BUFFER,input_file ,yyscanner);
-	VanuatuWkt_load_buffer_state(yyscanner );
+    VanuatuWkt_init_buffer (YY_CURRENT_BUFFER, input_file, yyscanner);
+    VanuatuWkt_load_buffer_state (yyscanner);
 }
 
 /** Switch to a different input buffer.
  * @param new_buffer The new input buffer.
  * @param yyscanner The scanner object.
  */
-    void VanuatuWkt_switch_to_buffer  (YY_BUFFER_STATE  new_buffer , yyscan_t yyscanner)
+void
+VanuatuWkt_switch_to_buffer (YY_BUFFER_STATE new_buffer, yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
 
-	/* TODO. We should be able to replace this entire function body
-	 * with
-	 *		VanuatuWktpop_buffer_state();
-	 *		VanuatuWktpush_buffer_state(new_buffer);
+    /* TODO. We should be able to replace this entire function body
+     * with
+     *              VanuatuWktpop_buffer_state();
+     *              VanuatuWktpush_buffer_state(new_buffer);
      */
-	VanuatuWktensure_buffer_stack (yyscanner);
-	if ( YY_CURRENT_BUFFER == new_buffer )
-		return;
+    VanuatuWktensure_buffer_stack (yyscanner);
+    if (YY_CURRENT_BUFFER == new_buffer)
+	return;
 
-	if ( YY_CURRENT_BUFFER )
-		{
-		/* Flush out information for old buffer. */
-		*yyg->yy_c_buf_p = yyg->yy_hold_char;
-		YY_CURRENT_BUFFER_LVALUE->yy_buf_pos = yyg->yy_c_buf_p;
-		YY_CURRENT_BUFFER_LVALUE->yy_n_chars = yyg->yy_n_chars;
-		}
+    if (YY_CURRENT_BUFFER)
+      {
+	  /* Flush out information for old buffer. */
+	  *yyg->yy_c_buf_p = yyg->yy_hold_char;
+	  YY_CURRENT_BUFFER_LVALUE->yy_buf_pos = yyg->yy_c_buf_p;
+	  YY_CURRENT_BUFFER_LVALUE->yy_n_chars = yyg->yy_n_chars;
+      }
 
-	YY_CURRENT_BUFFER_LVALUE = new_buffer;
-	VanuatuWkt_load_buffer_state(yyscanner );
+    YY_CURRENT_BUFFER_LVALUE = new_buffer;
+    VanuatuWkt_load_buffer_state (yyscanner);
 
-	/* We don't actually know whether we did this switch during
-	 * EOF (VanuatuWktwrap()) processing, but the only time this flag
-	 * is looked at is after VanuatuWktwrap() is called, so it's safe
-	 * to go ahead and always set it.
-	 */
-	yyg->yy_did_buffer_switch_on_eof = 1;
+    /* We don't actually know whether we did this switch during
+     * EOF (VanuatuWktwrap()) processing, but the only time this flag
+     * is looked at is after VanuatuWktwrap() is called, so it's safe
+     * to go ahead and always set it.
+     */
+    yyg->yy_did_buffer_switch_on_eof = 1;
 }
 
-static void VanuatuWkt_load_buffer_state  (yyscan_t yyscanner)
+static void
+VanuatuWkt_load_buffer_state (yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-	yyg->yy_n_chars = YY_CURRENT_BUFFER_LVALUE->yy_n_chars;
-	yyg->yytext_ptr = yyg->yy_c_buf_p = YY_CURRENT_BUFFER_LVALUE->yy_buf_pos;
-	yyin = YY_CURRENT_BUFFER_LVALUE->yy_input_file;
-	yyg->yy_hold_char = *yyg->yy_c_buf_p;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
+    yyg->yy_n_chars = YY_CURRENT_BUFFER_LVALUE->yy_n_chars;
+    yyg->yytext_ptr = yyg->yy_c_buf_p = YY_CURRENT_BUFFER_LVALUE->yy_buf_pos;
+    yyin = YY_CURRENT_BUFFER_LVALUE->yy_input_file;
+    yyg->yy_hold_char = *yyg->yy_c_buf_p;
 }
 
 /** Allocate and initialize an input buffer state.
@@ -1552,109 +1631,114 @@ static void VanuatuWkt_load_buffer_state  (yyscan_t yyscanner)
  * @param yyscanner The scanner object.
  * @return the allocated buffer state.
  */
-    YY_BUFFER_STATE VanuatuWkt_create_buffer  (FILE * file, int  size , yyscan_t yyscanner)
+YY_BUFFER_STATE
+VanuatuWkt_create_buffer (FILE * file, int size, yyscan_t yyscanner)
 {
-	YY_BUFFER_STATE b;
-    
-	b = (YY_BUFFER_STATE) VanuatuWktalloc(sizeof( struct yy_buffer_state ) ,yyscanner );
-	if ( ! b )
-		YY_FATAL_ERROR( "out of dynamic memory in VanuatuWkt_create_buffer()" );
+    YY_BUFFER_STATE b;
 
-	b->yy_buf_size = size;
+    b = (YY_BUFFER_STATE) VanuatuWktalloc (sizeof (struct yy_buffer_state),
+					   yyscanner);
+    if (!b)
+	YY_FATAL_ERROR ("out of dynamic memory in VanuatuWkt_create_buffer()");
 
-	/* yy_ch_buf has to be 2 characters longer than the size given because
-	 * we need to put in 2 end-of-buffer characters.
-	 */
-	b->yy_ch_buf = (char *) VanuatuWktalloc(b->yy_buf_size + 2 ,yyscanner );
-	if ( ! b->yy_ch_buf )
-		YY_FATAL_ERROR( "out of dynamic memory in VanuatuWkt_create_buffer()" );
+    b->yy_buf_size = size;
 
-	b->yy_is_our_buffer = 1;
+    /* yy_ch_buf has to be 2 characters longer than the size given because
+     * we need to put in 2 end-of-buffer characters.
+     */
+    b->yy_ch_buf = (char *) VanuatuWktalloc (b->yy_buf_size + 2, yyscanner);
+    if (!b->yy_ch_buf)
+	YY_FATAL_ERROR ("out of dynamic memory in VanuatuWkt_create_buffer()");
 
-	VanuatuWkt_init_buffer(b,file ,yyscanner);
+    b->yy_is_our_buffer = 1;
 
-	return b;
+    VanuatuWkt_init_buffer (b, file, yyscanner);
+
+    return b;
 }
 
 /** Destroy the buffer.
  * @param b a buffer created with VanuatuWkt_create_buffer()
  * @param yyscanner The scanner object.
  */
-    void VanuatuWkt_delete_buffer (YY_BUFFER_STATE  b , yyscan_t yyscanner)
+void
+VanuatuWkt_delete_buffer (YY_BUFFER_STATE b, yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
 
-	if ( ! b )
-		return;
+    if (!b)
+	return;
 
-	if ( b == YY_CURRENT_BUFFER ) /* Not sure if we should pop here. */
-		YY_CURRENT_BUFFER_LVALUE = (YY_BUFFER_STATE) 0;
+    if (b == YY_CURRENT_BUFFER)	/* Not sure if we should pop here. */
+	YY_CURRENT_BUFFER_LVALUE = (YY_BUFFER_STATE) 0;
 
-	if ( b->yy_is_our_buffer )
-		VanuatuWktfree((void *) b->yy_ch_buf ,yyscanner );
+    if (b->yy_is_our_buffer)
+	VanuatuWktfree ((void *) b->yy_ch_buf, yyscanner);
 
-	VanuatuWktfree((void *) b ,yyscanner );
+    VanuatuWktfree ((void *) b, yyscanner);
 }
 
 #ifndef __cplusplus
-extern int isatty (int );
+extern int isatty (int);
 #endif /* __cplusplus */
-    
+
 /* Initializes or reinitializes a buffer.
  * This function is sometimes called more than once on the same buffer,
  * such as during a VanuatuWktrestart() or at EOF.
  */
-    static void VanuatuWkt_init_buffer  (YY_BUFFER_STATE  b, FILE * file , yyscan_t yyscanner)
-
+static void
+VanuatuWkt_init_buffer (YY_BUFFER_STATE b, FILE * file, yyscan_t yyscanner)
 {
-	int oerrno = errno;
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    int oerrno = errno;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
 
-	VanuatuWkt_flush_buffer(b ,yyscanner);
+    VanuatuWkt_flush_buffer (b, yyscanner);
 
-	b->yy_input_file = file;
-	b->yy_fill_buffer = 1;
+    b->yy_input_file = file;
+    b->yy_fill_buffer = 1;
 
     /* If b is the current buffer, then VanuatuWkt_init_buffer was _probably_
      * called from VanuatuWktrestart() or through yy_get_next_buffer.
      * In that case, we don't want to reset the lineno or column.
      */
-    if (b != YY_CURRENT_BUFFER){
-        b->yy_bs_lineno = 1;
-        b->yy_bs_column = 0;
-    }
+    if (b != YY_CURRENT_BUFFER)
+      {
+	  b->yy_bs_lineno = 1;
+	  b->yy_bs_column = 0;
+      }
 
-        b->yy_is_interactive = file ? (isatty( fileno(file) ) > 0) : 0;
-    
-	errno = oerrno;
+    b->yy_is_interactive = file ? (isatty (fileno (file)) > 0) : 0;
+
+    errno = oerrno;
 }
 
 /** Discard all buffered characters. On the next scan, YY_INPUT will be called.
  * @param b the buffer state to be flushed, usually @c YY_CURRENT_BUFFER.
  * @param yyscanner The scanner object.
  */
-    void VanuatuWkt_flush_buffer (YY_BUFFER_STATE  b , yyscan_t yyscanner)
+void
+VanuatuWkt_flush_buffer (YY_BUFFER_STATE b, yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-	if ( ! b )
-		return;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
+    if (!b)
+	return;
 
-	b->yy_n_chars = 0;
+    b->yy_n_chars = 0;
 
-	/* We always need two end-of-buffer characters.  The first causes
-	 * a transition to the end-of-buffer state.  The second causes
-	 * a jam in that state.
-	 */
-	b->yy_ch_buf[0] = YY_END_OF_BUFFER_CHAR;
-	b->yy_ch_buf[1] = YY_END_OF_BUFFER_CHAR;
+    /* We always need two end-of-buffer characters.  The first causes
+     * a transition to the end-of-buffer state.  The second causes
+     * a jam in that state.
+     */
+    b->yy_ch_buf[0] = YY_END_OF_BUFFER_CHAR;
+    b->yy_ch_buf[1] = YY_END_OF_BUFFER_CHAR;
 
-	b->yy_buf_pos = &b->yy_ch_buf[0];
+    b->yy_buf_pos = &b->yy_ch_buf[0];
 
-	b->yy_at_bol = 1;
-	b->yy_buffer_status = YY_BUFFER_NEW;
+    b->yy_at_bol = 1;
+    b->yy_buffer_status = YY_BUFFER_NEW;
 
-	if ( b == YY_CURRENT_BUFFER )
-		VanuatuWkt_load_buffer_state(yyscanner );
+    if (b == YY_CURRENT_BUFFER)
+	VanuatuWkt_load_buffer_state (yyscanner);
 }
 
 /** Pushes the new state onto the stack. The new state becomes
@@ -1663,99 +1747,107 @@ extern int isatty (int );
  *  @param new_buffer The new state.
  *  @param yyscanner The scanner object.
  */
-void VanuatuWktpush_buffer_state (YY_BUFFER_STATE new_buffer , yyscan_t yyscanner)
+void
+VanuatuWktpush_buffer_state (YY_BUFFER_STATE new_buffer, yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-	if (new_buffer == NULL)
-		return;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
+    if (new_buffer == NULL)
+	return;
 
-	VanuatuWktensure_buffer_stack(yyscanner);
+    VanuatuWktensure_buffer_stack (yyscanner);
 
-	/* This block is copied from VanuatuWkt_switch_to_buffer. */
-	if ( YY_CURRENT_BUFFER )
-		{
-		/* Flush out information for old buffer. */
-		*yyg->yy_c_buf_p = yyg->yy_hold_char;
-		YY_CURRENT_BUFFER_LVALUE->yy_buf_pos = yyg->yy_c_buf_p;
-		YY_CURRENT_BUFFER_LVALUE->yy_n_chars = yyg->yy_n_chars;
-		}
+    /* This block is copied from VanuatuWkt_switch_to_buffer. */
+    if (YY_CURRENT_BUFFER)
+      {
+	  /* Flush out information for old buffer. */
+	  *yyg->yy_c_buf_p = yyg->yy_hold_char;
+	  YY_CURRENT_BUFFER_LVALUE->yy_buf_pos = yyg->yy_c_buf_p;
+	  YY_CURRENT_BUFFER_LVALUE->yy_n_chars = yyg->yy_n_chars;
+      }
 
-	/* Only push if top exists. Otherwise, replace top. */
-	if (YY_CURRENT_BUFFER)
-		yyg->yy_buffer_stack_top++;
-	YY_CURRENT_BUFFER_LVALUE = new_buffer;
+    /* Only push if top exists. Otherwise, replace top. */
+    if (YY_CURRENT_BUFFER)
+	yyg->yy_buffer_stack_top++;
+    YY_CURRENT_BUFFER_LVALUE = new_buffer;
 
-	/* copied from VanuatuWkt_switch_to_buffer. */
-	VanuatuWkt_load_buffer_state(yyscanner );
-	yyg->yy_did_buffer_switch_on_eof = 1;
+    /* copied from VanuatuWkt_switch_to_buffer. */
+    VanuatuWkt_load_buffer_state (yyscanner);
+    yyg->yy_did_buffer_switch_on_eof = 1;
 }
 
 /** Removes and deletes the top of the stack, if present.
  *  The next element becomes the new top.
  *  @param yyscanner The scanner object.
  */
-void VanuatuWktpop_buffer_state (yyscan_t yyscanner)
+void
+VanuatuWktpop_buffer_state (yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-	if (!YY_CURRENT_BUFFER)
-		return;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
+    if (!YY_CURRENT_BUFFER)
+	return;
 
-	VanuatuWkt_delete_buffer(YY_CURRENT_BUFFER ,yyscanner);
-	YY_CURRENT_BUFFER_LVALUE = NULL;
-	if (yyg->yy_buffer_stack_top > 0)
-		--yyg->yy_buffer_stack_top;
+    VanuatuWkt_delete_buffer (YY_CURRENT_BUFFER, yyscanner);
+    YY_CURRENT_BUFFER_LVALUE = NULL;
+    if (yyg->yy_buffer_stack_top > 0)
+	--yyg->yy_buffer_stack_top;
 
-	if (YY_CURRENT_BUFFER) {
-		VanuatuWkt_load_buffer_state(yyscanner );
-		yyg->yy_did_buffer_switch_on_eof = 1;
-	}
+    if (YY_CURRENT_BUFFER)
+      {
+	  VanuatuWkt_load_buffer_state (yyscanner);
+	  yyg->yy_did_buffer_switch_on_eof = 1;
+      }
 }
 
 /* Allocates the stack if it does not exist.
  *  Guarantees space for at least one push.
  */
-static void VanuatuWktensure_buffer_stack (yyscan_t yyscanner)
+static void
+VanuatuWktensure_buffer_stack (yyscan_t yyscanner)
 {
-	int num_to_alloc;
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    int num_to_alloc;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
 
-	if (!yyg->yy_buffer_stack) {
+    if (!yyg->yy_buffer_stack)
+      {
 
-		/* First allocation is just for 2 elements, since we don't know if this
-		 * scanner will even need a stack. We use 2 instead of 1 to avoid an
-		 * immediate realloc on the next call.
-         */
-		num_to_alloc = 1;
-		yyg->yy_buffer_stack = (struct yy_buffer_state**)VanuatuWktalloc
-								(num_to_alloc * sizeof(struct yy_buffer_state*)
-								, yyscanner);
-		if ( ! yyg->yy_buffer_stack )
-			YY_FATAL_ERROR( "out of dynamic memory in VanuatuWktensure_buffer_stack()" );
-								  
-		memset(yyg->yy_buffer_stack, 0, num_to_alloc * sizeof(struct yy_buffer_state*));
-				
-		yyg->yy_buffer_stack_max = num_to_alloc;
-		yyg->yy_buffer_stack_top = 0;
-		return;
-	}
+	  /* First allocation is just for 2 elements, since we don't know if this
+	   * scanner will even need a stack. We use 2 instead of 1 to avoid an
+	   * immediate realloc on the next call.
+	   */
+	  num_to_alloc = 1;
+	  yyg->yy_buffer_stack = (struct yy_buffer_state **) VanuatuWktalloc
+	      (num_to_alloc * sizeof (struct yy_buffer_state *), yyscanner);
+	  if (!yyg->yy_buffer_stack)
+	      YY_FATAL_ERROR
+		  ("out of dynamic memory in VanuatuWktensure_buffer_stack()");
 
-	if (yyg->yy_buffer_stack_top >= (yyg->yy_buffer_stack_max) - 1){
+	  memset (yyg->yy_buffer_stack, 0,
+		  num_to_alloc * sizeof (struct yy_buffer_state *));
 
-		/* Increase the buffer to prepare for a possible push. */
-		int grow_size = 8 /* arbitrary grow size */;
+	  yyg->yy_buffer_stack_max = num_to_alloc;
+	  yyg->yy_buffer_stack_top = 0;
+	  return;
+      }
 
-		num_to_alloc = yyg->yy_buffer_stack_max + grow_size;
-		yyg->yy_buffer_stack = (struct yy_buffer_state**)VanuatuWktrealloc
-								(yyg->yy_buffer_stack,
-								num_to_alloc * sizeof(struct yy_buffer_state*)
-								, yyscanner);
-		if ( ! yyg->yy_buffer_stack )
-			YY_FATAL_ERROR( "out of dynamic memory in VanuatuWktensure_buffer_stack()" );
+    if (yyg->yy_buffer_stack_top >= (yyg->yy_buffer_stack_max) - 1)
+      {
 
-		/* zero only the new slots.*/
-		memset(yyg->yy_buffer_stack + yyg->yy_buffer_stack_max, 0, grow_size * sizeof(struct yy_buffer_state*));
-		yyg->yy_buffer_stack_max = num_to_alloc;
-	}
+	  /* Increase the buffer to prepare for a possible push. */
+	  int grow_size = 8 /* arbitrary grow size */ ;
+
+	  num_to_alloc = yyg->yy_buffer_stack_max + grow_size;
+	  yyg->yy_buffer_stack = (struct yy_buffer_state **) VanuatuWktrealloc
+	      (yyg->yy_buffer_stack,
+	       num_to_alloc * sizeof (struct yy_buffer_state *), yyscanner);
+	  if (!yyg->yy_buffer_stack)
+	      YY_FATAL_ERROR
+		  ("out of dynamic memory in VanuatuWktensure_buffer_stack()");
+
+	  /* zero only the new slots. */
+	  memset (yyg->yy_buffer_stack + yyg->yy_buffer_stack_max, 0,
+		  grow_size * sizeof (struct yy_buffer_state *));
+	  yyg->yy_buffer_stack_max = num_to_alloc;
+      }
 }
 
 /** Setup the input buffer state to scan directly from a user-specified character buffer.
@@ -1764,33 +1856,35 @@ static void VanuatuWktensure_buffer_stack (yyscan_t yyscanner)
  * @param yyscanner The scanner object.
  * @return the newly allocated buffer state object. 
  */
-YY_BUFFER_STATE VanuatuWkt_scan_buffer  (char * base, yy_size_t  size , yyscan_t yyscanner)
+YY_BUFFER_STATE
+VanuatuWkt_scan_buffer (char *base, yy_size_t size, yyscan_t yyscanner)
 {
-	YY_BUFFER_STATE b;
-    
-	if ( size < 2 ||
-	     base[size-2] != YY_END_OF_BUFFER_CHAR ||
-	     base[size-1] != YY_END_OF_BUFFER_CHAR )
-		/* They forgot to leave room for the EOB's. */
-		return 0;
+    YY_BUFFER_STATE b;
 
-	b = (YY_BUFFER_STATE) VanuatuWktalloc(sizeof( struct yy_buffer_state ) ,yyscanner );
-	if ( ! b )
-		YY_FATAL_ERROR( "out of dynamic memory in VanuatuWkt_scan_buffer()" );
+    if (size < 2 ||
+	base[size - 2] != YY_END_OF_BUFFER_CHAR ||
+	base[size - 1] != YY_END_OF_BUFFER_CHAR)
+	/* They forgot to leave room for the EOB's. */
+	return 0;
 
-	b->yy_buf_size = size - 2;	/* "- 2" to take care of EOB's */
-	b->yy_buf_pos = b->yy_ch_buf = base;
-	b->yy_is_our_buffer = 0;
-	b->yy_input_file = 0;
-	b->yy_n_chars = b->yy_buf_size;
-	b->yy_is_interactive = 0;
-	b->yy_at_bol = 1;
-	b->yy_fill_buffer = 0;
-	b->yy_buffer_status = YY_BUFFER_NEW;
+    b = (YY_BUFFER_STATE) VanuatuWktalloc (sizeof (struct yy_buffer_state),
+					   yyscanner);
+    if (!b)
+	YY_FATAL_ERROR ("out of dynamic memory in VanuatuWkt_scan_buffer()");
 
-	VanuatuWkt_switch_to_buffer(b ,yyscanner );
+    b->yy_buf_size = size - 2;	/* "- 2" to take care of EOB's */
+    b->yy_buf_pos = b->yy_ch_buf = base;
+    b->yy_is_our_buffer = 0;
+    b->yy_input_file = 0;
+    b->yy_n_chars = b->yy_buf_size;
+    b->yy_is_interactive = 0;
+    b->yy_at_bol = 1;
+    b->yy_fill_buffer = 0;
+    b->yy_buffer_status = YY_BUFFER_NEW;
 
-	return b;
+    VanuatuWkt_switch_to_buffer (b, yyscanner);
+
+    return b;
 }
 
 /** Setup the input buffer state to scan a string. The next call to VanuatuWktlex() will
@@ -1801,57 +1895,61 @@ YY_BUFFER_STATE VanuatuWkt_scan_buffer  (char * base, yy_size_t  size , yyscan_t
  * @note If you want to scan bytes that may contain NUL values, then use
  *       VanuatuWkt_scan_bytes() instead.
  */
-YY_BUFFER_STATE VanuatuWkt_scan_string (yyconst char * yystr , yyscan_t yyscanner)
+YY_BUFFER_STATE
+VanuatuWkt_scan_string (yyconst char *yystr, yyscan_t yyscanner)
 {
-    
-	return VanuatuWkt_scan_bytes(yystr,strlen(yystr) ,yyscanner);
+
+    return VanuatuWkt_scan_bytes (yystr, strlen (yystr), yyscanner);
 }
 
 /** Setup the input buffer state to scan the given bytes. The next call to VanuatuWktlex() will
  * scan from a @e copy of @a bytes.
- * @param yybytes the byte buffer to scan
- * @param _yybytes_len the number of bytes in the buffer pointed to by @a bytes.
+ * @param bytes the byte buffer to scan
+ * @param len the number of bytes in the buffer pointed to by @a bytes.
  * @param yyscanner The scanner object.
  * @return the newly allocated buffer state object.
  */
-YY_BUFFER_STATE VanuatuWkt_scan_bytes  (yyconst char * yybytes, int  _yybytes_len , yyscan_t yyscanner)
+YY_BUFFER_STATE
+VanuatuWkt_scan_bytes (yyconst char *yybytes, int _yybytes_len,
+		       yyscan_t yyscanner)
 {
-	YY_BUFFER_STATE b;
-	char *buf;
-	yy_size_t n;
-	int i;
-    
-	/* Get memory for full buffer, including space for trailing EOB's. */
-	n = _yybytes_len + 2;
-	buf = (char *) VanuatuWktalloc(n ,yyscanner );
-	if ( ! buf )
-		YY_FATAL_ERROR( "out of dynamic memory in VanuatuWkt_scan_bytes()" );
+    YY_BUFFER_STATE b;
+    char *buf;
+    yy_size_t n;
+    int i;
 
-	for ( i = 0; i < _yybytes_len; ++i )
-		buf[i] = yybytes[i];
+    /* Get memory for full buffer, including space for trailing EOB's. */
+    n = _yybytes_len + 2;
+    buf = (char *) VanuatuWktalloc (n, yyscanner);
+    if (!buf)
+	YY_FATAL_ERROR ("out of dynamic memory in VanuatuWkt_scan_bytes()");
 
-	buf[_yybytes_len] = buf[_yybytes_len+1] = YY_END_OF_BUFFER_CHAR;
+    for (i = 0; i < _yybytes_len; ++i)
+	buf[i] = yybytes[i];
 
-	b = VanuatuWkt_scan_buffer(buf,n ,yyscanner);
-	if ( ! b )
-		YY_FATAL_ERROR( "bad buffer in VanuatuWkt_scan_bytes()" );
+    buf[_yybytes_len] = buf[_yybytes_len + 1] = YY_END_OF_BUFFER_CHAR;
 
-	/* It's okay to grow etc. this buffer, and we should throw it
-	 * away when we're done.
-	 */
-	b->yy_is_our_buffer = 1;
+    b = VanuatuWkt_scan_buffer (buf, n, yyscanner);
+    if (!b)
+	YY_FATAL_ERROR ("bad buffer in VanuatuWkt_scan_bytes()");
 
-	return b;
+    /* It's okay to grow etc. this buffer, and we should throw it
+     * away when we're done.
+     */
+    b->yy_is_our_buffer = 1;
+
+    return b;
 }
 
 #ifndef YY_EXIT_FAILURE
 #define YY_EXIT_FAILURE 2
 #endif
 
-static void yy_fatal_error (yyconst char* msg , yyscan_t yyscanner)
+static void
+yy_fatal_error (yyconst char *msg, yyscan_t yyscanner)
 {
-    	(void) spatialite_e("%s\n", msg );
-	exit( YY_EXIT_FAILURE );
+    (void) fprintf (stderr, "%s\n", msg);
+    exit (YY_EXIT_FAILURE);
 }
 
 /* Redefine yyless() so it works in section 3 code. */
@@ -1876,62 +1974,68 @@ static void yy_fatal_error (yyconst char* msg , yyscan_t yyscanner)
 /** Get the user-defined data for this scanner.
  * @param yyscanner The scanner object.
  */
-YY_EXTRA_TYPE VanuatuWktget_extra  (yyscan_t yyscanner)
+YY_EXTRA_TYPE
+VanuatuWktget_extra (yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
     return yyextra;
 }
 
 /** Get the current line number.
  * @param yyscanner The scanner object.
  */
-int VanuatuWktget_lineno  (yyscan_t yyscanner)
+int
+VanuatuWktget_lineno (yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-    
-        if (! YY_CURRENT_BUFFER)
-            return 0;
-    
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
+
+    if (!YY_CURRENT_BUFFER)
+	return 0;
+
     return yylineno;
 }
 
 /** Get the current column number.
  * @param yyscanner The scanner object.
  */
-int VanuatuWktget_column  (yyscan_t yyscanner)
+int
+VanuatuWktget_column (yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-    
-        if (! YY_CURRENT_BUFFER)
-            return 0;
-    
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
+
+    if (!YY_CURRENT_BUFFER)
+	return 0;
+
     return yycolumn;
 }
 
 /** Get the input stream.
  * @param yyscanner The scanner object.
  */
-FILE *VanuatuWktget_in  (yyscan_t yyscanner)
+FILE *
+VanuatuWktget_in (yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
     return yyin;
 }
 
 /** Get the output stream.
  * @param yyscanner The scanner object.
  */
-FILE *VanuatuWktget_out  (yyscan_t yyscanner)
+FILE *
+VanuatuWktget_out (yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
     return yyout;
 }
 
 /** Get the length of the current token.
  * @param yyscanner The scanner object.
  */
-int VanuatuWktget_leng  (yyscan_t yyscanner)
+int
+VanuatuWktget_leng (yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
     return yyleng;
 }
 
@@ -1939,9 +2043,10 @@ int VanuatuWktget_leng  (yyscan_t yyscanner)
  * @param yyscanner The scanner object.
  */
 
-char *VanuatuWktget_text  (yyscan_t yyscanner)
+char *
+VanuatuWktget_text (yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
     return yytext;
 }
 
@@ -1949,24 +2054,27 @@ char *VanuatuWktget_text  (yyscan_t yyscanner)
  * @param user_defined The data to be associated with this scanner.
  * @param yyscanner The scanner object.
  */
-void VanuatuWktset_extra (YY_EXTRA_TYPE  user_defined , yyscan_t yyscanner)
+void
+VanuatuWktset_extra (YY_EXTRA_TYPE user_defined, yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-    yyextra = user_defined ;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
+    yyextra = user_defined;
 }
 
 /** Set the current line number.
  * @param line_number
  * @param yyscanner The scanner object.
  */
-void VanuatuWktset_lineno (int  line_number , yyscan_t yyscanner)
+void
+VanuatuWktset_lineno (int line_number, yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
 
-        /* lineno is only valid if an input buffer exists. */
-        if (! YY_CURRENT_BUFFER )
-           yy_fatal_error( "VanuatuWktset_lineno called with no buffer" , yyscanner); 
-    
+    /* lineno is only valid if an input buffer exists. */
+    if (!YY_CURRENT_BUFFER)
+	yy_fatal_error ("VanuatuWktset_lineno called with no buffer",
+			yyscanner);
+
     yylineno = line_number;
 }
 
@@ -1974,14 +2082,16 @@ void VanuatuWktset_lineno (int  line_number , yyscan_t yyscanner)
  * @param line_number
  * @param yyscanner The scanner object.
  */
-void VanuatuWktset_column (int  column_no , yyscan_t yyscanner)
+void
+VanuatuWktset_column (int column_no, yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
 
-        /* column is only valid if an input buffer exists. */
-        if (! YY_CURRENT_BUFFER )
-           yy_fatal_error( "VanuatuWktset_column called with no buffer" , yyscanner); 
-    
+    /* column is only valid if an input buffer exists. */
+    if (!YY_CURRENT_BUFFER)
+	yy_fatal_error ("VanuatuWktset_column called with no buffer",
+			yyscanner);
+
     yycolumn = column_no;
 }
 
@@ -1991,28 +2101,32 @@ void VanuatuWktset_column (int  column_no , yyscan_t yyscanner)
  * @param yyscanner The scanner object.
  * @see VanuatuWkt_switch_to_buffer
  */
-void VanuatuWktset_in (FILE *  in_str , yyscan_t yyscanner)
+void
+VanuatuWktset_in (FILE * in_str, yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-    yyin = in_str ;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
+    yyin = in_str;
 }
 
-void VanuatuWktset_out (FILE *  out_str , yyscan_t yyscanner)
+void
+VanuatuWktset_out (FILE * out_str, yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-    yyout = out_str ;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
+    yyout = out_str;
 }
 
-int VanuatuWktget_debug  (yyscan_t yyscanner)
+int
+VanuatuWktget_debug (yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
     return yy_flex_debug;
 }
 
-void VanuatuWktset_debug (int  bdebug , yyscan_t yyscanner)
+void
+VanuatuWktset_debug (int bdebug, yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
-    yy_flex_debug = bdebug ;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
+    yy_flex_debug = bdebug;
 }
 
 /* Accessor methods for yylval and yylloc */
@@ -2024,25 +2138,28 @@ void VanuatuWktset_debug (int  bdebug , yyscan_t yyscanner)
  * That's why we explicitly handle the declaration, instead of using our macros.
  */
 
-int VanuatuWktlex_init(yyscan_t* ptr_yy_globals)
-
+int
+VanuatuWktlex_init (yyscan_t * ptr_yy_globals)
 {
-    if (ptr_yy_globals == NULL){
-        errno = EINVAL;
-        return 1;
-    }
+    if (ptr_yy_globals == NULL)
+      {
+	  errno = EINVAL;
+	  return 1;
+      }
 
-    *ptr_yy_globals = (yyscan_t) VanuatuWktalloc ( sizeof( struct yyguts_t ), NULL );
+    *ptr_yy_globals =
+	(yyscan_t) VanuatuWktalloc (sizeof (struct yyguts_t), NULL);
 
-    if (*ptr_yy_globals == NULL){
-        errno = ENOMEM;
-        return 1;
-    }
+    if (*ptr_yy_globals == NULL)
+      {
+	  errno = ENOMEM;
+	  return 1;
+      }
 
     /* By setting to 0xAA, we expose bugs in yy_init_globals. Leave at 0x00 for releases. */
-    memset(*ptr_yy_globals,0x00,sizeof(struct yyguts_t));
+    memset (*ptr_yy_globals, 0x00, sizeof (struct yyguts_t));
 
-    return yy_init_globals ( *ptr_yy_globals );
+    return yy_init_globals (*ptr_yy_globals);
 }
 
 /* VanuatuWktlex_init_extra has the same functionality as VanuatuWktlex_init, but follows the
@@ -2053,37 +2170,42 @@ int VanuatuWktlex_init(yyscan_t* ptr_yy_globals)
  * the yyextra field.
  */
 
-int VanuatuWktlex_init_extra(YY_EXTRA_TYPE yy_user_defined,yyscan_t* ptr_yy_globals )
-
+int
+VanuatuWktlex_init_extra (YY_EXTRA_TYPE yy_user_defined,
+			  yyscan_t * ptr_yy_globals)
 {
     struct yyguts_t dummy_yyguts;
 
     VanuatuWktset_extra (yy_user_defined, &dummy_yyguts);
 
-    if (ptr_yy_globals == NULL){
-        errno = EINVAL;
-        return 1;
-    }
-	
-    *ptr_yy_globals = (yyscan_t) VanuatuWktalloc ( sizeof( struct yyguts_t ), &dummy_yyguts );
-	
-    if (*ptr_yy_globals == NULL){
-        errno = ENOMEM;
-        return 1;
-    }
-    
+    if (ptr_yy_globals == NULL)
+      {
+	  errno = EINVAL;
+	  return 1;
+      }
+
+    *ptr_yy_globals =
+	(yyscan_t) VanuatuWktalloc (sizeof (struct yyguts_t), &dummy_yyguts);
+
+    if (*ptr_yy_globals == NULL)
+      {
+	  errno = ENOMEM;
+	  return 1;
+      }
+
     /* By setting to 0xAA, we expose bugs in
-    yy_init_globals. Leave at 0x00 for releases. */
-    memset(*ptr_yy_globals,0x00,sizeof(struct yyguts_t));
-    
+       yy_init_globals. Leave at 0x00 for releases. */
+    memset (*ptr_yy_globals, 0x00, sizeof (struct yyguts_t));
+
     VanuatuWktset_extra (yy_user_defined, *ptr_yy_globals);
-    
-    return yy_init_globals ( *ptr_yy_globals );
+
+    return yy_init_globals (*ptr_yy_globals);
 }
 
-static int yy_init_globals (yyscan_t yyscanner)
+static int
+yy_init_globals (yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
     /* Initialization is the same as for the non-reentrant scanner.
      * This function is called from VanuatuWktlex_destroy(), so don't allocate here.
      */
@@ -2097,7 +2219,7 @@ static int yy_init_globals (yyscan_t yyscanner)
 
     yyg->yy_start_stack_ptr = 0;
     yyg->yy_start_stack_depth = 0;
-    yyg->yy_start_stack =  NULL;
+    yyg->yy_start_stack = NULL;
 
 /* Defined in main.c */
 #ifdef YY_STDINIT
@@ -2115,31 +2237,33 @@ static int yy_init_globals (yyscan_t yyscanner)
 }
 
 /* VanuatuWktlex_destroy is for both reentrant and non-reentrant scanners. */
-int VanuatuWktlex_destroy  (yyscan_t yyscanner)
+int
+VanuatuWktlex_destroy (yyscan_t yyscanner)
 {
-    struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
+    struct yyguts_t *yyg = (struct yyguts_t *) yyscanner;
 
     /* Pop the buffer stack, destroying each element. */
-	while(YY_CURRENT_BUFFER){
-		VanuatuWkt_delete_buffer(YY_CURRENT_BUFFER ,yyscanner );
-		YY_CURRENT_BUFFER_LVALUE = NULL;
-		VanuatuWktpop_buffer_state(yyscanner);
-	}
+    while (YY_CURRENT_BUFFER)
+      {
+	  VanuatuWkt_delete_buffer (YY_CURRENT_BUFFER, yyscanner);
+	  YY_CURRENT_BUFFER_LVALUE = NULL;
+	  VanuatuWktpop_buffer_state (yyscanner);
+      }
 
-	/* Destroy the stack itself. */
-	VanuatuWktfree(yyg->yy_buffer_stack ,yyscanner);
-	yyg->yy_buffer_stack = NULL;
+    /* Destroy the stack itself. */
+    VanuatuWktfree (yyg->yy_buffer_stack, yyscanner);
+    yyg->yy_buffer_stack = NULL;
 
     /* Destroy the start condition stack. */
-        VanuatuWktfree(yyg->yy_start_stack ,yyscanner );
-        yyg->yy_start_stack = NULL;
+    VanuatuWktfree (yyg->yy_start_stack, yyscanner);
+    yyg->yy_start_stack = NULL;
 
     /* Reset the globals. This is important in a non-reentrant scanner so the next time
      * VanuatuWktlex() is called, initialization will occur. */
-    yy_init_globals( yyscanner);
+    yy_init_globals (yyscanner);
 
     /* Destroy the main struct (reentrant only). */
-    VanuatuWktfree ( yyscanner , yyscanner );
+    VanuatuWktfree (yyscanner, yyscanner);
     yyscanner = NULL;
     return 0;
 }
@@ -2149,52 +2273,58 @@ int VanuatuWktlex_destroy  (yyscan_t yyscanner)
  */
 
 #ifndef yytext_ptr
-static void yy_flex_strncpy (char* s1, yyconst char * s2, int n , yyscan_t yyscanner)
+static void
+yy_flex_strncpy (char *s1, yyconst char *s2, int n, yyscan_t yyscanner)
 {
-	register int i;
-	for ( i = 0; i < n; ++i )
-		s1[i] = s2[i];
+    register int i;
+    for (i = 0; i < n; ++i)
+	s1[i] = s2[i];
 }
 #endif
 
 #ifdef YY_NEED_STRLEN
-static int yy_flex_strlen (yyconst char * s , yyscan_t yyscanner)
+static int
+yy_flex_strlen (yyconst char *s, yyscan_t yyscanner)
 {
-	register int n;
-	for ( n = 0; s[n]; ++n )
-		;
+    register int n;
+    for (n = 0; s[n]; ++n)
+	;
 
-	return n;
+    return n;
 }
 #endif
 
-void *VanuatuWktalloc (yy_size_t  size , yyscan_t yyscanner)
+void *
+VanuatuWktalloc (yy_size_t size, yyscan_t yyscanner)
 {
-	return (void *) malloc( size );
+    return (void *) malloc (size);
 }
 
-void *VanuatuWktrealloc  (void * ptr, yy_size_t  size , yyscan_t yyscanner)
+void *
+VanuatuWktrealloc (void *ptr, yy_size_t size, yyscan_t yyscanner)
 {
-	/* The cast to (char *) in the following accommodates both
-	 * implementations that use char* generic pointers, and those
-	 * that use void* generic pointers.  It works with the latter
-	 * because both ANSI C and C++ allow castless assignment from
-	 * any pointer type to void*, and deal with argument conversions
-	 * as though doing an assignment.
-	 */
-	return (void *) realloc( (char *) ptr, size );
+    /* The cast to (char *) in the following accommodates both
+     * implementations that use char* generic pointers, and those
+     * that use void* generic pointers.  It works with the latter
+     * because both ANSI C and C++ allow castless assignment from
+     * any pointer type to void*, and deal with argument conversions
+     * as though doing an assignment.
+     */
+    return (void *) realloc ((char *) ptr, size);
 }
 
-void VanuatuWktfree (void * ptr , yyscan_t yyscanner)
+void
+VanuatuWktfree (void *ptr, yyscan_t yyscanner)
 {
-	free( (char *) ptr );	/* see VanuatuWktrealloc() for (char *) cast */
+    free ((char *) ptr);	/* see VanuatuWktrealloc() for (char *) cast */
 }
 
 #define YYTABLES_NAME "yytables"
 
-int VanuatuWktwrap(yyscan_t yyscanner )
+int
+VanuatuWktwrap (yyscan_t yyscanner)
 {
-  return 1;
+    return 1;
 }
 
 /******************************************************************************
@@ -2216,4 +2346,3 @@ Greg Wilson			gvwilson@cs.toronto.ca
 
 -------------------------------------------------------------------------------
 */
-

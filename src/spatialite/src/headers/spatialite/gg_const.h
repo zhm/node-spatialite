@@ -1,7 +1,7 @@
 /*
  gg_const.h -- Gaia common support for geometries: constants
   
- version 4.0, 2012 August 6
+ version 4.2, 2014 July 25
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -23,7 +23,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2012
+Portions created by the Initial Developer are Copyright (C) 2008-2013
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -62,8 +62,8 @@ extern "C"
 
 /* constant values for getVectorLayersList modes */
 
-/** mode: FAST */
-#define GAIA_VECTORS_LIST_FAST		0
+/** mode: FAST (QGIS data-provider) */
+#define GAIA_VECTORS_LIST_FAST	0
 
 /** mode: OPTIMISTIC */
 #define GAIA_VECTORS_LIST_OPTIMISTIC	1
@@ -151,7 +151,6 @@ extern "C"
 /** BLOB-Geometry CLASS: MULTILINESTRING */
 #define GAIA_MULTILINESTRING		5
 /** BLOB-Geometry CLASS: MULTIPOLYGON */
-#define GAIA_MULTIPOLYGON		6
 #define GAIA_MULTIPOLYGON		6
 /** BLOB-Geometry CLASS: GEOMETRYCOLLECTION */
 #define GAIA_GEOMETRYCOLLECTION		7

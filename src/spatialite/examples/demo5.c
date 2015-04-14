@@ -180,7 +180,6 @@ do_help ()
     fprintf (stderr,
 	     "-g or --geometry  column_name  geometry column [optional]\n\n");
     fprintf (stderr, "you can specify one of the following modes:\n");
-    fprintf (stderr, "-f or --fast                    FAST mode [default]\n");
     fprintf (stderr, "-o or --optimistic              OPTIMISTIC mode\n");
     fprintf (stderr, "-p or --pessimistic             PESSIMISTIC mode\n");
 }
@@ -193,12 +192,16 @@ main (int argc, char *argv[])
     sqlite3 *handle;
     int i;
     int next_arg = ARG_NONE;
-    int mode = GAIA_VECTORS_LIST_FAST;
+    int mode = GAIA_VECTORS_LIST_OPTIMISTIC;
     int error = 0;
     const char *db_path = NULL;
     const char *table = NULL;
     const char *geometry = NULL;
     gaiaVectorLayersListPtr list;
+    void *cache;
+
+    if (argc > 1 || argv[0] == NULL)
+	argc = 1;		/* silencing stupid compiler warnings */
 
     for (i = 1; i < argc; i++)
       {
@@ -251,13 +254,6 @@ main (int argc, char *argv[])
 		next_arg = ARG_NONE;
 		continue;
 	    }
-	  if (strcasecmp (argv[i], "-f") == 0
-	      || strcmp (argv[i], "--fast") == 0)
-	    {
-		mode = GAIA_VECTORS_LIST_FAST;
-		next_arg = ARG_NONE;
-		continue;
-	    }
 	  if (strcasecmp (argv[i], "-o") == 0
 	      || strcmp (argv[i], "--optimistic") == 0)
 	    {
@@ -288,19 +284,6 @@ main (int argc, char *argv[])
       }
 
 
-/* 
-VERY IMPORTANT: 
-you must initialize the SpatiaLite extension [and related]
-BEFORE attempting to perform any other SQLite call 
-*/
-    spatialite_init (0);
-
-/* showing the SQLite version */
-    printf ("SQLite version: %s\n", sqlite3_libversion ());
-/* showing the SpatiaLite version */
-    printf ("SpatiaLite version: %s\n", spatialite_version ());
-    printf ("\n\n");
-
 /*
 trying to connect the test DB: 
 - this demo is intended to create an existing, already populated database
@@ -313,6 +296,16 @@ trying to connect the test DB:
 	  sqlite3_close (handle);
 	  return -1;
       }
+    cache = spatialite_alloc_connection ();
+    spatialite_init_ex (handle, cache, 0);
+
+
+/* showing the SQLite version */
+    printf ("SQLite version: %s\n", sqlite3_libversion ());
+/* showing the SpatiaLite version */
+    printf ("SpatiaLite version: %s\n", spatialite_version ());
+    printf ("\n\n");
+
 
 /* listing the requested layer(s) */
     list = gaiaGetVectorLayersList (handle, table, geometry, mode);
@@ -326,7 +319,8 @@ trying to connect the test DB:
 	  printf ("close() error: %s\n", sqlite3_errmsg (handle));
 	  return -1;
       }
-    spatialite_cleanup ();
+    spatialite_cleanup_ex (cache);
     printf ("\n\nsample successfully terminated\n");
+    spatialite_shutdown();
     return 0;
 }

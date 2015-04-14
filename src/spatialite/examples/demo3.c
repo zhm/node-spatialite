@@ -50,6 +50,7 @@ main (int argc, char *argv[])
     char *count;
     clock_t t0;
     clock_t t1;
+    void *cache;
 
 
     if (argc != 2)
@@ -57,22 +58,6 @@ main (int argc, char *argv[])
 	  fprintf (stderr, "usage: %s test_db_path\n", argv[0]);
 	  return -1;
       }
-
-
-/* 
-VERY IMPORTANT: 
-you must initialize the SpatiaLite extension [and related]
-BEFORE attempting to perform any other SQLite call 
-*/
-    spatialite_init (0);
-
-
-/* showing the SQLite version */
-    printf ("SQLite version: %s\n", sqlite3_libversion ());
-/* showing the SpatiaLite version */
-    printf ("SpatiaLite version: %s\n", spatialite_version ());
-    printf ("\n\n");
-
 
 
 /* 
@@ -87,14 +72,22 @@ trying to connect the test DB:
 	  sqlite3_close (handle);
 	  return -1;
       }
+    cache = spatialite_alloc_connection ();
+    spatialite_init_ex (handle, cache, 0);
 
+
+/* showing the SQLite version */
+    printf ("SQLite version: %s\n", sqlite3_libversion ());
+/* showing the SpatiaLite version */
+    printf ("SpatiaLite version: %s\n", spatialite_version ());
+    printf ("\n\n");
 
 
 /* 
 we are supposing this one is an empty database,
 so we have to create the Spatial Metadata
 */
-    strcpy (sql, "SELECT InitSpatialMetadata()");
+    strcpy (sql, "SELECT InitSpatialMetadata(1)");
     ret = sqlite3_exec (handle, sql, NULL, NULL, &err_msg);
     if (ret != SQLITE_OK)
       {
@@ -361,11 +354,13 @@ the idea is simply to simulate exactly the same conditions as above
 	  printf ("close() error: %s\n", sqlite3_errmsg (handle));
 	  return -1;
       }
+    spatialite_cleanup_ex (cache);
     printf ("\n\nsample successfully terminated\n");
     return 0;
 
   abort:
     sqlite3_close (handle);
-    spatialite_cleanup();
+    spatialite_cleanup_ex (cache);
+    spatialite_shutdown();
     return -1;
 }

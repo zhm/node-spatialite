@@ -48,13 +48,56 @@ the terms of any one of the MPL, the GPL or the LGPL.
 #include "sqlite3.h"
 #include "spatialite.h"
 
-int main (int argc, char *argv[])
+int
+main (int argc, char *argv[])
 {
-    spatialite_init(0);
-    spatialite_cleanup();
-    
-    spatialite_init(1);
-    spatialite_cleanup();
-    
+    int ret;
+    sqlite3 *handle;
+    void *cache = spatialite_alloc_connection ();
+
+    if (argc > 1 || argv[0] == NULL)
+	argc = 1;		/* silencing stupid compiler warnings */
+
+    ret =
+	sqlite3_open_v2 (":memory:", &handle,
+			 SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "cannot open in-memory db: %s\n",
+		   sqlite3_errmsg (handle));
+	  sqlite3_close (handle);
+	  return -1;
+      }
+    spatialite_init_ex (handle, cache, 0);
+    ret = sqlite3_close (handle);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "sqlite3_close() error: %s\n",
+		   sqlite3_errmsg (handle));
+	  return -2;
+      }
+    spatialite_cleanup_ex (cache);
+
+    cache = spatialite_alloc_connection ();
+    ret =
+	sqlite3_open_v2 (":memory:", &handle,
+			 SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "cannot open in-memory db: %s\n",
+		   sqlite3_errmsg (handle));
+	  sqlite3_close (handle);
+	  return -3;
+      }
+    spatialite_init_ex (handle, cache, 1);
+    ret = sqlite3_close (handle);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "sqlite3_close() error: %s\n",
+		   sqlite3_errmsg (handle));
+	  return -4;
+      }
+    spatialite_cleanup_ex (cache);
+
     return 0;
 }

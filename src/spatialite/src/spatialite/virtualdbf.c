@@ -2,7 +2,7 @@
 
  virtualdbf.c -- SQLite3 extension [VIRTUAL TABLE accessing DBF]
 
- version 4.0, 2012 August 6
+ version 4.2, 2014 July 25
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -24,7 +24,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2012
+Portions created by the Initial Developer are Copyright (C) 2008-2013
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -870,8 +870,8 @@ vdbf_rollback (sqlite3_vtab * pVTab)
     return SQLITE_OK;
 }
 
-int
-sqlite3VirtualDbfInit (sqlite3 * db)
+static int
+spliteVirtualDbfInit (sqlite3 * db)
 {
     int rc = SQLITE_OK;
     my_dbf_module.iVersion = 1;
@@ -897,10 +897,11 @@ sqlite3VirtualDbfInit (sqlite3 * db)
     return rc;
 }
 
-int
-virtualdbf_extension_init (sqlite3 * db)
+SPATIALITE_PRIVATE int
+virtualdbf_extension_init (void *xdb)
 {
-    return sqlite3VirtualDbfInit (db);
+    sqlite3 *db = (sqlite3 *) xdb;
+    return spliteVirtualDbfInit (db);
 }
 
 #endif /* ICONV enabled/disabled */

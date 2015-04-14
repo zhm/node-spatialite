@@ -1,7 +1,7 @@
 /* 
  spatialite.h -- Gaia support for SQLite extensions
   
- version 4.0, 2012 August 6
+ version 4.2, 2014 July 25
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -23,7 +23,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2012
+Portions created by the Initial Developer are Copyright (C) 2008-2013
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -42,11 +42,18 @@ the terms of any one of the MPL, the GPL or the LGPL.
  
 */
 
-int virtualshape_extension_init (sqlite3 * db);
-int virtualdbf_extension_init (sqlite3 * db);
-int virtualtext_extension_init (sqlite3 * db);
-int virtualXL_extension_init (sqlite3 * db);
-int virtualnetwork_extension_init (sqlite3 * db);
-int virtualfdo_extension_init (sqlite3 * db);
-int mbrcache_extension_init (sqlite3 * db);
-int virtual_spatialindex_extension_init (sqlite3 * db);
+#include <spatialite_private.h>
+
+SPATIALITE_PRIVATE int virtualshape_extension_init (void *db);
+SPATIALITE_PRIVATE int virtualdbf_extension_init (void *db);
+SPATIALITE_PRIVATE int virtualtext_extension_init (void *db);
+SPATIALITE_PRIVATE int virtualXL_extension_init (void *db);
+SPATIALITE_PRIVATE int virtualnetwork_extension_init (void *db);
+SPATIALITE_PRIVATE int virtualfdo_extension_init (void *db);
+SPATIALITE_PRIVATE int virtualbbox_extension_init (void *db,
+						   const void *p_cache);
+SPATIALITE_PRIVATE int mbrcache_extension_init (void *db);
+SPATIALITE_PRIVATE int virtual_spatialindex_extension_init (void *db);
+SPATIALITE_PRIVATE int virtual_xpath_extension_init (void *db,
+						     const void *p_cache);
+SPATIALITE_PRIVATE int virtualgpkg_extension_init (void *db);

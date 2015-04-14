@@ -54,48 +54,56 @@ the terms of any one of the MPL, the GPL or the LGPL.
 #include "spatialite.h"
 #include "spatialite/gaiageo.h"
 
-int main (int argc, char *argv[])
+int
+main (int argc, char *argv[])
 {
-#ifndef OMIT_GEOS	/* only if GEOS is supported */
+#ifndef OMIT_GEOS		/* only if GEOS is supported */
     gaiaGeomCollPtr result;
     void *resultVoid;
     int returnValue = 0;
-    
+
     /* Common setup */
-    
-    gaiaGeomCollPtr emptyGeometry = gaiaAllocGeomColl();
-    
+    gaiaGeomCollPtr emptyGeometry = gaiaAllocGeomColl ();
+
+    if (argc > 1 || argv[0] == NULL)
+	argc = 1;		/* silencing stupid compiler warnings */
+
     /* Tests start here */
-    
+
     /* null input test */
-    result = gaiaFromGeos_XY ( (const void*) NULL );
-    if (result != NULL) {
-	fprintf(stderr, "bad result at %s:%i\n", __FILE__, __LINE__);
-	returnValue = -1;
-	goto exit;
-    }
-    
-    resultVoid = gaiaToGeos ((gaiaGeomCollPtr)NULL);
-    if (resultVoid != NULL) {
-	fprintf(stderr, "bad result at %s:%i\n", __FILE__, __LINE__);
-	returnValue = -2;
-	goto exit;
-    }
-    
+    result = gaiaFromGeos_XY ((const void *) NULL);
+    if (result != NULL)
+      {
+	  fprintf (stderr, "bad result at %s:%i\n", __FILE__, __LINE__);
+	  returnValue = -1;
+	  goto exit;
+      }
+
+    resultVoid = gaiaToGeos ((gaiaGeomCollPtr) NULL);
+    if (resultVoid != NULL)
+      {
+	  fprintf (stderr, "bad result at %s:%i\n", __FILE__, __LINE__);
+	  returnValue = -2;
+	  goto exit;
+      }
+
     /* unknown type geometry collection */
-    resultVoid = gaiaToGeos ( emptyGeometry );
-    if (resultVoid != NULL) {
-	fprintf(stderr, "bad result at %s:%i\n", __FILE__, __LINE__);
-	returnValue = -3;
-	goto exit;
-    }
-    
+    resultVoid = gaiaToGeos (emptyGeometry);
+    if (resultVoid != NULL)
+      {
+	  fprintf (stderr, "bad result at %s:%i\n", __FILE__, __LINE__);
+	  returnValue = -3;
+	  goto exit;
+      }
+
     /* Cleanup and exit */
-exit:
+  exit:
     gaiaFreeGeomColl (emptyGeometry);
+    spatialite_shutdown ();
     return returnValue;
 
-#endif	/* end GEOS conditional */
+#endif /* end GEOS conditional */
 
+    spatialite_shutdown ();
     return 0;
 }

@@ -57,29 +57,29 @@ the terms of any one of the MPL, the GPL or the LGPL.
 *  of the two tokens, FLEX will match POINTM.
 */
 %%
--?[0-9]+|-?[0-9]+"."[0-9]*|"+"?[0-9]+|"+"?[0-9]+"."[0-9]*      { GeoJsonget_extra(yyscanner)->geoJson_col += (int) strlen(yytext);  GeoJsonLval.dval = atof(yytext); return GEOJSON_NUM; }
--?"\""EPSG:-?[0-9]+"\""					{ GeoJsonget_extra(yyscanner)->geoJson_col += (int) strlen(yytext);  GeoJsonLval.ival = atoi(yytext+6); return GEOJSON_SHORT_SRID; }
--?"\""urn:ogc:def:crs:EPSG:-?[0-9]+"\""	{ GeoJsonget_extra(yyscanner)->geoJson_col += (int) strlen(yytext);  GeoJsonLval.ival = atoi(yytext+22); return GEOJSON_LONG_SRID; }
-","										{ GeoJsonLval.dval = 0; return GEOJSON_COMMA; }
-":"										{ GeoJsonLval.dval = 0; return GEOJSON_COLON; }
-"{"										{ GeoJsonLval.dval = 0; return GEOJSON_OPEN_BRACE; }
-"}"										{ GeoJsonLval.dval = 0; return GEOJSON_CLOSE_BRACE; }
-"["										{ GeoJsonLval.dval = 0; return GEOJSON_OPEN_BRACKET; }
-"]"										{ GeoJsonLval.dval = 0; return GEOJSON_CLOSE_BRACKET; }
-(?-i:"\"type\"")						{ GeoJsonLval.dval = 0; return GEOJSON_TYPE; }
-(?-i:"\"coordinates\"")					{ GeoJsonLval.dval = 0; return GEOJSON_COORDS; }
-(?-i:"\"geometries\"")					{ GeoJsonLval.dval = 0; return GEOJSON_GEOMS; }
-(?-i:"\"bbox\"")						{ GeoJsonLval.dval = 0; return GEOJSON_BBOX; }
-(?-i:"\"name\"")						{ GeoJsonLval.dval = 0; return GEOJSON_NAME; }
-(?-i:"\"properties\"")					{ GeoJsonLval.dval = 0; return GEOJSON_PROPS; }
-(?-i:"\"crs\"")							{ GeoJsonLval.dval = 0; return GEOJSON_CRS; }
-(?-i:"\"Point\"")						{ GeoJsonLval.dval = 0; return GEOJSON_POINT; }
-(?-i:"\"LineString\"")					{ GeoJsonLval.dval = 0; return GEOJSON_LINESTRING; }
-(?-i:"\"Polygon\"")						{ GeoJsonLval.dval = 0; return GEOJSON_POLYGON; }
-(?-i:"\"MultiPoint\"")					{ GeoJsonLval.dval = 0; return GEOJSON_MULTIPOINT; }
-(?-i:"\"MultiLineString\"")				{ GeoJsonLval.dval = 0; return GEOJSON_MULTILINESTRING; }
-(?-i:"\"MultiPolygon\"")				{ GeoJsonLval.dval = 0; return GEOJSON_MULTIPOLYGON; }
-(?-i:"\"GeometryCollection\"")			{ GeoJsonLval.dval = 0; return GEOJSON_GEOMETRYCOLLECTION; }
+-?[0-9]+|-?[0-9]+"."[0-9]*|"+"?[0-9]+|"+"?[0-9]+"."[0-9]*      { GeoJsonget_extra(yyscanner)->geoJson_col += (int) strlen(yytext);  GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = atof(yytext); return GEOJSON_NUM; }
+-?"\""EPSG:-?[0-9]+"\""					{ GeoJsonget_extra(yyscanner)->geoJson_col += (int) strlen(yytext);  GeoJsonget_extra(yyscanner)->GeoJsonLval.ival = atoi(yytext+6); return GEOJSON_SHORT_SRID; }
+-?"\""urn:ogc:def:crs:EPSG:-?[0-9]+"\""	{ GeoJsonget_extra(yyscanner)->geoJson_col += (int) strlen(yytext);  GeoJsonget_extra(yyscanner)->GeoJsonLval.ival = atoi(yytext+22); return GEOJSON_LONG_SRID; }
+","					{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_COMMA; }
+":"					{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_COLON; }
+"{"					{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_OPEN_BRACE; }
+"}"					{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_CLOSE_BRACE; }
+"["					{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_OPEN_BRACKET; }
+"]"					{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_CLOSE_BRACKET; }
+(?-i:"\"type\"")			{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_TYPE; }
+(?-i:"\"coordinates\"")			{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_COORDS; }
+(?-i:"\"geometries\"")			{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_GEOMS; }
+(?-i:"\"bbox\"")			{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_BBOX; }
+(?-i:"\"name\"")			{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_NAME; }
+(?-i:"\"properties\"")			{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_PROPS; }
+(?-i:"\"crs\"")				{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_CRS; }
+(?-i:"\"Point\"")			{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_POINT; }
+(?-i:"\"LineString\"")			{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_LINESTRING; }
+(?-i:"\"Polygon\"")			{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_POLYGON; }
+(?-i:"\"MultiPoint\"")			{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_MULTIPOINT; }
+(?-i:"\"MultiLineString\"")		{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_MULTILINESTRING; }
+(?-i:"\"MultiPolygon\"")		{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_MULTIPOLYGON; }
+(?-i:"\"GeometryCollection\"")		{ GeoJsonget_extra(yyscanner)->GeoJsonLval.dval = 0; return GEOJSON_GEOMETRYCOLLECTION; }
 
 [ \t]   { GeoJsonget_extra(yyscanner)->geoJson_col += (int) strlen(yytext); }               /* ignore but count white space */
 

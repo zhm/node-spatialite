@@ -48,7 +48,8 @@ the terms of any one of the MPL, the GPL or the LGPL.
 #include "sqlite3.h"
 #include "spatialite.h"
 
-int main (int argc, char *argv[])
+int
+main (int argc, char *argv[])
 {
     int ret;
     sqlite3 *handle;
@@ -56,140 +57,224 @@ int main (int argc, char *argv[])
     char **results;
     int rows;
     int columns;
+    void *cache = spatialite_alloc_connection ();
 
-    spatialite_init (0);
-    ret = sqlite3_open_v2 (":memory:", &handle, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
-    if (ret != SQLITE_OK) {
-	fprintf(stderr, "cannot open in-memory db: %s\n", sqlite3_errmsg (handle));
-	sqlite3_close(handle);
-	return -1;
-    }
-    ret = sqlite3_exec (handle, "SELECT InitSpatialMetadata()", NULL, NULL, &err_msg);
-    if (ret != SQLITE_OK) {
-	fprintf (stderr, "InitSpatialMetadata() error: %s\n", err_msg);
-	sqlite3_free(err_msg);
-	sqlite3_close(handle);
-	return -2;
-    }
+    if (argc > 1 || argv[0] == NULL)
+	argc = 1;		/* silencing stupid compiler warnings */
 
-    ret = sqlite3_exec (handle, "CREATE TABLE Point_Test (Name TEXT, Description TEXT)", NULL, NULL, &err_msg);
-    if (ret != SQLITE_OK) {
-	fprintf (stderr, "CREATE TABLE error: %s\n", err_msg);
-	sqlite3_free(err_msg);
-	sqlite3_close(handle);
-	return -3;
-    }
+    ret =
+	sqlite3_open_v2 (":memory:", &handle,
+			 SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "cannot open in-memory db: %s\n",
+		   sqlite3_errmsg (handle));
+	  sqlite3_close (handle);
+	  return -1;
+      }
 
-    ret = sqlite3_get_table (handle, "SELECT AddGeometryColumn(26, 'geomZ', 4326, 'POINT', 'XYZ', 0)", &results, &rows, &columns, &err_msg);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -4;
-    }
-    if ((rows != 1) || (columns != 1)) {
-	fprintf (stderr, "Unexpected result AddGeometryColumn int arg1 bad result: %i/%i.\n", rows, columns);
-	return  -5;
-    }
-    if (strcmp(results[1], "0") != 0) {
-	fprintf (stderr, "Unexpected result: AddGeometryColumn with non-text arg1 passed: %s.\n", results[1]);
-	return  -6;
-    }
+    spatialite_init_ex (handle, cache, 0);
+
+    ret =
+	sqlite3_exec (handle, "SELECT InitSpatialMetadata(1)", NULL, NULL,
+		      &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "InitSpatialMetadata() error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  sqlite3_close (handle);
+	  return -2;
+      }
+
+    ret =
+	sqlite3_exec (handle,
+		      "CREATE TABLE Point_Test (Name TEXT, Description TEXT)",
+		      NULL, NULL, &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "CREATE TABLE error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  sqlite3_close (handle);
+	  return -3;
+      }
+
+    ret =
+	sqlite3_get_table (handle,
+			   "SELECT AddGeometryColumn(26, 'geomZ', 4326, 'POINT', 'XYZ', 0)",
+			   &results, &rows, &columns, &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -4;
+      }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "Unexpected result AddGeometryColumn int arg1 bad result: %i/%i.\n",
+		   rows, columns);
+	  return -5;
+      }
+    if (strcmp (results[1], "0") != 0)
+      {
+	  fprintf (stderr,
+		   "Unexpected result: AddGeometryColumn with non-text arg1 passed: %s.\n",
+		   results[1]);
+	  return -6;
+      }
     sqlite3_free_table (results);
-    
-    ret = sqlite3_get_table (handle, "SELECT AddGeometryColumn('Point_Test', 8, 4326, 'POINT', 'XYZ', 0)", &results, &rows, &columns, &err_msg);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -7;
-    }
-    if ((rows != 1) || (columns != 1)) {
-	fprintf (stderr, "Unexpected result AddGeometryColumn int arg2 bad result: %i/%i.\n", rows, columns);
-	return  -8;
-    }
-    if (strcmp(results[1], "0") != 0) {
-	fprintf (stderr, "Unexpected result: AddGeometryColumn with non-text arg2 passed: %s.\n", results[1]);
-	return  -9;
-    }
+
+    ret =
+	sqlite3_get_table (handle,
+			   "SELECT AddGeometryColumn('Point_Test', 8, 4326, 'POINT', 'XYZ', 0)",
+			   &results, &rows, &columns, &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -7;
+      }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "Unexpected result AddGeometryColumn int arg2 bad result: %i/%i.\n",
+		   rows, columns);
+	  return -8;
+      }
+    if (strcmp (results[1], "0") != 0)
+      {
+	  fprintf (stderr,
+		   "Unexpected result: AddGeometryColumn with non-text arg2 passed: %s.\n",
+		   results[1]);
+	  return -9;
+      }
     sqlite3_free_table (results);
-    
-    ret = sqlite3_get_table (handle, "SELECT AddGeometryColumn('Point_Test', 'geomZ', 'sometext', 'POINT', 'XYZ', 0)", &results, &rows, &columns, &err_msg);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -10;
-    }
-    if ((rows != 1) || (columns != 1)) {
-	fprintf (stderr, "Unexpected result AddGeometryColumn text arg3 bad result: %i/%i.\n", rows, columns);
-	return  -11;
-    }
-    if (strcmp(results[1], "0") != 0) {
-	fprintf (stderr, "Unexpected result: AddGeometryColumn with non-int arg3 passed: %s.\n", results[1]);
-	return  -12;
-    }
+
+    ret =
+	sqlite3_get_table (handle,
+			   "SELECT AddGeometryColumn('Point_Test', 'geomZ', 'sometext', 'POINT', 'XYZ', 0)",
+			   &results, &rows, &columns, &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -10;
+      }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "Unexpected result AddGeometryColumn text arg3 bad result: %i/%i.\n",
+		   rows, columns);
+	  return -11;
+      }
+    if (strcmp (results[1], "0") != 0)
+      {
+	  fprintf (stderr,
+		   "Unexpected result: AddGeometryColumn with non-int arg3 passed: %s.\n",
+		   results[1]);
+	  return -12;
+      }
     sqlite3_free_table (results);
-    
-    ret = sqlite3_get_table (handle, "SELECT AddGeometryColumn('Point_Test', 'geomZ', 4326, 'POINT', 'XYZ', 0)", &results, &rows, &columns, &err_msg);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -13;
-    }
-    if ((rows != 1) || (columns != 1)) {
-	fprintf (stderr, "Unexpected result AddGeometryColumn bad result: %i/%i.\n", rows, columns);
-	return  -14;
-    }
-    if (strcmp(results[1], "1") != 0) {
-	fprintf (stderr, "Unexpected error: AddGeometryColumn with good args failed: %s.\n", results[1]);
-	return  -15;
-    }
+
+    ret =
+	sqlite3_get_table (handle,
+			   "SELECT AddGeometryColumn('Point_Test', 'geomZ', 4326, 'POINT', 'XYZ', 0)",
+			   &results, &rows, &columns, &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -13;
+      }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "Unexpected result AddGeometryColumn bad result: %i/%i.\n",
+		   rows, columns);
+	  return -14;
+      }
+    if (strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr,
+		   "Unexpected error: AddGeometryColumn with good args failed: %s.\n",
+		   results[1]);
+	  return -15;
+      }
     sqlite3_free_table (results);
-    
-    ret = sqlite3_exec (handle, "INSERT INTO Point_Test (Name, Description, geomZ) VALUES ('Point 1', 'Some point', GeomFromText('POINTZ(136 -33 365)', 4326))", NULL, NULL, &err_msg);
-    if (ret != SQLITE_OK) {
-	fprintf (stderr, "INSERT POINT XYZ error: %s\n", err_msg);
-	sqlite3_free(err_msg);
-	sqlite3_close(handle);
-	return -16;
-    }
-    
-    ret = sqlite3_get_table (handle, "SELECT DiscardGeometryColumn('Point_Test', 'geomZ')", &results, &rows, &columns, &err_msg);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -17;
-    }
-    if ((rows != 1) || (columns != 1)) {
-	fprintf (stderr, "Unexpected result DiscardGeometryColumn bad result: %i/%i.\n", rows, columns);
-	return  -18;
-    }
-    if (strcmp(results[1], "1") != 0) {
-	fprintf (stderr, "Unexpected error: DiscardGeometryColumn failed: %s.\n", results[1]);
-	return  -19;
-    }
+
+    ret =
+	sqlite3_exec (handle,
+		      "INSERT INTO Point_Test (Name, Description, geomZ) VALUES ('Point 1', 'Some point', GeomFromText('POINTZ(136 -33 365)', 4326))",
+		      NULL, NULL, &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "INSERT POINT XYZ error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  sqlite3_close (handle);
+	  return -16;
+      }
+
+    ret =
+	sqlite3_get_table (handle,
+			   "SELECT DiscardGeometryColumn('Point_Test', 'geomZ')",
+			   &results, &rows, &columns, &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -17;
+      }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "Unexpected result DiscardGeometryColumn bad result: %i/%i.\n",
+		   rows, columns);
+	  return -18;
+      }
+    if (strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr,
+		   "Unexpected error: DiscardGeometryColumn failed: %s.\n",
+		   results[1]);
+	  return -19;
+      }
     sqlite3_free_table (results);
-    
-    ret = sqlite3_get_table (handle, "SELECT RecoverGeometryColumn('Point_Test', 'geomZ', 4326, 'POINT', 'XYZ')", &results, &rows, &columns, &err_msg);
-    if (ret != SQLITE_OK) {
-      fprintf (stderr, "Error: %s\n", err_msg);
-      sqlite3_free (err_msg);
-      return -20;
-    }
-    if ((rows != 1) || (columns != 1)) {
-	fprintf (stderr, "Unexpected result RecoverGeometryColumn bad result: %i/%i.\n", rows, columns);
-	return  -21;
-    }
-    if (strcmp(results[1], "1") != 0) {
-	fprintf (stderr, "Unexpected error: RecoverGeometryColumn failed: %s.\n", results[1]);
-	return  -22;
-    }
+
+    ret =
+	sqlite3_get_table (handle,
+			   "SELECT RecoverGeometryColumn('Point_Test', 'geomZ', 4326, 'POINT', 'XYZ')",
+			   &results, &rows, &columns, &err_msg);
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "Error: %s\n", err_msg);
+	  sqlite3_free (err_msg);
+	  return -20;
+      }
+    if ((rows != 1) || (columns != 1))
+      {
+	  fprintf (stderr,
+		   "Unexpected result RecoverGeometryColumn bad result: %i/%i.\n",
+		   rows, columns);
+	  return -21;
+      }
+    if (strcmp (results[1], "1") != 0)
+      {
+	  fprintf (stderr,
+		   "Unexpected error: RecoverGeometryColumn failed: %s.\n",
+		   results[1]);
+	  return -22;
+      }
     sqlite3_free_table (results);
     ret = sqlite3_close (handle);
-    if (ret != SQLITE_OK) {
-        fprintf (stderr, "sqlite3_close() error: %s\n", sqlite3_errmsg (handle));
-	return -23;
-    }
-    
-    spatialite_cleanup();
-    
+    if (ret != SQLITE_OK)
+      {
+	  fprintf (stderr, "sqlite3_close() error: %s\n",
+		   sqlite3_errmsg (handle));
+	  return -23;
+      }
+
+    spatialite_cleanup_ex (cache);
+    spatialite_shutdown ();
+
     return 0;
 }

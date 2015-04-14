@@ -2,7 +2,7 @@
 
  gg_sqlaux.c -- SQL ancillary functions
 
- version 4.0, 2012 August 6
+ version 4.2, 2014 July 25
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -24,7 +24,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2012
+Portions created by the Initial Developer are Copyright (C) 2008-2013
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -47,6 +47,7 @@ the terms of any one of the MPL, the GPL or the LGPL.
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #if defined(_WIN32) && !defined(__MINGW32__)
 #include "config-msvc.h"
@@ -62,6 +63,13 @@ the terms of any one of the MPL, the GPL or the LGPL.
 #ifdef _WIN32
 #define strcasecmp	_stricmp
 #endif /* not WIN32 */
+
+/* 64 bit integer: portable format for printf() */
+#if defined(_WIN32) && !defined(__MINGW32__)
+#define FRMT64 "%I64d"
+#else
+#define FRMT64 "%lld"
+#endif
 
 GAIAAUX_DECLARE int
 gaiaIllegalSqlName (const char *name)
@@ -775,12 +783,7 @@ gaiaUpdateSqlLog (sqlite3 * sqlite, sqlite3_int64 sqllog_pk, int success,
 /* CURRENT db-schema (>= 4.0.0) required */
 	  return;
       }
-#if defined(_WIN32) || defined(__MINGW32__)
-    /* CAVEAT - M$ runtime doesn't supports %lld for 64 bits */
-    sprintf (dummy, "%I64d", sqllog_pk);
-#else
-    sprintf (dummy, "%lld", sqllog_pk);
-#endif
+    sprintf (dummy, FRMT64, sqllog_pk);
     if (success)
       {
 	  sql_statement = sqlite3_mprintf ("UPDATE sql_statements_log SET "
@@ -800,3 +803,398 @@ gaiaUpdateSqlLog (sqlite3 * sqlite, sqlite3_int64 sqllog_pk, int success,
     sqlite3_free (sql_statement);
 }
 
+static void
+consume_blank (const char *p_start, const char **p_end)
+{
+/* consuming blanks */
+    const char *p = p_start;
+    while (1)
+      {
+	  if (*p == ' ' || *p == '\t')
+	    {
+		p++;
+		continue;
+	    }
+	  else
+	    {
+		*p_end = p;
+		return;
+	    }
+      }
+}
+
+static int
+check_deg_delimiter (const char *p_start, const char **p_end)
+{
+/* testing a "degrees" delimiter/qualifier */
+    unsigned char ctrl1;
+    unsigned char ctrl2;
+    if (*p_start == 'd')
+      {
+	  *p_end = p_start + 1;
+	  return 1;
+      }
+    ctrl1 = *(p_start + 0);
+    ctrl2 = *(p_start + 1);
+    if (ctrl1 == 0xc2 && ctrl2 == 0xb0)
+      {
+	  *p_end = p_start + 2;
+	  return 1;
+      }
+    return 0;
+}
+
+static int
+check_min_delimiter (const char *p_start, const char **p_end)
+{
+/* testing a "minutes" delimiter/qualifier */
+    unsigned char ctrl1;
+    unsigned char ctrl2;
+    unsigned char ctrl3;
+    if (*p_start == '\'')
+      {
+	  *p_end = p_start + 1;
+	  return 1;
+      }
+    ctrl1 = *(p_start + 0);
+    ctrl2 = *(p_start + 1);
+    ctrl3 = *(p_start + 2);
+    if (ctrl1 == 0xe2 && ctrl2 == 0x80 && ctrl3 == 0xb2)
+      {
+	  *p_end = p_start + 3;
+	  return 1;
+      }
+    return 0;
+}
+
+static int
+check_sec_delimiter (const char *p_start, const char **p_end)
+{
+/* testing a "seconds" delimiter/qualifier */
+    unsigned char ctrl1;
+    unsigned char ctrl2;
+    unsigned char ctrl3;
+    if (*p_start == '"')
+      {
+	  *p_end = p_start + 1;
+	  return 1;
+      }
+    ctrl1 = *(p_start + 0);
+    ctrl2 = *(p_start + 1);
+    ctrl3 = *(p_start + 2);
+    if (ctrl1 == 0xe2 && ctrl2 == 0x80 && ctrl3 == 0xb3)
+      {
+	  *p_end = p_start + 3;
+	  return 1;
+      }
+    return 0;
+}
+
+static void
+consume_int (const char *p_start, const char **p_end, int *value)
+{
+/* consuming an integer value */
+    char *buf;
+    int len = 0;
+    const char *p = p_start;
+    while (1)
+      {
+	  if (*p >= '0' && *p <= '9')
+	    {
+		len++;
+		p++;
+		continue;
+	    }
+	  else
+	    {
+		*p_end = p;
+		break;
+	    }
+      }
+    if (len == 0)
+      {
+	  *value = 181;
+	  return;
+      }
+    buf = malloc (len + 1);
+    memcpy (buf, p_start, len);
+    *(buf + len) = '\0';
+    *value = atoi (buf);
+    free (buf);
+}
+
+static void
+consume_float (const char *p_start, const char **p_end, double *value)
+{
+/* consuming a double value */
+    char *buf;
+    int pt = 0;
+    int len = 0;
+    const char *p = p_start;
+    while (1)
+      {
+	  if (*p >= '0' && *p <= '9')
+	    {
+		len++;
+		p++;
+		continue;
+	    }
+	  else if (*p == '.' || *p == ',')
+	    {
+		len++;
+		pt++;
+		p++;
+		continue;
+	    }
+	  else
+	    {
+		*p_end = p;
+		break;
+	    }
+      }
+    if (len == 0 || pt > 1)
+      {
+	  *value = 61.0;
+	  return;
+      }
+    buf = malloc (len + 1);
+    memcpy (buf, p_start, len);
+    *(buf + len) = '\0';
+    *value = atof (buf);
+    free (buf);
+}
+
+GAIAAUX_DECLARE int
+gaiaParseDMS (const char *dms, double *longitude, double *latitude)
+{
+/* attempting to parse a DMS string */
+    double lg;
+    double lt;
+    int lat_d;
+    int lat_m;
+    double lat_s;
+    char lat_prefix = '\0';
+    int long_d;
+    int long_m;
+    double long_s;
+    char long_prefix = '\0';
+    const char *p = dms;
+    const char *p_end;
+    if (dms == NULL)
+	return 0;
+
+/* attempting to parse the latitude */
+    consume_blank (p, &p_end);
+    p = p_end;
+    if (*p == 'S' || *p == 'N')
+      {
+	  lat_prefix = *p;
+	  p++;
+	  consume_blank (p, &p_end);
+	  p = p_end;
+      }
+    if (*p >= '0' && *p <= '9')
+      {
+	  consume_int (p, &p_end, &lat_d);
+	  if (lat_d < 0 && lat_d > 90)
+	      return 0;
+	  p = p_end;
+      }
+    else
+	return 0;
+    consume_blank (p, &p_end);
+    p = p_end;
+    if (check_deg_delimiter (p, &p_end))
+	p = p_end;
+    else
+	return 0;
+    consume_blank (p, &p_end);
+    p = p_end;
+    if (*p >= '0' && *p <= '9')
+      {
+	  consume_int (p, &p_end, &lat_m);
+	  if (lat_m < 0 && lat_m >= 60)
+	      return 0;
+	  p = p_end;
+      }
+    else
+	return 0;
+    consume_blank (p, &p_end);
+    p = p_end;
+    if (check_min_delimiter (p, &p_end))
+	p = p_end;
+    else
+	return 0;
+    consume_blank (p, &p_end);
+    p = p_end;
+    if (*p >= '0' && *p <= '9')
+      {
+	  consume_float (p, &p_end, &lat_s);
+	  if (lat_s < 0.0 && lat_s >= 60.0)
+	      return 0;
+	  p = p_end;
+      }
+    else
+	return 0;
+    consume_blank (p, &p_end);
+    p = p_end;
+    if (check_sec_delimiter (p, &p_end))
+	p = p_end;
+    else
+	return 0;
+    consume_blank (p, &p_end);
+    p = p_end;
+    if (lat_prefix == '\0')
+      {
+	  /* attempting to retrieve the prefix */
+	  if (*p == 'S' || *p == 'N')
+	    {
+		lat_prefix = *p;
+		p++;
+	    }
+	  else
+	      return 0;
+      }
+    lt = (double) lat_d + ((double) lat_m / 60.0) + (lat_s / 3600.0);
+    if (lat_prefix == 'S')
+	lt *= -1.0;
+    if (lt < -90.0 || lt > 90.0)
+	return 0;
+
+/* attempting to parse the longitude */
+    consume_blank (p, &p_end);
+    p = p_end;
+    if (*p == 'E' || *p == 'W')
+      {
+	  long_prefix = *p;
+	  p++;
+	  consume_blank (p, &p_end);
+	  p = p_end;
+      }
+    if (*p >= '0' && *p <= '9')
+      {
+	  consume_int (p, &p_end, &long_d);
+	  if (long_d < 0 && long_d > 90)
+	      return 0;
+	  p = p_end;
+      }
+    else
+	return 0;
+    consume_blank (p, &p_end);
+    p = p_end;
+    if (check_deg_delimiter (p, &p_end))
+	p = p_end;
+    else
+	return 0;
+    consume_blank (p, &p_end);
+    p = p_end;
+    if (*p >= '0' && *p <= '9')
+      {
+	  consume_int (p, &p_end, &long_m);
+	  if (long_m < 0 && long_m >= 60)
+	      return 0;
+	  p = p_end;
+      }
+    else
+	return 0;
+    consume_blank (p, &p_end);
+    p = p_end;
+    if (check_min_delimiter (p, &p_end))
+	p = p_end;
+    else
+	return 0;
+    consume_blank (p, &p_end);
+    p = p_end;
+    if (*p >= '0' && *p <= '9')
+      {
+	  consume_float (p, &p_end, &long_s);
+	  if (long_s < 0.0 && long_s >= 60.0)
+	      return 0;
+	  p = p_end;
+      }
+    else
+	return 0;
+    consume_blank (p, &p_end);
+    p = p_end;
+    if (check_sec_delimiter (p, &p_end))
+	p = p_end;
+    else
+	return 0;
+    consume_blank (p, &p_end);
+    p = p_end;
+    if (long_prefix == '\0')
+      {
+	  /* attempting to retrieve the prefix */
+	  if (*p == 'E' || *p == 'W')
+	    {
+		long_prefix = *p;
+		p++;
+	    }
+	  else
+	      return 0;
+      }
+    lg = (double) long_d + ((double) long_m / 60.0) + (long_s / 3600.0);
+    if (long_prefix == 'W')
+	lg *= -1.0;
+    if (lg < -180.0 || lg > 180.0)
+	return 0;
+
+    *longitude = lg;
+    *latitude = lt;
+    return 1;
+}
+
+GAIAAUX_DECLARE char *
+gaiaConvertToDMS (double longitude, double latitude)
+{
+/* formatting a DMS string */
+    char *dms0;
+    char *dms;
+    char long_prefix = 'E';
+    char lat_prefix = 'N';
+    int long_d;
+    int long_m;
+    int long_s;
+    int lat_d;
+    int lat_m;
+    int lat_s;
+    double val;
+    int len;
+    if (longitude < -180.0 || longitude > 180.0)
+	return NULL;
+    if (latitude < -90.0 || latitude > 90.0)
+	return NULL;
+    if (longitude < 0.0)
+      {
+	  long_prefix = 'W';
+	  longitude *= -1.0;
+      }
+    if (latitude < 0.0)
+      {
+	  lat_prefix = 'S';
+	  latitude *= -1.0;
+      }
+    long_d = floor (longitude);
+    val = 60.0 * (longitude - (double) long_d);
+    long_m = floor (val);
+    val = 60.0 * (val - (double) long_m);
+    long_s = floor (val);
+    if ((val - (double) long_s) > 0.5)
+	long_s++;
+    lat_d = floor (latitude);
+    val = 60.0 * (latitude - (double) lat_d);
+    lat_m = floor (val);
+    val = 60.0 * (val - (double) lat_m);
+    lat_s = floor (val);
+    if ((val - (double) lat_s) > 0.5)
+	lat_s++;
+    dms0 =
+	sqlite3_mprintf ("%02d°%02d′%02d″%c %03d°%02d′%02d″%c", lat_d,
+			 lat_m, lat_s, lat_prefix, long_d, long_m, long_s,
+			 long_prefix);
+    len = strlen (dms0);
+    dms = malloc (len + 1);
+    strcpy (dms, dms0);
+    sqlite3_free (dms0);
+    return dms;
+}

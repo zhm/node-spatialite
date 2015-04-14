@@ -12,13 +12,21 @@ LIBOBJ = src\gaiaaux\gg_sqlaux.obj src\gaiaaux\gg_utf8.obj \
 	src\gaiageo\gg_gml.obj src\gaiageo\gg_kml.obj \
 	src\gaiageo\gg_relations.obj src\gaiageo\gg_shape.obj \
 	src\gaiageo\gg_transform.obj src\gaiageo\gg_vanuatu.obj \
-	src\gaiageo\gg_wkb.obj src\gaiageo\gg_wkt.obj src\gaiageo\gg_extras.obj \
+	src\gaiageo\gg_wkb.obj src\gaiageo\gg_wkt.obj \
+	src\gaiageo\gg_extras.obj src\gaiageo\gg_xml.obj \
+	src\gaiageo\gg_relations_ext.obj src/connection_cache/alloc_cache.obj \
 	src\spatialite\mbrcache.obj src\shapefiles\shapefiles.obj \
 	src\spatialite\spatialite.obj src\spatialite\virtualdbf.obj \
 	src\spatialite\virtualfdo.obj src\spatialite\virtualnetwork.obj \
 	src\spatialite\virtualshape.obj src\spatialite\virtualspatialindex.obj \
 	src\spatialite\statistics.obj src\spatialite\metatables.obj \
-	src\spatialite\virtualXL.obj src\srsinit\srs_init.obj \
+	src\spatialite\virtualXL.obj src\spatialite\extra_tables.obj \
+	src\spatialite\virtualxpath.obj src\spatialite\virtualbbox.obj \
+	src\spatialite\spatialite_init.obj src\gaiageo\gg_voronoj.obj \
+	src\wfs\wfs_in.obj src\srsinit\srs_init.obj \
+	src\dxf\dxf_parser.obj src\dxf\dxf_loader.obj src\dxf\dxf_writer.obj \
+	src\dxf\dxf_load_distinct.obj src\dxf\dxf_load_mixed.obj \
+	src\shapefiles\validator.obj src\md5\md5.obj src\md5\gaia_md5.obj \
 	src\srsinit\epsg_inlined_00.obj src\srsinit\epsg_inlined_01.obj \
 	src\srsinit\epsg_inlined_02.obj src\srsinit\epsg_inlined_03.obj \
 	src\srsinit\epsg_inlined_04.obj src\srsinit\epsg_inlined_05.obj \
@@ -39,7 +47,10 @@ LIBOBJ = src\gaiaaux\gg_sqlaux.obj src\gaiaaux\gg_utf8.obj \
 	src\srsinit\epsg_inlined_34.obj src\srsinit\epsg_inlined_35.obj \
 	src\srsinit\epsg_inlined_36.obj src\srsinit\epsg_inlined_37.obj \
 	src\srsinit\epsg_inlined_38.obj src\srsinit\epsg_inlined_39.obj \
-	src\srsinit\epsg_inlined_40.obj src\srsinit\epsg_inlined_extra.obj \
+	src\srsinit\epsg_inlined_40.obj src\srsinit\epsg_inlined_41.obj \
+	src\srsinit\epsg_inlined_42.obj src\srsinit\epsg_inlined_43.obj \
+	src\srsinit\epsg_inlined_44.obj src\srsinit\epsg_inlined_45.obj \
+	src\srsinit\epsg_inlined_extra.obj \
 	src\srsinit\epsg_inlined_prussian.obj \
 	src\srsinit\epsg_inlined_wgs84_00.obj src\srsinit\epsg_inlined_wgs84_01.obj \
 	src\versioninfo\version.obj src\virtualtext\virtualtext.obj
@@ -61,9 +72,10 @@ $(SPATIALITE_DLL):	spatialite_i.lib
 spatialite_i.lib:     $(LIBOBJ)
 	link /debug /dll /out:$(SPATIALITE_DLL) \
 		/implib:spatialite_i.lib $(LIBOBJ) \
-		C:\OSGeo4W\lib\proj_i.lib C:\OSGeo4W\lib\geos_c_i.lib \
+		C:\OSGeo4W\lib\proj_i.lib C:\OSGeo4W\lib\geos_c.lib \
 		C:\OSGeo4w\lib\freexl_i.lib C:\OSGeo4w\lib\iconv.lib \
-		C:\OSGeo4W\lib\sqlite3_i.lib
+		C:\OSGeo4W\lib\sqlite3_i.lib C:\OSGeo4W\lib\zlib.lib \
+		C:\OSGeo4W\lib\libxml2.lib
 	if exist $(SPATIALITE_DLL).manifest mt -manifest \
 		$(SPATIALITE_DLL).manifest -outputresource:$(SPATIALITE_DLL);2
 		
@@ -82,6 +94,9 @@ clean:
 	del src\srsinit\*.obj
 	del src\versioninfo\*.obj
 	del src\virtualtext\*.obj
+	del src\wfs\*.obj
+	del src\dxf\*.obj
+	del src\md5\*.obj
 	del *.pdb
 
 install: all

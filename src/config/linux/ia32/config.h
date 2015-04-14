@@ -172,7 +172,7 @@
 #define PACKAGE_NAME "libspatialite"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "libspatialite 4.0.0"
+#define PACKAGE_STRING "libspatialite 4.2.0"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "libspatialite"
@@ -181,7 +181,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "4.0.0"
+#define PACKAGE_VERSION "4.2.0"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
@@ -193,7 +193,7 @@
 /* #undef TM_IN_SYS_TIME */
 
 /* Version number of package */
-#define VERSION "4.0.0"
+#define VERSION "4.2.0"
 
 /* Must be =64 in order to enable huge-file support. */
 #define _FILE_OFFSET_BITS 64
@@ -216,3 +216,12 @@
 /* Define to empty if the keyword `volatile' does not work. Warning: valid
    code using `volatile' can become incorrect without. Disable with care. */
 /* #undef volatile */
+
+/* Define target cpu */
+#define TARGET_CPU "x86_64-pc-linux-gnu"
+
+/* make library loadable */
+#define LOADABLE_EXTENSION 1
+
+/* enable gpkg */
+#define ENABLE_GEOPACKAGE 1

@@ -57,24 +57,24 @@ the terms of any one of the MPL, the GPL or the LGPL.
 *  of the two tokens, FLEX will match POINTM.
 */
 %%
--?[0-9]+|-?[0-9]+"."[0-9]*|"+"?[0-9]+|"+"?[0-9]+"."[0-9]*       	{ Ewktget_extra(yyscanner)->ewkt_col += (int) strlen(yytext);  EwktLval.dval = atof(yytext); return EWKT_NUM; }
-","										{ EwktLval.dval = 0; return EWKT_COMMA; }
-"("										{ EwktLval.dval = 0; return EWKT_OPEN_BRACKET; }
-")"										{ EwktLval.dval = 0; return EWKT_CLOSE_BRACKET; }
-(?i:"point")							{ EwktLval.dval = 0; return EWKT_POINT; }
-(?i:"pointm")							{ EwktLval.dval = 0; return EWKT_POINT_M; }
-(?i:"linestring")						{ EwktLval.dval = 0; return EWKT_LINESTRING; }
-(?i:"linestringm")						{ EwktLval.dval = 0; return EWKT_LINESTRING_M; }
-(?i:"polygon")							{ EwktLval.dval = 0; return EWKT_POLYGON; }
-(?i:"polygonm")							{ EwktLval.dval = 0; return EWKT_POLYGON_M; }
-(?i:"multipoint")						{ EwktLval.dval = 0; return EWKT_MULTIPOINT; }
-(?i:"multipointm")						{ EwktLval.dval = 0; return EWKT_MULTIPOINT_M; }
-(?i:"multilinestring")					{ EwktLval.dval = 0; return EWKT_MULTILINESTRING; }
-(?i:"multilinestringm")					{ EwktLval.dval = 0; return EWKT_MULTILINESTRING_M; }
-(?i:"multipolygon")						{ EwktLval.dval = 0; return EWKT_MULTIPOLYGON; }
-(?i:"multipolygonm")					{ EwktLval.dval = 0; return EWKT_MULTIPOLYGON_M; }
-(?i:"geometrycollection")				{ EwktLval.dval = 0; return EWKT_GEOMETRYCOLLECTION; }
-(?i:"geometrycollectionm")				{ EwktLval.dval = 0; return EWKT_GEOMETRYCOLLECTION_M; }
+-?[0-9]+|-?[0-9]+"."[0-9]*|"+"?[0-9]+|"+"?[0-9]+"."[0-9]*       	{ Ewktget_extra(yyscanner)->ewkt_col += (int) strlen(yytext);  Ewktget_extra(yyscanner)->EwktLval.dval = atof(yytext); return EWKT_NUM; }
+","				{ Ewktget_extra(yyscanner)->EwktLval.dval = 0; return EWKT_COMMA; }
+"("				{ Ewktget_extra(yyscanner)->EwktLval.dval = 0; return EWKT_OPEN_BRACKET; }
+")"				{ Ewktget_extra(yyscanner)->EwktLval.dval = 0; return EWKT_CLOSE_BRACKET; }
+(?i:"point")			{ Ewktget_extra(yyscanner)->EwktLval.dval = 0; return EWKT_POINT; }
+(?i:"pointm")			{ Ewktget_extra(yyscanner)->EwktLval.dval = 0; return EWKT_POINT_M; }
+(?i:"linestring")		{ Ewktget_extra(yyscanner)->EwktLval.dval = 0; return EWKT_LINESTRING; }
+(?i:"linestringm")		{ Ewktget_extra(yyscanner)->EwktLval.dval = 0; return EWKT_LINESTRING_M; }
+(?i:"polygon")			{ Ewktget_extra(yyscanner)->EwktLval.dval = 0; return EWKT_POLYGON; }
+(?i:"polygonm")			{ Ewktget_extra(yyscanner)->EwktLval.dval = 0; return EWKT_POLYGON_M; }
+(?i:"multipoint")		{ Ewktget_extra(yyscanner)->EwktLval.dval = 0; return EWKT_MULTIPOINT; }
+(?i:"multipointm")		{ Ewktget_extra(yyscanner)->EwktLval.dval = 0; return EWKT_MULTIPOINT_M; }
+(?i:"multilinestring")		{ Ewktget_extra(yyscanner)->EwktLval.dval = 0; return EWKT_MULTILINESTRING; }
+(?i:"multilinestringm")		{ Ewktget_extra(yyscanner)->EwktLval.dval = 0; return EWKT_MULTILINESTRING_M; }
+(?i:"multipolygon")		{ Ewktget_extra(yyscanner)->EwktLval.dval = 0; return EWKT_MULTIPOLYGON; }
+(?i:"multipolygonm")		{ Ewktget_extra(yyscanner)->EwktLval.dval = 0; return EWKT_MULTIPOLYGON_M; }
+(?i:"geometrycollection")	{ Ewktget_extra(yyscanner)->EwktLval.dval = 0; return EWKT_GEOMETRYCOLLECTION; }
+(?i:"geometrycollectionm")	{ Ewktget_extra(yyscanner)->EwktLval.dval = 0; return EWKT_GEOMETRYCOLLECTION_M; }
 
 [ \t]   { Ewktget_extra(yyscanner)->ewkt_col += (int) strlen(yytext); }               /* ignore but count white space */
 

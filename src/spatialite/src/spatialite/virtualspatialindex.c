@@ -2,7 +2,7 @@
 
  virtualspatialindex.c -- SQLite3 extension [VIRTUAL TABLE RTree metahandler]
 
- version 4.0, 2012 August 6
+ version 4.2, 2014 July 25
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -24,7 +24,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2012
+Portions created by the Initial Developer are Copyright (C) 2008-2013
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -173,6 +173,12 @@ vspidx_check_view_rtree (sqlite3 * sqlite, const char *table_name,
     sqlite3_finalize (stmt);
     if (count != 1)
 	return 0;
+    if (!validateRowid (sqlite, table_name))
+      {
+	  free (rt);
+	  free (rg);
+	  return 0;
+      }
     *real_table = rt;
     *real_geom = rg;
     return 1;
@@ -888,8 +894,8 @@ vspidx_rollback (sqlite3_vtab * pVTab)
     return SQLITE_OK;
 }
 
-int
-sqlite3VirtualSpatialIndexInit (sqlite3 * db)
+static int
+spliteVirtualSpatialIndexInit (sqlite3 * db)
 {
     int rc = SQLITE_OK;
     my_spidx_module.iVersion = 1;
@@ -916,8 +922,9 @@ sqlite3VirtualSpatialIndexInit (sqlite3 * db)
     return rc;
 }
 
-int
-virtual_spatialindex_extension_init (sqlite3 * db)
+SPATIALITE_PRIVATE int
+virtual_spatialindex_extension_init (void *xdb)
 {
-    return sqlite3VirtualSpatialIndexInit (db);
+    sqlite3 *db = (sqlite3 *) xdb;
+    return spliteVirtualSpatialIndexInit (db);
 }

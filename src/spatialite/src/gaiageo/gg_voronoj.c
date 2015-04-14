@@ -2,7 +2,7 @@
 
  gg_voronoj.c -- Voronoj Diagram implementation
     
- version 4.0, 2012 August 26
+ version 4.2, 2014 July 25
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -24,7 +24,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2012
+Portions created by the Initial Developer are Copyright (C) 2008-2013
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -61,7 +61,7 @@ the terms of any one of the MPL, the GPL or the LGPL.
 
 #include <spatialite/gaiageo.h>
 
-#ifdef GEOS_TRUNK		/* GEOS experimental features */
+#ifdef GEOS_ADVANCED		/* GEOS advanced features */
 
 struct voronoj_triangle
 {
@@ -390,7 +390,7 @@ voronoj_same_edge (double ax1, double ay1, double ax2, double ay2, double bx1,
 }
 
 static int
-voronoj_internal (struct voronoj_triangle *triangle)
+voronoj_internal (const void *p_cache, struct voronoj_triangle *triangle)
 {
 /* checking if the circumcenter falls inside the triangle */
     int ret;
@@ -403,15 +403,20 @@ voronoj_internal (struct voronoj_triangle *triangle)
     gaiaSetPoint (rng->Coords, 2, triangle->x3, triangle->y3);
     gaiaSetPoint (rng->Coords, 3, triangle->x1, triangle->y1);
     gaiaAddPointToGeomColl (pt, triangle->cx, triangle->cy);
-    ret = gaiaGeomCollIntersects (tri, pt);
+    gaiaMbrGeometry (pt);
+    gaiaMbrGeometry (tri);
+    if (p_cache != NULL)
+	ret = gaiaGeomCollIntersects_r (p_cache, tri, pt);
+    else
+	ret = gaiaGeomCollIntersects (tri, pt);
     gaiaFreeGeomColl (pt);
     gaiaFreeGeomColl (tri);
     return ret;
 }
 
 static double
-voronoj_test_point (double x1, double y1, double x2, double y2, double x,
-		    double y)
+voronoj_test_point (const void *p_cache, double x1, double y1, double x2,
+		    double y2, double x, double y)
 {
 /* point-segment distance */
     double dist;
@@ -421,14 +426,18 @@ voronoj_test_point (double x1, double y1, double x2, double y2, double x,
     gaiaSetPoint (ln->Coords, 0, x1, y1);
     gaiaSetPoint (ln->Coords, 1, x2, y2);
     gaiaAddPointToGeomColl (pt, x, y);
-    gaiaGeomCollDistance (segm, pt, &dist);
+    if (p_cache != NULL)
+	gaiaGeomCollDistance_r (p_cache, segm, pt, &dist);
+    else
+	gaiaGeomCollDistance (segm, pt, &dist);
     gaiaFreeGeomColl (pt);
     gaiaFreeGeomColl (segm);
     return dist;
 }
 
 static int
-voronoj_check_nearest_edge (struct voronoj_triangle *tri, int which)
+voronoj_check_nearest_edge (const void *p_cache, struct voronoj_triangle *tri,
+			    int which)
 {
 /* testing if direction outside */
     double d_1_2;
@@ -440,19 +449,28 @@ voronoj_check_nearest_edge (struct voronoj_triangle *tri, int which)
     gaiaSetPoint (ln->Coords, 0, tri->x1, tri->y1);
     gaiaSetPoint (ln->Coords, 1, tri->x2, tri->y2);
     gaiaAddPointToGeomColl (pt, tri->cx, tri->cy);
-    gaiaGeomCollDistance (segm, pt, &d_1_2);
+    if (p_cache != NULL)
+	gaiaGeomCollDistance_r (p_cache, segm, pt, &d_1_2);
+    else
+	gaiaGeomCollDistance (segm, pt, &d_1_2);
     gaiaFreeGeomColl (segm);
     segm = gaiaAllocGeomColl ();
     ln = gaiaAddLinestringToGeomColl (segm, 2);
     gaiaSetPoint (ln->Coords, 0, tri->x2, tri->y2);
     gaiaSetPoint (ln->Coords, 1, tri->x3, tri->y3);
-    gaiaGeomCollDistance (segm, pt, &d_2_3);
+    if (p_cache != NULL)
+	gaiaGeomCollDistance_r (p_cache, segm, pt, &d_2_3);
+    else
+	gaiaGeomCollDistance (segm, pt, &d_2_3);
     gaiaFreeGeomColl (segm);
     segm = gaiaAllocGeomColl ();
     ln = gaiaAddLinestringToGeomColl (segm, 2);
     gaiaSetPoint (ln->Coords, 0, tri->x3, tri->y3);
     gaiaSetPoint (ln->Coords, 1, tri->x1, tri->y1);
-    gaiaGeomCollDistance (segm, pt, &d_3_1);
+    if (p_cache != NULL)
+	gaiaGeomCollDistance_r (p_cache, segm, pt, &d_3_1);
+    else
+	gaiaGeomCollDistance (segm, pt, &d_3_1);
     gaiaFreeGeomColl (segm);
     gaiaFreeGeomColl (pt);
 
@@ -481,7 +499,7 @@ voronoj_minmax (double x, double y, double *minx, double *miny, double *maxx,
 }
 
 static void
-voronoj_frame_point (double intercept, double slope,
+voronoj_frame_point (const void *p_cache, double intercept, double slope,
 		     struct voronoj_aux *voronoj, double cx, double cy,
 		     double mx, double my, int direct, double *x, double *y)
 {
@@ -569,8 +587,8 @@ voronoj_frame_point (double intercept, double slope,
     if (direct)
       {
 	  /* cutting the edge in two */
-	  d1 = voronoj_test_point (cx, cy, pre_x1, pre_y1, mx, my);
-	  d2 = voronoj_test_point (cx, cy, pre_x2, pre_y2, mx, my);
+	  d1 = voronoj_test_point (p_cache, cx, cy, pre_x1, pre_y1, mx, my);
+	  d2 = voronoj_test_point (p_cache, cx, cy, pre_x2, pre_y2, mx, my);
 	  if (d1 < d2)
 	    {
 		*x = pre_x1;
@@ -585,8 +603,8 @@ voronoj_frame_point (double intercept, double slope,
     else
       {
 	  /* going outside */
-	  d1 = voronoj_test_point (cx, cy, pre_x1, pre_y1, mx, my);
-	  d2 = voronoj_test_point (cx, cy, pre_x2, pre_y2, mx, my);
+	  d1 = voronoj_test_point (p_cache, cx, cy, pre_x1, pre_y1, mx, my);
+	  d2 = voronoj_test_point (p_cache, cx, cy, pre_x2, pre_y2, mx, my);
 	  if (d1 > d2)
 	    {
 		*x = pre_x1;
@@ -602,6 +620,13 @@ voronoj_frame_point (double intercept, double slope,
 
 SPATIALITE_PRIVATE void *
 voronoj_build (int count, void *p_first, double extra_frame_size)
+{
+    return voronoj_build_r (NULL, count, p_first, extra_frame_size);
+}
+
+SPATIALITE_PRIVATE void *
+voronoj_build_r (const void *p_cache, int count, void *p_first,
+		 double extra_frame_size)
 {
 /* building the Voronoj auxiliary struct */
     gaiaPolygonPtr first = (gaiaPolygonPtr) p_first;
@@ -879,10 +904,11 @@ voronoj_build (int count, void *p_first, double extra_frame_size)
 		      intercept = my - (slope * mx);
 		  }
 		direct = 1;
-		if (!voronoj_internal (triangle))
-		    direct = voronoj_check_nearest_edge (triangle, 12);
-		voronoj_frame_point (intercept, slope, voronoj, triangle->cx,
-				     triangle->cy, mx, my, direct, &x, &y);
+		if (!voronoj_internal (p_cache, triangle))
+		    direct = voronoj_check_nearest_edge (p_cache, triangle, 12);
+		voronoj_frame_point (p_cache, intercept, slope, voronoj,
+				     triangle->cx, triangle->cy, mx, my, direct,
+				     &x, &y);
 		triangle->x_1_2 = x;
 		triangle->y_1_2 = y;
 	    }
@@ -898,10 +924,11 @@ voronoj_build (int count, void *p_first, double extra_frame_size)
 		      intercept = my - (slope * mx);
 		  }
 		direct = 1;
-		if (!voronoj_internal (triangle))
-		    direct = voronoj_check_nearest_edge (triangle, 23);
-		voronoj_frame_point (intercept, slope, voronoj, triangle->cx,
-				     triangle->cy, mx, my, direct, &x, &y);
+		if (!voronoj_internal (p_cache, triangle))
+		    direct = voronoj_check_nearest_edge (p_cache, triangle, 23);
+		voronoj_frame_point (p_cache, intercept, slope, voronoj,
+				     triangle->cx, triangle->cy, mx, my, direct,
+				     &x, &y);
 		triangle->x_2_3 = x;
 		triangle->y_2_3 = y;
 	    }
@@ -917,10 +944,11 @@ voronoj_build (int count, void *p_first, double extra_frame_size)
 		      intercept = my - (slope * mx);
 		  }
 		direct = 1;
-		if (!voronoj_internal (triangle))
-		    direct = voronoj_check_nearest_edge (triangle, 31);
-		voronoj_frame_point (intercept, slope, voronoj, triangle->cx,
-				     triangle->cy, mx, my, direct, &x, &y);
+		if (!voronoj_internal (p_cache, triangle))
+		    direct = voronoj_check_nearest_edge (p_cache, triangle, 31);
+		voronoj_frame_point (p_cache, intercept, slope, voronoj,
+				     triangle->cx, triangle->cy, mx, my, direct,
+				     &x, &y);
 		triangle->x_3_1 = x;
 		triangle->y_3_1 = y;
 	    }
@@ -928,8 +956,9 @@ voronoj_build (int count, void *p_first, double extra_frame_size)
     return voronoj;
 }
 
-SPATIALITE_PRIVATE void *
-voronoj_export (void *p_voronoj, void *p_result, int only_edges)
+static void *
+voronoj_export_common (const void *p_cache, void *p_voronoj, void *p_result,
+		       int only_edges)
 {
 /* building the Geometry representing Voronoj */
     gaiaGeomCollPtr result = (gaiaGeomCollPtr) p_result;
@@ -1391,9 +1420,25 @@ voronoj_export (void *p_voronoj, void *p_result, int only_edges)
 
 /* building Polygons */
     lines = result;
-    result = gaiaPolygonize (lines, 1);
+    if (p_cache != NULL)
+	result = gaiaPolygonize_r (p_cache, lines, 1);
+    else
+	result = gaiaPolygonize (lines, 1);
     gaiaFreeGeomColl (lines);
     return result;
+}
+
+SPATIALITE_PRIVATE void *
+voronoj_export (void *p_voronoj, void *p_result, int only_edges)
+{
+    return voronoj_export_common (NULL, p_voronoj, p_result, only_edges);
+}
+
+SPATIALITE_PRIVATE void *
+voronoj_export_r (const void *p_cache, void *p_voronoj, void *p_result,
+		  int only_edges)
+{
+    return voronoj_export_common (p_cache, p_voronoj, p_result, only_edges);
 }
 
 SPATIALITE_PRIVATE void
@@ -1466,8 +1511,8 @@ concave_hull_stats (struct concave_hull_str *concave, double length)
 }
 
 static int
-concave_hull_filter (double x1, double y1, double x2, double y2, double x3,
-		     double y3, double limit)
+concave_hull_filter (const void *p_cache, double x1, double y1,
+		     double x2, double y2, double x3, double y3, double limit)
 {
 /* filtering triangles to be inserted into the Concave Hull */
     gaiaGeomCollPtr segm;
@@ -1478,7 +1523,10 @@ concave_hull_filter (double x1, double y1, double x2, double y2, double x3,
     ln = gaiaAddLinestringToGeomColl (segm, 2);
     gaiaSetPoint (ln->Coords, 0, x1, y1);
     gaiaSetPoint (ln->Coords, 1, x2, y2);
-    gaiaGeomCollLength (segm, &length);
+    if (p_cache != NULL)
+	gaiaGeomCollLength_r (p_cache, segm, &length);
+    else
+	gaiaGeomCollLength (segm, &length);
     gaiaFreeGeomColl (segm);
     if (length >= limit)
 	return 0;
@@ -1487,7 +1535,10 @@ concave_hull_filter (double x1, double y1, double x2, double y2, double x3,
     ln = gaiaAddLinestringToGeomColl (segm, 2);
     gaiaSetPoint (ln->Coords, 0, x2, y2);
     gaiaSetPoint (ln->Coords, 1, x3, y3);
-    gaiaGeomCollLength (segm, &length);
+    if (p_cache != NULL)
+	gaiaGeomCollLength_r (p_cache, segm, &length);
+    else
+	gaiaGeomCollLength (segm, &length);
     gaiaFreeGeomColl (segm);
     if (length >= limit)
 	return 0;
@@ -1496,7 +1547,10 @@ concave_hull_filter (double x1, double y1, double x2, double y2, double x3,
     ln = gaiaAddLinestringToGeomColl (segm, 2);
     gaiaSetPoint (ln->Coords, 0, x3, y3);
     gaiaSetPoint (ln->Coords, 1, x1, y1);
-    gaiaGeomCollLength (segm, &length);
+    if (p_cache != NULL)
+	gaiaGeomCollLength_r (p_cache, segm, &length);
+    else
+	gaiaGeomCollLength (segm, &length);
     gaiaFreeGeomColl (segm);
     if (length >= limit)
 	return 0;
@@ -1564,9 +1618,9 @@ concave_hull_no_holes (gaiaGeomCollPtr in)
     return out;
 }
 
-SPATIALITE_PRIVATE void *
-concave_hull_build (void *p_first, int dimension_model, double factor,
-		    int allow_holes)
+static void *
+concave_hull_build_common (const void *p_cache, void *p_first,
+			   int dimension_model, double factor, int allow_holes)
 {
 /* building the Concave Hull */
     struct concave_hull_str concave;
@@ -1655,7 +1709,10 @@ concave_hull_build (void *p_first, int dimension_model, double factor,
 	  ln = gaiaAddLinestringToGeomColl (segm, 2);
 	  gaiaSetPoint (ln->Coords, 0, x1, y1);
 	  gaiaSetPoint (ln->Coords, 1, x2, y2);
-	  gaiaGeomCollLength (segm, &length);
+	  if (p_cache != NULL)
+	      gaiaGeomCollLength_r (p_cache, segm, &length);
+	  else
+	      gaiaGeomCollLength (segm, &length);
 	  gaiaFreeGeomColl (segm);
 	  concave_hull_stats (&concave, length);
 
@@ -1663,7 +1720,10 @@ concave_hull_build (void *p_first, int dimension_model, double factor,
 	  ln = gaiaAddLinestringToGeomColl (segm, 2);
 	  gaiaSetPoint (ln->Coords, 0, x2, y2);
 	  gaiaSetPoint (ln->Coords, 1, x3, y3);
-	  gaiaGeomCollLength (segm, &length);
+	  if (p_cache != NULL)
+	      gaiaGeomCollLength_r (p_cache, segm, &length);
+	  else
+	      gaiaGeomCollLength (segm, &length);
 	  gaiaFreeGeomColl (segm);
 	  concave_hull_stats (&concave, length);
 
@@ -1671,7 +1731,10 @@ concave_hull_build (void *p_first, int dimension_model, double factor,
 	  ln = gaiaAddLinestringToGeomColl (segm, 2);
 	  gaiaSetPoint (ln->Coords, 0, x3, y3);
 	  gaiaSetPoint (ln->Coords, 1, x1, y1);
-	  gaiaGeomCollLength (segm, &length);
+	  if (p_cache != NULL)
+	      gaiaGeomCollLength_r (p_cache, segm, &length);
+	  else
+	      gaiaGeomCollLength (segm, &length);
 	  gaiaFreeGeomColl (segm);
 	  concave_hull_stats (&concave, length);
 
@@ -1745,7 +1808,8 @@ concave_hull_build (void *p_first, int dimension_model, double factor,
 		y3 = y;
 	    }
 
-	  if (concave_hull_filter (x1, y1, x2, y2, x3, y3, std_dev * factor))
+	  if (concave_hull_filter
+	      (p_cache, x1, y1, x2, y2, x3, y3, std_dev * factor))
 	    {
 		/* inserting this triangle into the Concave Hull */
 		pg_out = gaiaAddPolygonToGeomColl (result, 4, 0);
@@ -1808,7 +1872,10 @@ concave_hull_build (void *p_first, int dimension_model, double factor,
 
 /* merging all triangles into the Concave Hull */
     segm = result;
-    result = gaiaUnaryUnion (segm);
+    if (p_cache != NULL)
+	result = gaiaUnaryUnion_r (p_cache, segm);
+    else
+	result = gaiaUnaryUnion (segm);
     gaiaFreeGeomColl (segm);
     if (!result)
 	return NULL;
@@ -1834,4 +1901,20 @@ concave_hull_build (void *p_first, int dimension_model, double factor,
     return result;
 }
 
-#endif /* end GEOS experimental features */
+SPATIALITE_PRIVATE void *
+concave_hull_build (void *p_first, int dimension_model, double factor,
+		    int allow_holes)
+{
+    return concave_hull_build_common (NULL, p_first, dimension_model, factor,
+				      allow_holes);
+}
+
+SPATIALITE_PRIVATE void *
+concave_hull_build_r (const void *p_cache, void *p_first, int dimension_model,
+		      double factor, int allow_holes)
+{
+    return concave_hull_build_common (p_cache, p_first, dimension_model, factor,
+				      allow_holes);
+}
+
+#endif /* end GEOS advanced features */

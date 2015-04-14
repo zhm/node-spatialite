@@ -2,7 +2,7 @@
 
  gg_wkb.c -- Gaia common support for WKB encoded geometries
   
- version 4.0, 2012 August 6
+ version 4.2, 2014 July 25
 
  Author: Sandro Furieri a.furieri@lqt.it
 
@@ -24,7 +24,7 @@ The Original Code is the SpatiaLite library
 
 The Initial Developer of the Original Code is Alessandro Furieri
  
-Portions created by the Initial Developer are Copyright (C) 2008-2012
+Portions created by the Initial Developer are Copyright (C) 2008-2013
 the Initial Developer. All Rights Reserved.
 
 Contributor(s):
@@ -972,7 +972,7 @@ ParseCompressedWkbPolygonZM (gaiaGeomCollPtr geo)
 }
 
 static void
-ParseWkbGeometry (gaiaGeomCollPtr geo)
+ParseWkbGeometry (gaiaGeomCollPtr geo, int isWKB)
 {
 /* decodes a MULTIxx or GEOMETRYCOLLECTION from SpatiaLite BLOB */
     int entities;
@@ -987,6 +987,14 @@ ParseWkbGeometry (gaiaGeomCollPtr geo)
       {
 	  if (geo->size < geo->offset + 5)
 	      return;
+	  if (isWKB)
+	    {
+		/* vanilla WKB could be encoded as mixed big-/little-endian sub-items */
+		if (*(geo->blob + geo->offset) == 0x01)
+		    geo->endian = GAIA_LITTLE_ENDIAN;
+		else
+		    geo->endian = GAIA_BIG_ENDIAN;
+	    }
 	  type =
 	      gaiaImport32 (geo->blob + geo->offset + 1, geo->endian,
 			    geo->endian_arch);
@@ -1083,7 +1091,7 @@ gaiaFromSpatiaLiteBlobWkb (const unsigned char *blob, unsigned int size)
     else if (*(blob + 1) == GAIA_BIG_ENDIAN)
 	little_endian = 0;
     else
-	return NULL;		/* unknown encoding; nor litte-endian neither big-endian */
+	return NULL;		/* unknown encoding; nor little-endian neither big-endian */
     type = gaiaImport32 (blob + 39, little_endian, endian_arch);
     geo = gaiaAllocGeomColl ();
     geo->Srid = gaiaImport32 (blob + 2, little_endian, endian_arch);
@@ -1211,7 +1219,7 @@ gaiaFromSpatiaLiteBlobWkb (const unsigned char *blob, unsigned int size)
       case GAIA_GEOMETRYCOLLECTIONZ:
       case GAIA_GEOMETRYCOLLECTIONM:
       case GAIA_GEOMETRYCOLLECTIONZM:
-	  ParseWkbGeometry (geo);
+	  ParseWkbGeometry (geo, 0);
 	  break;
       default:
 	  break;
@@ -3532,7 +3540,7 @@ gaiaFromWkb (const unsigned char *blob, unsigned int size)
       case GAIA_MULTILINESTRINGZM:
       case GAIA_MULTIPOLYGONZM:
       case GAIA_GEOMETRYCOLLECTIONZM:
-	  ParseWkbGeometry (geo);
+	  ParseWkbGeometry (geo, 1);
 	  break;
       default:
 	  break;
@@ -4784,9 +4792,7 @@ gaiaToEWKB (gaiaOutBufferPtr out_buf, gaiaGeomCollPtr geom)
     gaiaPolygonPtr polyg = NULL;
 
 /* precomputing the required size */
-    sprintf (buf, "SRID=%d;", geom->Srid);
-    size = strlen (buf);	/* the header size */
-    size++;			/* terminating '\0' */
+    size = 5;			/* SRID and terminating '\0' */
     pt = geom->FirstPoint;
     while (pt)
       {
@@ -4927,10 +4933,7 @@ gaiaToEWKB (gaiaOutBufferPtr out_buf, gaiaGeomCollPtr geom)
 	  polyg = polyg->Next;
       }
 /* and finally we build the EWKB expression */
-    sprintf (buf, "SRID=%d;", geom->Srid);
-    gaiaAppendToOutBuffer (out_buf, buf);
     ptr = buf;
-
     *ptr++ = '0';		/* little endian byte order */
     *ptr++ = '1';
     gaiaExport32 (endian_buf, type, 1, endian_arch);	/* the main CLASS TYPE */
@@ -4941,16 +4944,34 @@ gaiaToEWKB (gaiaOutBufferPtr out_buf, gaiaGeomCollPtr geom)
 	  *ptr++ = byte[0];
 	  *ptr++ = byte[1];
       }
-/* marking M/Z presence */
+/* marking dimensions and M/Z presence */
     if (geom->DimensionModel == GAIA_XY_Z)
-	*ptr++ = '8';
+      {
+	  *ptr++ = 'A';
+	  *ptr++ = '0';
+      }
     else if (geom->DimensionModel == GAIA_XY_M)
-	*ptr++ = '4';
+      {
+	  *ptr++ = '6';
+	  *ptr++ = '0';
+      }
     else if (geom->DimensionModel == GAIA_XY_Z_M)
-	*ptr++ = 'C';
+      {
+	  *ptr++ = 'E';
+	  *ptr++ = '0';
+      }
     else
-	*ptr++ = '0';
-    *ptr++ = '0';
+      {
+	  *ptr++ = '2';
+	  *ptr++ = '0';
+      }
+    gaiaExport32 (endian_buf, geom->Srid, 1, endian_arch);
+    for (i = 0; i < 4; i++)
+      {
+	  sprintf (byte, "%02X", endian_buf[i]);
+	  *ptr++ = byte[0];
+	  *ptr++ = byte[1];
+      }
     *ptr++ = '\0';
     gaiaAppendToOutBuffer (out_buf, buf);
     ptr = buf;
