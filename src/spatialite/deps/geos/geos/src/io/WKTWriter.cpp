@@ -33,6 +33,7 @@
 #include <geos/geom/PrecisionModel.h>
 #include <geos/util/IllegalArgumentException.h>
 
+#include <algorithm>
 #include <typeinfo>
 #include <cstdio> // should avoid this
 #include <string>
