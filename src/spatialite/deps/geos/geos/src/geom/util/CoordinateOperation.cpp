@@ -12,8 +12,6 @@
  *
  **********************************************************************/
 
-#include <typeinfo>
-
 #include <geos/geom/util/CoordinateOperation.h>
 #include <geos/geom/CoordinateSequence.h>
 #include <geos/geom/LinearRing.h>
