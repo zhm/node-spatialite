@@ -30,7 +30,6 @@
     "node": ">= 0.6.13"
   },
   "scripts": {
-    "preinstall": "git submodule update -i -r",
     "test": "make test"
   },
   "licenses": [{ "type": "BSD" }],
