@@ -12,6 +12,10 @@
  *
  **********************************************************************/
 
+#ifndef _MSC_VER
+#include <typeinfo>
+#endif
+
 #include <geos/geom/util/CoordinateOperation.h>
 #include <geos/geom/CoordinateSequence.h>
 #include <geos/geom/LinearRing.h>
