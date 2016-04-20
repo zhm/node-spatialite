@@ -1,8 +1,8 @@
 # node-spatialite  [![Build Status](https://secure.travis-ci.org/zhm/node-spatialite.png)](http://travis-ci.org/zhm/node-spatialite)
 
-Statically linked cross-platform SpatiaLite 4.0 binding for node.js with all features enabled. The goal of this project is to have a completely standalone build of SpatiaLite that doesn't require any system dependencies (no need to `apt-get install ...` other than the ones required to build native node.js modules. The result is a consistent build across platforms with a guarantee of functionality and the versions of the dependencies. There are number of ways to get SpatiaLite binaries on the various platforms, but none of them include all of the features in a consistent way. This project contains a complete gyp build system for SpatiaLite - so someone might find it useful for other things outside of nodejs also.
+Statically linked cross-platform SpatiaLite 4.0 binding for node.js. The goal of this project is to have a completely standalone build of SpatiaLite that doesn't require any system dependencies (no need to `apt-get install ...` other than the ones required to build native node.js modules. The result is a consistent build across platforms with a guarantee of functionality and the versions of the dependencies. There are number of ways to get SpatiaLite binaries on the various platforms, but none of them include all of the features in a consistent way. This project contains a complete gyp build system for SpatiaLite - so someone might find it useful for other things outside of nodejs also.
 
-If you're familiar with SQL, this is a great way to get easy access to the power of GEOS, Proj4, and SQL without needing a full PostGIS server. A fair amount of work was put into getting [liblwgeom](https://www.gaia-gis.it/fossil/libspatialite/wiki?name=liblwgeom-4.0) support compiled across OS X, Linux, and Windows so you can use the geometry validation functions `ST_MakeValid`, `ST_IsValid`, `ST_Split`, and more.
+If you're familiar with SQL, this is a great way to get easy access to the power of GEOS, Proj4, and SQL without needing a full PostGIS server.
 
 # Installation
 
@@ -11,13 +11,13 @@ If you're familiar with SQL, this is a great way to get easy access to the power
 # Usage
 This module simply exposes [node-sqlite3](https://github.com/developmentseed/node-sqlite3) with an additional method on the `Database` object to enable SpatiaLite. I opted to re-use this awesome library and dynamically load the extension so you can still use the `node-sqlite3` API without SpatiaLite if you like.
 
-Here is a simple example that shows the usage of GEOS-enabled `Centroid` and lwgeom-enabled `ST_MakeValid`.
+Here is a simple example that shows the usage of GEOS-enabled `Centroid`.
 
 ```js
 var sqlite = require('spatialite');
 var db = new sqlite.Database(':memory:');
 
-var query = "SELECT AsGeoJSON(ST_MakeValid(Centroid(GeomFromText('POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))')))) AS geojson;";
+var query = "SELECT AsGeoJSON(Centroid(GeomFromText('POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))'))) AS geojson;";
 
 db.spatialite(function(err) {
   db.each(query, function(err, row) {

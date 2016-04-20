@@ -14,7 +14,7 @@ test:
 	mocha \
 	--reporter $(REPORTER) \
 	--require should \
-	--compilers coffee:coffee-script \
+	--compilers coffee:coffee-script/register \
 	$(TESTS)
 
 .PHONY: build clean test
