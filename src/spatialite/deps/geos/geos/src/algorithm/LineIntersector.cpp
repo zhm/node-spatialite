@@ -31,7 +31,8 @@
 
 #include <string>
 #include <cmath> // for fabs()
-#include <cassert> 
+#include <cassert>
+#include <algorithm>
 
 
 #ifndef GEOS_DEBUG
