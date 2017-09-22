@@ -63,7 +63,6 @@
         'src/spatialite/deps/geos/binding.gyp:geos',
         'src/spatialite/deps/proj/binding.gyp:proj',
         'src/spatialite/deps/iconv/binding.gyp:iconv',
-        'src/spatialite/deps/lwgeom/binding.gyp:lwgeom',
         'src/spatialite/deps/freexl/binding.gyp:freexl'
       ],
       'sources': [

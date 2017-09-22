@@ -6,7 +6,7 @@
 */
 
 /* Should be defined in order to enable LWGEOM support. */
-#define ENABLE_LWGEOM
+/* #define ENABLE_LWGEOM */
 #define DLL_EXPORT
 
 /* Should be defined in order to enable GEOS_ADVANCED support. */
@@ -49,7 +49,7 @@
 #define HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the <liblwgeom.h> header file. */
-#define HAVE_LIBLWGEOM_H 1
+#define HAVE_LIBLWGEOM_H 0
 
 /* Define to 1 if you have the `sqlite3' library (-lsqlite3). */
 #define HAVE_LIBSQLITE3 1
